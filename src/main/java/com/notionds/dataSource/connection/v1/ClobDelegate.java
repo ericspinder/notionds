@@ -1,7 +1,7 @@
-package com.notionds.dataSource.delegate;
+package com.notionds.dataSource.connection.v1;
 
-import com.notionds.dataSource.DelegateMapper;
-import com.notionds.dataSource.DelegatedInstance;
+import com.notionds.dataSource.connection.DelegateMapper;
+import com.notionds.dataSource.connection.DelegatedInstance;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,7 +10,7 @@ import java.io.Writer;
 import java.sql.Clob;
 import java.sql.SQLException;
 
-public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedInstance<DM, AutoCloseableClob> implements Clob {
+public class ClobDelegate<DM extends DelegateMapper> extends DelegatedInstance<DM, AutoCloseableClob> implements Clob {
 
     public ClobDelegate(DM delegatedMapper, AutoCloseableClob autoCloseableClob) {
         super(delegatedMapper, autoCloseableClob);
@@ -21,7 +21,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.length();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -30,7 +30,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.getSubString(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -39,7 +39,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.getCharacterStream();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -48,7 +48,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.getAsciiStream();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -57,7 +57,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.position(searchstr, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -66,7 +66,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.position(searchstr, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -75,7 +75,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.setString(pos, str);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -84,7 +84,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.setString(pos, str, offset, len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -93,7 +93,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.setAsciiStream(pos);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -102,7 +102,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.setCharacterStream(pos);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -111,7 +111,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             delegate.truncate(len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -120,7 +120,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             delegate.free();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -129,7 +129,7 @@ public class ClobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.getCharacterStream(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 }

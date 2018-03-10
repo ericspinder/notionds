@@ -1,4 +1,7 @@
-package com.notionds.dataSource;
+package com.notionds.dataSource.connection;
+
+import com.notionds.dataSource.NotionStartupException;
+import com.notionds.dataSource.Options;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;

@@ -1,17 +1,14 @@
-package com.notionds.dataSource.delegate;
+package com.notionds.dataSource.connection.v1;
 
-import com.notionds.dataSource.DelegateMapper;
-import com.notionds.dataSource.DelegatedInstance;
+import com.notionds.dataSource.connection.DelegateMapper;
+import com.notionds.dataSource.connection.DelegatedInstance;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.SQLException;
 
-public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedInstance<DM, AutoCloseableBlob> implements Blob {
+public class BlobDelegate<DM extends DelegateMapper> extends DelegatedInstance<DM, AutoCloseableBlob> implements Blob {
 
     public BlobDelegate(DM delegatedMapper, AutoCloseableBlob autoCloseableBlob) {
         super(delegatedMapper, autoCloseableBlob);
@@ -22,7 +19,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.length();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -31,7 +28,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.getBytes(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -40,7 +37,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.getBinaryStream();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -49,7 +46,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.position(pattern, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -58,7 +55,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.position(pattern, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -67,7 +64,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.setBytes(pos, bytes);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -76,7 +73,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.setBytes(pos, bytes, offset, len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -85,7 +82,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.setBinaryStream(pos);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -94,7 +91,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             delegate.truncate(len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -103,7 +100,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             delegate.free();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -112,7 +109,7 @@ public class BlobDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedIns
             return delegate.getBinaryStream(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 }

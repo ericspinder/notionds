@@ -1,13 +1,13 @@
-package com.notionds.dataSource.delegate;
+package com.notionds.dataSource.connection.v1;
 
-import com.notionds.dataSource.DelegateMapper;
-import com.notionds.dataSource.DelegatedInstance;
+import com.notionds.dataSource.connection.DelegateMapper;
+import com.notionds.dataSource.connection.DelegatedInstance;
 
 import java.sql.*;
 
-public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends DelegatedInstance<DM, Statement> implements Statement {
+public class StatementDelegate<DM extends DelegateMapper, S extends Statement> extends DelegatedInstance<DM, S> implements Statement {
 
-    public StatementDelegate(DM delegateMapper, Statement delegate) {
+    public StatementDelegate(DM delegateMapper, S delegate) {
         super(delegateMapper, delegate);
     }
 
@@ -17,7 +17,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegateMapper.wrap(delegate.executeQuery(sql), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -27,7 +27,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeUpdate(sql);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -37,7 +37,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegateMapper.close();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -47,7 +47,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getMaxFieldSize();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -57,7 +57,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setMaxFieldSize(max);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -67,7 +67,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getMaxRows();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -77,7 +77,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setMaxRows(max);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -87,7 +87,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setEscapeProcessing(enable);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -97,7 +97,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getQueryTimeout();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -107,7 +107,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setQueryTimeout(seconds);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -117,7 +117,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.cancel();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -127,7 +127,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -137,7 +137,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.clearWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -147,7 +147,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setCursorName(name);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -157,7 +157,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.execute(sql);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -167,7 +167,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getResultSet();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -177,7 +177,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getUpdateCount();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -187,7 +187,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getMoreResults();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -197,7 +197,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setFetchDirection(direction);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -207,7 +207,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getFetchDirection();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -217,7 +217,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setFetchSize(rows);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -227,7 +227,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getFetchSize();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -237,7 +237,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getResultSetConcurrency();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -247,7 +247,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getResultSetType();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -257,7 +257,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.addBatch(sql);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -267,7 +267,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.clearBatch();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -277,7 +277,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeBatch();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -287,7 +287,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegateMapper.retrieve(delegate.getConnection(), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -297,7 +297,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getMoreResults(current);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -307,7 +307,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getGeneratedKeys();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -317,7 +317,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeUpdate(sql, autoGeneratedKeys);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -327,7 +327,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeUpdate(sql, columnIndexes);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -337,7 +337,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeUpdate(sql, columnNames);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -347,7 +347,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.execute(sql, autoGeneratedKeys);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -357,7 +357,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.execute(sql, columnIndexes);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -367,7 +367,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.execute(sql, columnNames);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -377,7 +377,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getResultSetHoldability();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -387,7 +387,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.isClosed();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -397,7 +397,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setPoolable(poolable);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -407,7 +407,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.isPoolable();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -417,7 +417,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.closeOnCompletion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -427,7 +427,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.isCloseOnCompletion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -437,7 +437,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getLargeUpdateCount();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -447,7 +447,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             delegate.setLargeMaxRows(max);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -457,7 +457,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.getLargeMaxRows();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -467,7 +467,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeLargeBatch();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -477,7 +477,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeLargeUpdate(sql);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -487,7 +487,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeLargeUpdate(sql, autoGeneratedKeys);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -497,7 +497,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeLargeUpdate(sql, columnIndexes);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -507,7 +507,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.executeLargeUpdate(sql, columnNames);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -517,7 +517,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.enquoteLiteral(val);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -527,7 +527,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.enquoteIdentifier(identifier, alwaysQuote);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -537,7 +537,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.isSimpleIdentifier(identifier);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -547,7 +547,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.enquoteNCharLiteral(val);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -557,7 +557,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.unwrap(iface);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -567,7 +567,7 @@ public class StatementDelegate<DM extends DelegateMapper<?,?,?>> extends Delegat
             return delegate.isWrapperFor(iface);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.getExceptionHandler().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 }

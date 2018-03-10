@@ -1,18 +1,15 @@
-package com.notionds.dataSource.delegate;
-
-import com.notionds.dataSource.DelegateMapper;
-import com.notionds.dataSource.DelegatedInstance;
+package com.notionds.dataSource.connection.v1;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
-public class AutoCloseableBlob implements AutoCloseable, Blob {
+public class AutoCloseableBlob<BB extends Blob> implements AutoCloseable, Blob {
 
-    private final Blob delegate;
+    private final BB delegate;
 
-    public AutoCloseableBlob(Blob delegate) {
+    public AutoCloseableBlob(BB delegate) {
         this.delegate = delegate;
     }
 

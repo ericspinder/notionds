@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 
-public class NotionDatasource implements DataSource {
+public abstract class NotionDatasource<O extends Options> implements DataSource {
 
 
     @Override

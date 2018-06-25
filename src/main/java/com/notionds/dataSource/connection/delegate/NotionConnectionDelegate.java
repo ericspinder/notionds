@@ -4,42 +4,23 @@ import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.NotionConnection;
 
 import java.sql.*;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.StampedLock;
 
 public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapper> extends NotionConnection<O> {
 
     private DM delegateMapper;
-    private StampedLock delegateMapperGate = new StampedLock();
     
     public NotionConnectionDelegate(O options, DM delegateMapper, Connection delegate) {
         super(options,delegate);
     }
 
-    protected DM getDelegateMapper() {
-        long stamp = delegateMapperGate.tryOptimisticRead();
-        if (delegateMapperGate.validate(stamp)) {
-            return this.delegateMapper;
-        }
-        try {
-            stamp = delegateMapperGate.readLock();
-            return this.delegateMapper;
-        }
-        finally {
-            delegateMapperGate.unlock(stamp);
-        }
-    }
-    protected void setDelegateMapper(DM delegateMapperNew) {
-        long stamp = delegateMapperGate.writeLock();
-        try {
-            this.cleanUpDelegateMapper(this.delegateMapper);
-            this.delegateMapper = delegateMapperNew;
-        }
-        finally {
-            this.delegateMapperGate.unlock(stamp);
-        }
+    public UUID getConnectionId() {
+        return this.delegateMapper.getConnectionId();
     }
 
     /**
@@ -49,35 +30,34 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
     private void cleanUpDelegateMapper(final DM delegateMapper) {
 
     }
-
-
+    
     @Override
     public Statement createStatement() throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.createStatement(), this);
+            return this.delegateMapper.wrap(delegate.createStatement(), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareStatement(sql), this);
+            return this.delegateMapper.wrap(delegate.prepareStatement(sql), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareCall(sql),this);
+            return this.delegateMapper.wrap(delegate.prepareCall(sql),this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -87,7 +67,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.nativeSQL(sql);
         }
         catch (SQLException sqlException) {
-                throw this.getDelegateMapper().handle(sqlException, this);
+                throw this.delegateMapper.handle(sqlException, this);
             }
         }
 
@@ -97,7 +77,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
                 delegate.setAutoCommit(autoCommit);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -107,7 +87,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getAutoCommit();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -117,7 +97,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.commit();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -127,17 +107,17 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.rollback();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void close() throws SQLException {
         try {
-            this.getDelegateMapper().close();
+            this.delegateMapper.close();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -147,17 +127,17 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.isClosed();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.getMetaData(), this);
+            return this.delegateMapper.wrap(delegate.getMetaData(), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -167,7 +147,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setReadOnly(readOnly);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -177,7 +157,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.isReadOnly();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -187,7 +167,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setCatalog(catalog);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -197,7 +177,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getCatalog();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -207,7 +187,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setTransactionIsolation(level);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -217,7 +197,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getTransactionIsolation();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -227,7 +207,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -237,37 +217,37 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.clearWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.createStatement(resultSetType, resultSetConcurrency), this);
+            return this.delegateMapper.wrap(delegate.createStatement(resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency), this);
+            return this.delegateMapper.wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareCall(sql, resultSetType, resultSetConcurrency), this);
+            return this.delegateMapper.wrap(delegate.prepareCall(sql, resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -277,7 +257,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getTypeMap();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -287,7 +267,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setTypeMap(map);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -297,7 +277,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setHoldability(holdability);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -307,7 +287,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getHoldability();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -317,7 +297,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.setSavepoint();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -327,7 +307,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.setSavepoint(name);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -337,7 +317,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.rollback(savepoint);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -347,97 +327,97 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.releaseSavepoint(savepoint);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), this);
+            return this.delegateMapper.wrap(delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), this);
+            return this.delegateMapper.wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareCall(sql, resultSetConcurrency, resultSetHoldability), this);
+            return this.delegateMapper.wrap(delegate.prepareCall(sql, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareStatement(sql, autoGeneratedKeys), this);
+            return this.delegateMapper.wrap(delegate.prepareStatement(sql, autoGeneratedKeys), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareStatement(sql, columnIndexes), this);
+            return this.delegateMapper.wrap(delegate.prepareStatement(sql, columnIndexes), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.prepareStatement(sql, columnNames), this);
+            return this.delegateMapper.wrap(delegate.prepareStatement(sql, columnNames), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Clob createClob() throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.createClob(), this);
+            return this.delegateMapper.wrap(delegate.createClob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Blob createBlob() throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.createBlob(), this);
+            return this.delegateMapper.wrap(delegate.createBlob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
     @Override
     public NClob createNClob() throws SQLException {
         try {
-            return this.getDelegateMapper().wrap(delegate.createNClob(), this);
+            return this.delegateMapper.wrap(delegate.createNClob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -447,7 +427,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.createSQLXML();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -457,7 +437,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.isValid(timeout);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -467,7 +447,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setClientInfo(name, value);
         }
         catch (SQLClientInfoException sqlClientInfoException) {
-            throw this.getDelegateMapper().handle(sqlClientInfoException, this);
+            throw this.delegateMapper.handleSQLClientInfoExcpetion(sqlClientInfoException, this);
         }
     }
 
@@ -477,7 +457,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setClientInfo(properties);
         }
         catch (SQLClientInfoException sqlClientInfoException) {
-            throw this.getDelegateMapper().handle(sqlClientInfoException, this);
+            throw this.delegateMapper.handleSQLClientInfoExcpetion(sqlClientInfoException, this);
         }
     }
 
@@ -487,7 +467,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getClientInfo(name);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -497,7 +477,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getClientInfo();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -507,7 +487,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.createArrayOf(typeName, elements);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -517,7 +497,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.createStruct(typeName, attributes);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -527,7 +507,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setSchema(schema);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -537,7 +517,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getSchema();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -547,7 +527,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.abort(executor);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -557,7 +537,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             delegate.setNetworkTimeout(executor, milliseconds);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -567,7 +547,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.getNetworkTimeout();
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -577,7 +557,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.unwrap(iface);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 
@@ -587,7 +567,7 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
             return delegate.isWrapperFor(iface);
         }
         catch (SQLException sqlException) {
-            throw this.getDelegateMapper().handle(sqlException, this);
+            throw this.delegateMapper.handle(sqlException, this);
         }
     }
 }

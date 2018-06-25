@@ -1,18 +1,41 @@
 package com.notionds.dataSource.connection.delegate;
 
+import com.notionds.dataSource.connection.ConnectionMember_I;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.util.UUID;
 
-public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM, AutoCloseableClob> implements Clob {
+public class ClobDelegate<DM extends DelegateMapper> implements Clob, ConnectionMember_I {
 
-    public ClobDelegate(DM delegatedMapper, AutoCloseableClob autoCloseableClob) {
-        super(delegatedMapper, autoCloseableClob);
+    private final DM delegateMapper;
+    private final Clob delegate;
+    private final Instant startTime;
+
+    public ClobDelegate(DM delegatedMapper, Clob delegate) {
+        this.delegateMapper = delegatedMapper;
+        this.delegate = delegate;
+        this.startTime = Instant.now();
+    }
+    public final UUID getConnectionId() {
+        return this.delegateMapper.getConnectionId();
+    }
+    public final Instant getCreateInstant() {
+        return this.startTime;
     }
 
+    @Override
+    public void close() throws SQLException {
+        this.free();
+    }
+
+    @Override
     public long length() throws SQLException {
         try {
             return delegate.length();
@@ -22,6 +45,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public String getSubString(long pos, int length) throws SQLException {
         try {
             return delegate.getSubString(pos, length);
@@ -31,6 +55,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public Reader getCharacterStream() throws SQLException {
         try {
             return delegate.getCharacterStream();
@@ -40,6 +65,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public InputStream getAsciiStream() throws SQLException {
         try {
             return delegate.getAsciiStream();
@@ -49,6 +75,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public long position(String searchstr, long start) throws SQLException {
         try {
             return delegate.position(searchstr, start);
@@ -58,6 +85,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public long position(Clob searchstr, long start) throws SQLException {
         try {
             return delegate.position(searchstr, start);
@@ -67,6 +95,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public int setString(long pos, String str) throws SQLException {
         try {
             return delegate.setString(pos, str);
@@ -76,6 +105,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public int setString(long pos, String str, int offset, int len) throws SQLException {
         try {
             return delegate.setString(pos, str, offset, len);
@@ -85,6 +115,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public OutputStream setAsciiStream(long pos) throws SQLException {
         try {
             return delegate.setAsciiStream(pos);
@@ -94,6 +125,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public Writer setCharacterStream(long pos) throws SQLException {
         try {
             return delegate.setCharacterStream(pos);
@@ -103,6 +135,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public void truncate(long len) throws SQLException {
         try {
             delegate.truncate(len);
@@ -112,6 +145,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public void free() throws SQLException {
         try {
             delegate.free();
@@ -121,6 +155,7 @@ public class ClobDelegate<DM extends DelegateMapper> extends ConnectionMember<DM
         }
     }
 
+    @Override
     public Reader getCharacterStream(long pos, long length) throws SQLException {
         try {
             return delegate.getCharacterStream(pos, length);

@@ -1,13 +1,35 @@
 package com.notionds.dataSource.connection.delegate;
 
-import java.sql.*;
+import com.notionds.dataSource.connection.ConnectionMember_I;
 
-public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends AutoClosableDMD> extends ConnectionMember<DM, DD> implements DatabaseMetaData {
+import java.sql.*;
+import java.time.Instant;
+import java.util.UUID;
+
+public class DatabaseMetaDataDelegate<DM extends DelegateMapper> implements DatabaseMetaData, ConnectionMember_I {
     
-    public DatabaseMetaDataDelegate(DM delegateMapper, DD delegate) {
-        super(delegateMapper, delegate);
+    private final DM delegateMapper;
+    private final DatabaseMetaData delegate;
+    private final Instant startTime;
+    
+
+    public DatabaseMetaDataDelegate(DM delegateMapper, DatabaseMetaData delegate) {
+        this.delegateMapper = delegateMapper;
+        this.delegate = delegate;
+        this.startTime = Instant.now();
     }
 
+    @Override
+    public Instant getCreateInstant() {
+        return this.startTime;
+    }
+
+    @Override
+    public UUID getConnectionId() {
+        return this.delegateMapper.getConnectionId();
+    }
+    
+    @Override
     public void close() throws SQLException {
         try {
             delegate.close();
@@ -17,6 +39,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean allProceduresAreCallable() throws SQLException {
         try {
             return delegate.allProceduresAreCallable();
@@ -26,6 +49,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean allTablesAreSelectable() throws SQLException {
         try {
             return delegate.allTablesAreSelectable();
@@ -35,6 +59,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getURL() throws SQLException {
         try {
             return delegate.getURL();
@@ -44,6 +69,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getUserName() throws SQLException {
         try {
             return delegate.getUserName();
@@ -53,6 +79,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean isReadOnly() throws SQLException {
         try {
             return delegate.isReadOnly();
@@ -62,6 +89,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean nullsAreSortedHigh() throws SQLException {
         try {
             return delegate.nullsAreSortedHigh();
@@ -71,6 +99,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean nullsAreSortedLow() throws SQLException {
         try {
             return delegate.nullsAreSortedLow();
@@ -80,6 +109,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean nullsAreSortedAtStart() throws SQLException {
         try {
             return delegate.nullsAreSortedAtStart();
@@ -89,6 +119,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean nullsAreSortedAtEnd() throws SQLException {
         try {
             return delegate.nullsAreSortedAtEnd();
@@ -98,6 +129,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getDatabaseProductName() throws SQLException {
         try {
             return delegate.getDatabaseProductName();
@@ -107,6 +139,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getDatabaseProductVersion() throws SQLException {
         try {
             return delegate.getDatabaseProductVersion();
@@ -116,6 +149,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getDriverName() throws SQLException {
         try {
             return delegate.getDriverName();
@@ -125,6 +159,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getDriverVersion() throws SQLException {
         try {
             return delegate.getDriverVersion();
@@ -134,14 +169,17 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getDriverMajorVersion() {
         return delegate.getDriverMajorVersion();
     }
 
+    @Override
     public int getDriverMinorVersion() {
         return delegate.getDriverMinorVersion();
     }
 
+    @Override
     public boolean usesLocalFiles() throws SQLException {
         try {
             return delegate.usesLocalFiles();
@@ -151,6 +189,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean usesLocalFilePerTable() throws SQLException {
         try {
             return delegate.usesLocalFilePerTable();
@@ -160,6 +199,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsMixedCaseIdentifiers() throws SQLException {
         try {
             return delegate.supportsMixedCaseIdentifiers();
@@ -169,6 +209,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean storesUpperCaseIdentifiers() throws SQLException {
         try {
             return delegate.storesUpperCaseIdentifiers();
@@ -178,6 +219,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean storesLowerCaseIdentifiers() throws SQLException {
         try {
             return delegate.storesLowerCaseIdentifiers();
@@ -187,6 +229,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean storesMixedCaseIdentifiers() throws SQLException {
         try {
             return delegate.storesMixedCaseIdentifiers();
@@ -196,6 +239,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsMixedCaseQuotedIdentifiers() throws SQLException {
         try {
             return delegate.supportsMixedCaseQuotedIdentifiers();
@@ -205,6 +249,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean storesUpperCaseQuotedIdentifiers() throws SQLException {
         try {
             return delegate.storesUpperCaseQuotedIdentifiers();
@@ -214,6 +259,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean storesLowerCaseQuotedIdentifiers() throws SQLException {
         try {
             return delegate.storesLowerCaseQuotedIdentifiers();
@@ -223,6 +269,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean storesMixedCaseQuotedIdentifiers() throws SQLException {
         try {
             return delegate.storesMixedCaseQuotedIdentifiers();
@@ -232,6 +279,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getIdentifierQuoteString() throws SQLException {
         try {
             return delegate.getIdentifierQuoteString();
@@ -241,6 +289,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getSQLKeywords() throws SQLException {
         try {
             return delegate.getSQLKeywords();
@@ -250,6 +299,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getNumericFunctions() throws SQLException {
         try {
             return delegate.getNumericFunctions();
@@ -259,6 +309,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getStringFunctions() throws SQLException {
         try {
             return delegate.getStringFunctions();
@@ -268,6 +319,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getSystemFunctions() throws SQLException {
         try {
             return delegate.getSystemFunctions();
@@ -277,6 +329,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getTimeDateFunctions() throws SQLException {
         try {
             return delegate.getTimeDateFunctions();
@@ -286,6 +339,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getSearchStringEscape() throws SQLException {
         try {
             return delegate.getSearchStringEscape();
@@ -295,6 +349,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getExtraNameCharacters() throws SQLException {
         try {
             return delegate.getExtraNameCharacters();
@@ -304,6 +359,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsAlterTableWithAddColumn() throws SQLException {
         try {
             return delegate.supportsAlterTableWithAddColumn();
@@ -313,6 +369,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsAlterTableWithDropColumn() throws SQLException {
         try {
             return delegate.supportsAlterTableWithDropColumn();
@@ -322,6 +379,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsColumnAliasing() throws SQLException {
         try {
             return delegate.supportsColumnAliasing();
@@ -331,6 +389,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean nullPlusNonNullIsNull() throws SQLException {
         try {
             return delegate.nullPlusNonNullIsNull();
@@ -340,6 +399,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsConvert() throws SQLException {
         try {
             return delegate.supportsConvert();
@@ -349,6 +409,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsConvert(int fromType, int toType) throws SQLException {
         try {
             return delegate.supportsConvert(fromType, toType);
@@ -358,6 +419,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsTableCorrelationNames() throws SQLException {
         try {
             return delegate.supportsTableCorrelationNames();
@@ -367,6 +429,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsDifferentTableCorrelationNames() throws SQLException {
         try {
             return delegate.supportsDifferentTableCorrelationNames();
@@ -376,6 +439,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsExpressionsInOrderBy() throws SQLException {
         try {
             return delegate.supportsExpressionsInOrderBy();
@@ -385,6 +449,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsOrderByUnrelated() throws SQLException {
         try {
             return delegate.supportsOrderByUnrelated();
@@ -394,6 +459,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsGroupBy() throws SQLException {
         try {
             return delegate.supportsGroupBy();
@@ -403,6 +469,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsGroupByUnrelated() throws SQLException {
         try {
             return delegate.supportsGroupByUnrelated();
@@ -412,6 +479,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsGroupByBeyondSelect() throws SQLException {
         try {
             return delegate.supportsGroupByBeyondSelect();
@@ -421,6 +489,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsLikeEscapeClause() throws SQLException {
         try {
             return delegate.supportsLikeEscapeClause();
@@ -430,6 +499,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsMultipleResultSets() throws SQLException {
         try {
             return delegate.supportsMultipleResultSets();
@@ -439,6 +509,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsMultipleTransactions() throws SQLException {
         try {
             return delegate.supportsMultipleTransactions();
@@ -448,6 +519,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsNonNullableColumns() throws SQLException {
         try {
             return delegate.supportsNonNullableColumns();
@@ -457,6 +529,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsMinimumSQLGrammar() throws SQLException {
         try {
             return delegate.supportsMinimumSQLGrammar();
@@ -466,6 +539,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsCoreSQLGrammar() throws SQLException {
         try {
             return delegate.supportsCoreSQLGrammar();
@@ -474,7 +548,8 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
             throw this.delegateMapper.handle(sqlException, this);
         }
     }
-
+    
+    @Override
     public boolean supportsExtendedSQLGrammar() throws SQLException {
         try {
             return delegate.supportsExtendedSQLGrammar();
@@ -484,6 +559,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsANSI92EntryLevelSQL() throws SQLException {
         try {
             return delegate.supportsANSI92EntryLevelSQL();
@@ -493,6 +569,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsANSI92IntermediateSQL() throws SQLException {
         try {
             return delegate.supportsANSI92IntermediateSQL();
@@ -502,6 +579,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsANSI92FullSQL() throws SQLException {
         try {
             return delegate.supportsANSI92FullSQL();
@@ -511,6 +589,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsIntegrityEnhancementFacility() throws SQLException {
         try {
             return delegate.supportsIntegrityEnhancementFacility();
@@ -520,6 +599,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsOuterJoins() throws SQLException {
         try {
             return delegate.supportsOuterJoins();
@@ -529,6 +609,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsFullOuterJoins() throws SQLException {
         try {
             return delegate.supportsFullOuterJoins();
@@ -538,6 +619,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsLimitedOuterJoins() throws SQLException {
         try {
             return delegate.supportsLimitedOuterJoins();
@@ -547,6 +629,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getSchemaTerm() throws SQLException {
         try {
             return delegate.getSchemaTerm();
@@ -556,6 +639,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getProcedureTerm() throws SQLException {
         try {
             return delegate.getProcedureTerm();
@@ -565,6 +649,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getCatalogTerm() throws SQLException {
         try {
             return delegate.getCatalogTerm();
@@ -574,6 +659,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean isCatalogAtStart() throws SQLException {
         try {
             return delegate.isCatalogAtStart();
@@ -583,6 +669,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public String getCatalogSeparator() throws SQLException {
         try {
             return delegate.getCatalogSeparator();
@@ -592,6 +679,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSchemasInDataManipulation() throws SQLException {
         try {
             return delegate.supportsSchemasInDataManipulation();
@@ -601,6 +689,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSchemasInProcedureCalls() throws SQLException {
         try {
             return delegate.supportsSchemasInProcedureCalls();
@@ -610,6 +699,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSchemasInTableDefinitions() throws SQLException {
         try {
             return delegate.supportsSchemasInTableDefinitions();
@@ -619,6 +709,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSchemasInIndexDefinitions() throws SQLException {
         try {
             return delegate.supportsSchemasInIndexDefinitions();
@@ -628,6 +719,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSchemasInPrivilegeDefinitions() throws SQLException {
         try {
             return delegate.supportsSchemasInPrivilegeDefinitions();
@@ -637,6 +729,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsCatalogsInDataManipulation() throws SQLException {
         try {
             return delegate.supportsCatalogsInDataManipulation();
@@ -646,6 +739,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsCatalogsInProcedureCalls() throws SQLException {
         try {
             return delegate.supportsCatalogsInProcedureCalls();
@@ -655,6 +749,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsCatalogsInTableDefinitions() throws SQLException {
         try {
             return delegate.supportsCatalogsInTableDefinitions();
@@ -664,6 +759,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsCatalogsInIndexDefinitions() throws SQLException {
         try {
             return delegate.supportsCatalogsInIndexDefinitions();
@@ -673,6 +769,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsCatalogsInPrivilegeDefinitions() throws SQLException {
         try {
             return delegate.supportsCatalogsInPrivilegeDefinitions();
@@ -682,6 +779,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsPositionedDelete() throws SQLException {
         try {
             return delegate.supportsPositionedDelete();
@@ -691,6 +789,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsPositionedUpdate() throws SQLException {
         try {
             return delegate.supportsPositionedUpdate();
@@ -700,6 +799,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSelectForUpdate() throws SQLException {
         try {
             return delegate.supportsSelectForUpdate();
@@ -709,6 +809,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsStoredProcedures() throws SQLException {
         try {
             return delegate.supportsStoredProcedures();
@@ -718,6 +819,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSubqueriesInComparisons() throws SQLException {
         try {
             return delegate.supportsSubqueriesInComparisons();
@@ -727,6 +829,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSubqueriesInExists() throws SQLException {
         try {
             return delegate.supportsSubqueriesInExists();
@@ -736,6 +839,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSubqueriesInIns() throws SQLException {
         try {
             return delegate.supportsSubqueriesInIns();
@@ -745,6 +849,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSubqueriesInQuantifieds() throws SQLException {
         try {
             return delegate.supportsSubqueriesInQuantifieds();
@@ -754,6 +859,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsCorrelatedSubqueries() throws SQLException {
         try {
             return delegate.supportsCorrelatedSubqueries();
@@ -763,6 +869,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsUnion() throws SQLException {
         try {
             return delegate.supportsUnion();
@@ -772,6 +879,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsUnionAll() throws SQLException {
         try {
             return delegate.supportsUnionAll();
@@ -781,6 +889,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsOpenCursorsAcrossCommit() throws SQLException {
         try {
             return delegate.supportsOpenCursorsAcrossCommit();
@@ -790,6 +899,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsOpenCursorsAcrossRollback() throws SQLException {
         try {
             return delegate.supportsOpenCursorsAcrossRollback();
@@ -799,6 +909,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsOpenStatementsAcrossCommit() throws SQLException {
         try {
             return delegate.supportsOpenStatementsAcrossCommit();
@@ -808,6 +919,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsOpenStatementsAcrossRollback() throws SQLException {
         try {
             return delegate.supportsOpenStatementsAcrossRollback();
@@ -817,6 +929,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxBinaryLiteralLength() throws SQLException {
         try {
             return delegate.getMaxBinaryLiteralLength();
@@ -826,6 +939,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxCharLiteralLength() throws SQLException {
         try {
             return delegate.getMaxCharLiteralLength();
@@ -835,6 +949,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxColumnNameLength() throws SQLException {
         try {
             return delegate.getMaxColumnNameLength();
@@ -844,6 +959,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxColumnsInGroupBy() throws SQLException {
         try {
             return delegate.getMaxColumnsInGroupBy();
@@ -853,6 +969,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxColumnsInIndex() throws SQLException {
         try {
             return delegate.getMaxColumnsInIndex();
@@ -862,6 +979,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxColumnsInOrderBy() throws SQLException {
         try {
             return delegate.getMaxColumnsInOrderBy();
@@ -871,6 +989,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxColumnsInSelect() throws SQLException {
         try {
             return delegate.getMaxColumnsInSelect();
@@ -880,6 +999,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxColumnsInTable() throws SQLException {
         try {
             return delegate.getMaxColumnsInTable();
@@ -889,6 +1009,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxConnections() throws SQLException {
         try {
             return delegate.getMaxConnections();
@@ -898,6 +1019,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxCursorNameLength() throws SQLException {
         try {
             return delegate.getMaxCursorNameLength();
@@ -907,6 +1029,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxIndexLength() throws SQLException {
         try {
             return delegate.getMaxIndexLength();
@@ -916,6 +1039,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxSchemaNameLength() throws SQLException {
         try {
             return delegate.getMaxSchemaNameLength();
@@ -925,6 +1049,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxProcedureNameLength() throws SQLException {
         try {
             return delegate.getMaxProcedureNameLength();
@@ -934,6 +1059,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxCatalogNameLength() throws SQLException {
         try {
             return delegate.getMaxCatalogNameLength();
@@ -943,6 +1069,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxRowSize() throws SQLException {
         try {
             return delegate.getMaxRowSize();
@@ -952,6 +1079,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean doesMaxRowSizeIncludeBlobs() throws SQLException {
         try {
             return delegate.doesMaxRowSizeIncludeBlobs();
@@ -961,6 +1089,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxStatementLength() throws SQLException {
         try {
             return delegate.getMaxStatementLength();
@@ -970,6 +1099,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxStatements() throws SQLException {
         try {
             return delegate.getMaxStatements();
@@ -979,6 +1109,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxTableNameLength() throws SQLException {
         try {
             return delegate.getMaxTableNameLength();
@@ -988,6 +1119,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxTablesInSelect() throws SQLException {
         try {
             return delegate.getMaxTablesInSelect();
@@ -997,6 +1129,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getMaxUserNameLength() throws SQLException {
         try {
             return delegate.getMaxUserNameLength();
@@ -1006,6 +1139,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getDefaultTransactionIsolation() throws SQLException {
         try {
             return delegate.getDefaultTransactionIsolation();
@@ -1015,6 +1149,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsTransactions() throws SQLException {
         try {
             return delegate.supportsTransactions();
@@ -1024,6 +1159,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsTransactionIsolationLevel(int level) throws SQLException {
         try {
             return delegate.supportsTransactionIsolationLevel(level);
@@ -1033,6 +1169,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsDataDefinitionAndDataManipulationTransactions() throws SQLException {
         try {
             return delegate.supportsDataDefinitionAndDataManipulationTransactions();
@@ -1042,6 +1179,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsDataManipulationTransactionsOnly() throws SQLException {
         try {
             return delegate.supportsDataManipulationTransactionsOnly();
@@ -1051,6 +1189,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean dataDefinitionCausesTransactionCommit() throws SQLException {
         try {
             return delegate.dataDefinitionCausesTransactionCommit();
@@ -1060,6 +1199,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean dataDefinitionIgnoredInTransactions() throws SQLException {
         try {
             return delegate.dataDefinitionIgnoredInTransactions();
@@ -1069,6 +1209,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern) throws SQLException {
         try {
             return delegate.getProcedures(catalog, schemaPattern, procedureNamePattern);
@@ -1078,6 +1219,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getProcedureColumns(String catalog, String schemaPattern, String procedureNamePattern, String columnNamePattern) throws SQLException {
         try {
             return delegate.getProcedureColumns(catalog, schemaPattern, procedureNamePattern, columnNamePattern);
@@ -1087,6 +1229,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
         try {
             return delegate.getTables(catalog, schemaPattern, tableNamePattern, types);
@@ -1096,6 +1239,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getSchemas() throws SQLException {
         try {
             return delegate.getSchemas();
@@ -1105,6 +1249,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getCatalogs() throws SQLException {
         try {
             return delegate.getCatalogs();
@@ -1114,6 +1259,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getTableTypes() throws SQLException {
         try {
             return delegate.getTableTypes();
@@ -1123,6 +1269,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
         try {
             return delegate.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern);
@@ -1132,6 +1279,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getColumnPrivileges(String catalog, String schema, String table, String columnNamePattern) throws SQLException {
         try {
             return delegate.getColumnPrivileges(catalog, schema, table, columnNamePattern);
@@ -1141,6 +1289,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
         try {
             return delegate.getTablePrivileges(catalog, schemaPattern, tableNamePattern);
@@ -1150,6 +1299,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getBestRowIdentifier(String catalog, String schema, String table, int scope, boolean nullable) throws SQLException {
         try {
             return delegate.getBestRowIdentifier(catalog, schema, table, scope, nullable);
@@ -1159,6 +1309,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getVersionColumns(String catalog, String schema, String table) throws SQLException {
         try {
             return delegate.getVersionColumns(catalog, schema, table);
@@ -1168,6 +1319,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
         try {
             return delegate.getPrimaryKeys(catalog, schema, table);
@@ -1177,6 +1329,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getImportedKeys(String catalog, String schema, String table) throws SQLException {
         try {
             return delegate.getImportedKeys(catalog, schema, table);
@@ -1186,6 +1339,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getExportedKeys(String catalog, String schema, String table) throws SQLException {
         try {
             return delegate.getExportedKeys(catalog, schema, table);
@@ -1195,6 +1349,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getCrossReference(String parentCatalog, String parentSchema, String parentTable, String foreignCatalog, String foreignSchema, String foreignTable) throws SQLException {
         try {
             return delegate.getCrossReference(parentCatalog, parentSchema, parentTable, foreignCatalog, foreignSchema, foreignTable);
@@ -1204,6 +1359,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getTypeInfo() throws SQLException {
         try {
             return delegate.getTypeInfo();
@@ -1213,6 +1369,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getIndexInfo(String catalog, String schema, String table, boolean unique, boolean approximate) throws SQLException {
         try {
             return delegate.getIndexInfo(catalog, schema, table, unique, approximate);
@@ -1222,6 +1379,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsResultSetType(int type) throws SQLException {
         try {
             return delegate.supportsResultSetType(type);
@@ -1231,6 +1389,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsResultSetConcurrency(int type, int concurrency) throws SQLException {
         try {
             return delegate.supportsResultSetConcurrency(type, concurrency);
@@ -1240,6 +1399,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean ownUpdatesAreVisible(int type) throws SQLException {
         try {
             return delegate.ownUpdatesAreVisible(type);
@@ -1249,6 +1409,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean ownDeletesAreVisible(int type) throws SQLException {
         try {
             return delegate.ownDeletesAreVisible(type);
@@ -1258,6 +1419,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean ownInsertsAreVisible(int type) throws SQLException {
         try {
             return delegate.ownInsertsAreVisible(type);
@@ -1267,6 +1429,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean othersUpdatesAreVisible(int type) throws SQLException {
         try {
             return delegate.othersUpdatesAreVisible(type);
@@ -1276,6 +1439,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean othersDeletesAreVisible(int type) throws SQLException {
         try {
             return delegate.othersDeletesAreVisible(type);
@@ -1285,6 +1449,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean othersInsertsAreVisible(int type) throws SQLException {
         try {
             return delegate.othersInsertsAreVisible(type);
@@ -1294,6 +1459,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean updatesAreDetected(int type) throws SQLException {
         try {
             return delegate.updatesAreDetected(type);
@@ -1303,6 +1469,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean deletesAreDetected(int type) throws SQLException {
         try {
             return delegate.deletesAreDetected(type);
@@ -1312,6 +1479,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean insertsAreDetected(int type) throws SQLException {
         try {
             return delegate.insertsAreDetected(type);
@@ -1321,6 +1489,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsBatchUpdates() throws SQLException {
         try {
             return delegate.supportsBatchUpdates();
@@ -1330,6 +1499,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types) throws SQLException {
         try {
             return delegate.getUDTs(catalog, schemaPattern, typeNamePattern, types);
@@ -1339,6 +1509,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public Connection getConnection() throws SQLException {
         try {
             return delegate.getConnection();
@@ -1348,6 +1519,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSavepoints() throws SQLException {
         try {
             return delegate.supportsSavepoints();
@@ -1357,6 +1529,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsNamedParameters() throws SQLException {
         try {
             return delegate.supportsNamedParameters();
@@ -1366,6 +1539,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsMultipleOpenResults() throws SQLException {
         try {
             return delegate.supportsMultipleOpenResults();
@@ -1375,6 +1549,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsGetGeneratedKeys() throws SQLException {
         try {
             return delegate.supportsGetGeneratedKeys();
@@ -1384,6 +1559,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern) throws SQLException {
         try {
             return delegate.getSuperTypes(catalog, schemaPattern, typeNamePattern);
@@ -1393,6 +1569,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getSuperTables(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
         try {
             return delegate.getSuperTables(catalog, schemaPattern, tableNamePattern);
@@ -1402,6 +1579,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getAttributes(String catalog, String schemaPattern, String typeNamePattern, String attributeNamePattern) throws SQLException {
         try {
             return delegate.getAttributes(catalog, schemaPattern, typeNamePattern, attributeNamePattern);
@@ -1411,6 +1589,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsResultSetHoldability(int holdability) throws SQLException {
         try {
             return delegate.supportsResultSetHoldability(holdability);
@@ -1420,6 +1599,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getResultSetHoldability() throws SQLException {
         try {
             return delegate.getResultSetHoldability();
@@ -1429,6 +1609,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getDatabaseMajorVersion() throws SQLException {
         try {
             return delegate.getDatabaseMajorVersion();
@@ -1438,6 +1619,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getDatabaseMinorVersion() throws SQLException {
         try {
             return delegate.getDatabaseMinorVersion();
@@ -1447,6 +1629,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getJDBCMajorVersion() throws SQLException {
         try {
             return delegate.getJDBCMajorVersion();
@@ -1456,6 +1639,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getJDBCMinorVersion() throws SQLException {
         try {
             return delegate.getJDBCMinorVersion();
@@ -1465,6 +1649,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public int getSQLStateType() throws SQLException {
         try {
             return delegate.getSQLStateType();
@@ -1474,6 +1659,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean locatorsUpdateCopy() throws SQLException {
         try {
             return delegate.locatorsUpdateCopy();
@@ -1483,6 +1669,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsStatementPooling() throws SQLException {
         try {
             return delegate.supportsStatementPooling();
@@ -1492,6 +1679,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public RowIdLifetime getRowIdLifetime() throws SQLException {
         try {
             return delegate.getRowIdLifetime();
@@ -1501,6 +1689,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
         try {
             return delegate.getSchemas(catalog, schemaPattern);
@@ -1510,6 +1699,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsStoredFunctionsUsingCallSyntax() throws SQLException {
         try {
             return delegate.supportsStoredFunctionsUsingCallSyntax();
@@ -1519,6 +1709,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean autoCommitFailureClosesAllResultSets() throws SQLException {
         try {
             return delegate.autoCommitFailureClosesAllResultSets();
@@ -1528,6 +1719,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getClientInfoProperties() throws SQLException {
         try {
             return delegate.getClientInfoProperties();
@@ -1537,6 +1729,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException {
         try {
             return delegate.getFunctions(catalog, schemaPattern, functionNamePattern);
@@ -1546,6 +1739,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException {
         try {
             return delegate.getFunctionColumns(catalog, schemaPattern, functionNamePattern, columnNamePattern);
@@ -1555,6 +1749,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public ResultSet getPseudoColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
         try {
             return delegate.getPseudoColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern);
@@ -1564,6 +1759,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean generatedKeyAlwaysReturned() throws SQLException {
         try {
             return delegate.generatedKeyAlwaysReturned();
@@ -1573,6 +1769,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public long getMaxLogicalLobSize() throws SQLException {
         try {
             return delegate.getMaxLogicalLobSize();
@@ -1582,6 +1779,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsRefCursors() throws SQLException {
         try {
             return delegate.supportsRefCursors();
@@ -1591,6 +1789,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean supportsSharding() throws SQLException {
         try {
             return delegate.supportsSharding();
@@ -1600,6 +1799,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public Object unwrap(Class iface) throws SQLException {
         try {
             return delegate.unwrap(iface);
@@ -1609,6 +1809,7 @@ public class DatabaseMetaDataDelegate<DM extends DelegateMapper, DD extends Auto
         }
     }
 
+    @Override
     public boolean isWrapperFor(Class iface) throws SQLException {
         try {
             return delegate.isWrapperFor(iface);

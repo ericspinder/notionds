@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-public class CallableStatementDelegate<DM extends DelegateMapper<?,?,?>, CS extends CallableStatement> extends PreparedStatementDelegate<DM, CS> implements CallableStatement {
+public class CallableStatementDelegate<DM extends DelegateMapper, CS extends CallableStatement> extends PreparedStatementDelegate<DM, CS> implements CallableStatement {
 
     public CallableStatementDelegate(DM delegateMapper, CS delegate) {
         super(delegateMapper, delegate);
@@ -113,7 +113,7 @@ public class CallableStatementDelegate<DM extends DelegateMapper<?,?,?>, CS exte
         }
     }
 
-    @Deprecated(since = "1.2")
+    @Deprecated
     public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
         try {
             return delegate.getBigDecimal(parameterIndex, scale);

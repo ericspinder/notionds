@@ -7,7 +7,7 @@ import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
 
-public class PreparedStatementDelegate<DM extends DelegateMapper<?,?,?>, PS extends PreparedStatement> extends StatementDelegate<DM, PS> implements PreparedStatement {
+public class PreparedStatementDelegate<DM extends DelegateMapper, PS extends PreparedStatement> extends StatementDelegate<DM, PS> implements PreparedStatement {
 
     public PreparedStatementDelegate(DM delegateMapper, PS delegate) {
         super(delegateMapper, delegate);
@@ -166,7 +166,7 @@ public class PreparedStatementDelegate<DM extends DelegateMapper<?,?,?>, PS exte
         }
     }
 
-    @Deprecated(since = "1.2")
+    @Deprecated
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
         try {
             delegate.setUnicodeStream(parameterIndex, x, length);

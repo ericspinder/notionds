@@ -2,7 +2,7 @@ package com.notionds.dataSource.connection.delegate;
 
 import java.sql.*;
 
-public class StatementDelegate<DM extends DelegateMapper, S extends Statement> extends ConnectionMember<DM, S> implements Statement {
+public class StatementDelegate<DM extends DelegateMapper, S extends Statement, NC extends NotionConnectionDelegate> extends ConnectionMember<DM, S> implements Statement {
 
     public StatementDelegate(DM delegateMapper, S delegate) {
         super(delegateMapper, delegate);
@@ -279,7 +279,7 @@ public class StatementDelegate<DM extends DelegateMapper, S extends Statement> e
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
+    public NC getConnection() throws SQLException {
         try {
             return delegateMapper.retrieve(delegate.getConnection(), this);
         }

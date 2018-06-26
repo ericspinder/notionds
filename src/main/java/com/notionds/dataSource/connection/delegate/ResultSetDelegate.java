@@ -14,6 +14,12 @@ public class ResultSetDelegate<DM extends DelegateMapper, RS extends ResultSet> 
         super(delegateMapper, delegate);
     }
 
+    public void closeDelegate() throws SQLException {
+        if (!this.delegate.isClosed()) {
+            this.delegate.close();
+        }
+    }
+
     public boolean next() throws SQLException {
         try {
             return delegate.next();
@@ -113,7 +119,7 @@ public class ResultSetDelegate<DM extends DelegateMapper, RS extends ResultSet> 
         }
     }
 
-    @Deprecated(since = "1.2")
+    @Deprecated
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
         try {
             return delegate.getBigDecimal(columnIndex, scale);
@@ -168,7 +174,7 @@ public class ResultSetDelegate<DM extends DelegateMapper, RS extends ResultSet> 
         }
     }
 
-    @Deprecated(since = "1.2")
+    @Deprecated
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
         try {
             return delegateMapper.wrap(delegate.getUnicodeStream(columnIndex), this);
@@ -259,7 +265,7 @@ public class ResultSetDelegate<DM extends DelegateMapper, RS extends ResultSet> 
         }
     }
 
-    @Deprecated(since = "1.2")
+    @Deprecated
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
         try {
             return delegate.getBigDecimal(columnLabel, scale);
@@ -1028,7 +1034,7 @@ public class ResultSetDelegate<DM extends DelegateMapper, RS extends ResultSet> 
 
     public Statement getStatement() throws SQLException {
         try {
-            return delegateMapper.retrieve(delegate.getStatement(), this);
+            return delegateMapper.wrap(delegate.getStatement(), this);
         }
         catch (SQLException sqlException) {
             throw this.delegateMapper.handle(sqlException, this);

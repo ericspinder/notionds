@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection;
+package com.notionds.dataSource;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionAnalysis;

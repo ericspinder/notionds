@@ -5,6 +5,7 @@ import com.notionds.dataSource.connection.ConnectionMember_I;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -19,6 +20,10 @@ public class ReaderDelegate<DM extends DelegateMapper> extends Reader implements
         this.delegate = delegate;
     }
 
+    @Override
+    public void closeDelegate() throws IOException {
+        this.delegate.close();
+    }
     public Instant getCreateInstant() {
         return this.createInstant;
     }
@@ -75,9 +80,5 @@ public class ReaderDelegate<DM extends DelegateMapper> extends Reader implements
     @Override
     public void close() throws IOException {
         delegateMapper.close(this);
-    }
-
-    public void closeDelegate() throws IOException {
-        delegate.close();
     }
 }

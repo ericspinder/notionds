@@ -2,6 +2,7 @@ package com.notionds.dataSource.connection.delegate;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.UUID;
 

@@ -1,24 +1,22 @@
 package com.notionds.dataSource.connection;
 
-import com.notionds.dataSource.Options;
-
-import java.sql.Connection;
+import java.sql.*;
 import java.time.Instant;
-import java.util.UUID;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Executor;
 
-public abstract class NotionConnection<O extends Options> implements Connection, ConnectionMember_I {
-
-    protected final O options;
+public abstract class NotionConnection<NW extends NotionWrapper> implements Connection, ConnectionMember_I {
+    
     protected final Instant createInstant = Instant.now();
-    protected final Connection delegate;
-    protected final ConnectionAnalysis connectionAnalysis;
+    protected final NW notionWrapper;
 
-    public NotionConnection(O options, Connection delegate) {
-        this.options = options;
-        this.delegate = delegate;
+    public NotionConnection(NW notionWrapper) {
+        this.notionWrapper = notionWrapper;
     }
     public final Instant getCreateInstant() {
         return this.createInstant;
     }
+
 
 }

@@ -2,7 +2,7 @@ package com.notionds.dataSource.connection.delegate;
 
 import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ExceptionHandler;
+import com.notionds.dataSource.ExceptionHandler;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;

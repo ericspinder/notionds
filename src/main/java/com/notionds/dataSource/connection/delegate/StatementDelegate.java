@@ -9,6 +9,13 @@ public class StatementDelegate<DM extends DelegateMapper, S extends Statement, N
     }
 
     @Override
+    public void closeDelegate() throws SQLException {
+        if (!this.delegate.isClosed()) {
+            this.delegate.close();
+        }
+    }
+
+    @Override
     public ResultSet executeQuery(String sql) throws SQLException {
         try {
             return delegateMapper.wrap(delegate.executeQuery(sql), this);
@@ -281,7 +288,7 @@ public class StatementDelegate<DM extends DelegateMapper, S extends Statement, N
     @Override
     public NC getConnection() throws SQLException {
         try {
-            return delegateMapper.retrieve(delegate.getConnection(), this);
+            return delegateMapper.getConnection();
         }
         catch (SQLException sqlException) {
             throw this.delegateMapper.handle(sqlException, this);
@@ -508,7 +515,13 @@ public class StatementDelegate<DM extends DelegateMapper, S extends Statement, N
         }
     }
 
-    @Override
+    /**
+     *
+     * @param val
+     * @return
+     * @throws SQLException
+     * @since 9
+     */
     public String enquoteLiteral(String val) throws SQLException {
         try {
             return delegate.enquoteLiteral(val);

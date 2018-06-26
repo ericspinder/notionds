@@ -2,8 +2,6 @@ package com.notionds.dataSource.connection.delegate;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
-import java.util.Map;
-
 public abstract class DelegateTree {
 
     public DelegateTree() {}

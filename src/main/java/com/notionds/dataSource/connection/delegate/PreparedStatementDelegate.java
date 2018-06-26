@@ -7,7 +7,7 @@ import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
 
-public class PreparedStatementDelegate<DM extends DelegateMapper, PS extends PreparedStatement> extends StatementDelegate<DM, PS> implements PreparedStatement {
+public class PreparedStatementDelegate<DM extends DelegateMapper, PS extends PreparedStatement, NC extends NotionConnectionDelegate> extends StatementDelegate<DM, PS, NC> implements PreparedStatement {
 
     public PreparedStatementDelegate(DM delegateMapper, PS delegate) {
         super(delegateMapper, delegate);

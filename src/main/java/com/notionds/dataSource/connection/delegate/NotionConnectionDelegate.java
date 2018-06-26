@@ -13,7 +13,6 @@ import java.util.concurrent.locks.StampedLock;
 
 public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapper> extends NotionConnection<O> {
 
-    private DM delegateMapper;
     
     public NotionConnectionDelegate(O options, DM delegateMapper, Connection delegate) {
         super(options,delegate);
@@ -23,551 +22,543 @@ public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapp
         return this.delegateMapper.getConnectionId();
     }
 
-    /**
-     * Handover to DelegateMapper cleanup executor
-     * @param delegateMapper
-     */
-    private void cleanUpDelegateMapper(final DM delegateMapper) {
-
-    }
-    
     @Override
     public Statement createStatement() throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.createStatement(), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createStatement(), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareStatement(sql), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareCall(sql),this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareCall(sql),this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public String nativeSQL(String sql) throws SQLException {
         try {
-            return delegate.nativeSQL(sql);
+            return notionWrapper.getUnderlyingVendorConnection().nativeSQL(sql);
         }
         catch (SQLException sqlException) {
-                throw this.delegateMapper.handle(sqlException, this);
-            }
+            throw this.notionWrapper.handle(sqlException, this);
         }
+    }
 
-        @Override
-        public void setAutoCommit(boolean autoCommit) throws SQLException {
-            try {
-                delegate.setAutoCommit(autoCommit);
+    @Override
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
+        try {
+            notionWrapper.getUnderlyingVendorConnection().setAutoCommit(autoCommit);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public boolean getAutoCommit() throws SQLException {
         try {
-            return delegate.getAutoCommit();
+            return notionWrapper.getUnderlyingVendorConnection().getAutoCommit();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void commit() throws SQLException {
         try {
-            delegate.commit();
+            notionWrapper.getUnderlyingVendorConnection().commit();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void rollback() throws SQLException {
         try {
-            delegate.rollback();
+            notionWrapper.getUnderlyingVendorConnection().rollback();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void close() throws SQLException {
         try {
-            this.delegateMapper.close();
+            this.notionWrapper.close();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public boolean isClosed() throws SQLException {
         try {
-            return delegate.isClosed();
+            return notionWrapper.getUnderlyingVendorConnection().isClosed();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.getMetaData(), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().getMetaData(), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
         try {
-            delegate.setReadOnly(readOnly);
+            notionWrapper.getUnderlyingVendorConnection().setReadOnly(readOnly);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public boolean isReadOnly() throws SQLException {
         try {
-            return delegate.isReadOnly();
+            return notionWrapper.getUnderlyingVendorConnection().isReadOnly();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void setCatalog(String catalog) throws SQLException {
         try {
-            delegate.setCatalog(catalog);
+            notionWrapper.getUnderlyingVendorConnection().setCatalog(catalog);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public String getCatalog() throws SQLException {
         try {
-            return delegate.getCatalog();
+            return notionWrapper.getUnderlyingVendorConnection().getCatalog();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
         try {
-            delegate.setTransactionIsolation(level);
+            notionWrapper.getUnderlyingVendorConnection().setTransactionIsolation(level);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public int getTransactionIsolation() throws SQLException {
         try {
-            return delegate.getTransactionIsolation();
+            return notionWrapper.getUnderlyingVendorConnection().getTransactionIsolation();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
         try {
-            return delegate.getWarnings();
+            return notionWrapper.getUnderlyingVendorConnection().getWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void clearWarnings() throws SQLException {
         try {
-            delegate.clearWarnings();
+            notionWrapper.getUnderlyingVendorConnection().clearWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.createStatement(resultSetType, resultSetConcurrency), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createStatement(resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareCall(sql, resultSetType, resultSetConcurrency), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareCall(sql, resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Map<String, Class<?>> getTypeMap() throws SQLException {
         try {
-            return delegate.getTypeMap();
+            return notionWrapper.getUnderlyingVendorConnection().getTypeMap();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
         try {
-            delegate.setTypeMap(map);
+            notionWrapper.getUnderlyingVendorConnection().setTypeMap(map);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void setHoldability(int holdability) throws SQLException {
         try {
-            delegate.setHoldability(holdability);
+            notionWrapper.getUnderlyingVendorConnection().setHoldability(holdability);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public int getHoldability() throws SQLException {
         try {
-            return delegate.getHoldability();
+            return notionWrapper.getUnderlyingVendorConnection().getHoldability();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Savepoint setSavepoint() throws SQLException {
         try {
-            return delegate.setSavepoint();
+            return notionWrapper.getUnderlyingVendorConnection().setSavepoint();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Savepoint setSavepoint(String name) throws SQLException {
         try {
-            return delegate.setSavepoint(name);
+            return notionWrapper.getUnderlyingVendorConnection().setSavepoint(name);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
         try {
-            delegate.rollback(savepoint);
+            notionWrapper.getUnderlyingVendorConnection().rollback(savepoint);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
         try {
-            delegate.releaseSavepoint(savepoint);
+            notionWrapper.getUnderlyingVendorConnection().releaseSavepoint(savepoint);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareCall(sql, resultSetConcurrency, resultSetHoldability), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareCall(sql, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareStatement(sql, autoGeneratedKeys), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, autoGeneratedKeys), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareStatement(sql, columnIndexes), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, columnIndexes), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.prepareStatement(sql, columnNames), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, columnNames), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Clob createClob() throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.createClob(), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createClob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Blob createBlob() throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.createBlob(), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createBlob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public NClob createNClob() throws SQLException {
         try {
-            return this.delegateMapper.wrap(delegate.createNClob(), this);
+            return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createNClob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public SQLXML createSQLXML() throws SQLException {
         try {
-            return delegate.createSQLXML();
+            return notionWrapper.getUnderlyingVendorConnection().createSQLXML();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public boolean isValid(int timeout) throws SQLException {
         try {
-            return delegate.isValid(timeout);
+            return notionWrapper.getUnderlyingVendorConnection().isValid(timeout);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
         try {
-            delegate.setClientInfo(name, value);
+            notionWrapper.getUnderlyingVendorConnection().setClientInfo(name, value);
         }
         catch (SQLClientInfoException sqlClientInfoException) {
-            throw this.delegateMapper.handleSQLClientInfoExcpetion(sqlClientInfoException, this);
+            throw this.notionWrapper.handleSQLClientInfoExcpetion(sqlClientInfoException, this);
         }
     }
 
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
         try {
-            delegate.setClientInfo(properties);
+            notionWrapper.getUnderlyingVendorConnection().setClientInfo(properties);
         }
         catch (SQLClientInfoException sqlClientInfoException) {
-            throw this.delegateMapper.handleSQLClientInfoExcpetion(sqlClientInfoException, this);
+            throw this.notionWrapper.handleSQLClientInfoExcpetion(sqlClientInfoException, this);
         }
     }
 
     @Override
     public String getClientInfo(String name) throws SQLException {
         try {
-            return delegate.getClientInfo(name);
+            return notionWrapper.getUnderlyingVendorConnection().getClientInfo(name);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Properties getClientInfo() throws SQLException {
         try {
-            return delegate.getClientInfo();
+            return notionWrapper.getUnderlyingVendorConnection().getClientInfo();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         try {
-            return delegate.createArrayOf(typeName, elements);
+            return notionWrapper.getUnderlyingVendorConnection().createArrayOf(typeName, elements);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
         try {
-            return delegate.createStruct(typeName, attributes);
+            return notionWrapper.getUnderlyingVendorConnection().createStruct(typeName, attributes);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void setSchema(String schema) throws SQLException {
         try {
-            delegate.setSchema(schema);
+            notionWrapper.getUnderlyingVendorConnection().setSchema(schema);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public String getSchema() throws SQLException {
         try {
-            return delegate.getSchema();
+            return notionWrapper.getUnderlyingVendorConnection().getSchema();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void abort(Executor executor) throws SQLException {
         try {
-            delegate.abort(executor);
+            notionWrapper.getUnderlyingVendorConnection().abort(executor);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
         try {
-            delegate.setNetworkTimeout(executor, milliseconds);
+            notionWrapper.getUnderlyingVendorConnection().setNetworkTimeout(executor, milliseconds);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public int getNetworkTimeout() throws SQLException {
         try {
-            return delegate.getNetworkTimeout();
+            return notionWrapper.getUnderlyingVendorConnection().getNetworkTimeout();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         try {
-            return delegate.unwrap(iface);
+            return notionWrapper.getUnderlyingVendorConnection().unwrap(iface);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         try {
-            return delegate.isWrapperFor(iface);
+            return notionWrapper.getUnderlyingVendorConnection().isWrapperFor(iface);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handle(sqlException, this);
         }
     }
 }

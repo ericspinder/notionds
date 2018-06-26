@@ -3,7 +3,8 @@ package com.notionds.dataSource.connection.delegate;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionAnalysis;
 import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.ExceptionHandler;
+import com.notionds.dataSource.ExceptionHandler;
+import com.notionds.dataSource.connection.NotionWrapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +13,7 @@ import java.lang.reflect.ParameterizedType;
 import java.sql.*;
 import java.util.UUID;
 
-public abstract class DelegateMapper<O extends Options, EH extends ExceptionHandler, DT extends DelegateTree> {
+public abstract class DelegateMapper<O extends Options, EH extends ExceptionHandler, DT extends DelegateTree> extends NotionWrapper {
 
     private final EH exceptionHandler;
     private final O options;

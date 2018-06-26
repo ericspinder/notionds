@@ -1,7 +1,9 @@
 package com.notionds.dataSource.connection.delegate;
 
 import com.notionds.dataSource.Options;
+import com.notionds.dataSource.connection.ConnectionAnalysis;
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.ExceptionHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +24,14 @@ public abstract class DelegateMapper<O extends Options, EH extends ExceptionHand
         this.options = options;
         this.connection = connection;
         try {
-            this.delegateTree = ((Class<DT>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).getDeclaredConstructor().newInstance();
+            this.delegateTree = ((Class<DT>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[2]).getDeclaredConstructor().newInstance();
+
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Problem getting delegateTree instance " + e.getMessage());
+        }
+        try {
+            this.exceptionHandler = ((Class<EH>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor().newInstance();
 
         }
         catch (Exception e) {
@@ -35,16 +44,16 @@ public abstract class DelegateMapper<O extends Options, EH extends ExceptionHand
     }
 
     public SQLException handle(SQLException sqlException, ConnectionMember_I where) {
-        ExceptionHandler.Recommendation recommendation =  exceptionHandler.handleSQLException(sqlException);
+        ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLException(sqlException);
 
     }
     public SQLClientInfoException handleSQLClientInfoExcpetion(SQLClientInfoException sqlClientInfoException, ConnectionMember_I where) {
-        ExceptionHandler.Recommendation recommendation =  exceptionHandler.handleSQLClientInfoException(sqlClientInfoException);
+        ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLClientInfoException(sqlClientInfoException);
     }
-    public IOException handle(IOException ioException, ConnectionMember_I where) {
-        ExceptionHandler.Recommendation recommendation = exceptionHandler.handleIoException(ioException);
+    public IOException handleIoException(IOException ioException, ConnectionMember_I where) {
+        ConnectionAnalysis.Recommendation recommendation = exceptionHandler.handleIoException(ioException);
     }
-    public abstract void close(ConnectionMember_I delegatedInstance) throws IOException;
+    public abstract void close(ConnectionMember_I delegatedInstance);
 
     protected abstract void setNotionConnection(NotionConnectionDelegate notionConnection);
     protected abstract NotionConnectionDelegate getNotionConnection();
@@ -95,8 +104,10 @@ public abstract class DelegateMapper<O extends Options, EH extends ExceptionHand
         this.delegateTree.put(parent, inputStreamDelegate);
         return inputStreamDelegate;
     }
-    public Reader wrap(Reader reader, AutoCloseable parent) throws SQLException {
-
+    public Reader wrap(Reader reader, ConnectionMember_I parent) throws SQLException {
+        ReaderDelegate readerDelegate = new ReaderDelegate(this, reader);
+        this.delegateTree.put(parent, readerDelegate);
+        return readerDelegate;
     }
     public abstract NotionConnectionDelegate retrieve(Connection delegatedConnection, Statement child) throws SQLException;
 

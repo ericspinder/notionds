@@ -29,7 +29,10 @@ public class BlobDelegate<DM extends DelegateMapper> implements Blob, Connection
 
     @Override
     public void close() throws SQLException {
-        this.free();
+        this.delegateMapper.close(this);
+    }
+    public void closeDelegate() throws SQLException {
+        this.delegate.free();
     }
 
     @Override

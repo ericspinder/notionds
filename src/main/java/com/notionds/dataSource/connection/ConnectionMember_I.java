@@ -8,5 +8,6 @@ import java.util.UUID;
 public interface ConnectionMember_I extends AutoCloseable {
 
     Instant getCreateInstant();
+    void closeDelegate() throws Exception;
     UUID getConnectionId();
 }

@@ -1,11 +1,14 @@
 package com.notionds.dataSource.connection.delegate;
 
+import com.notionds.dataSource.connection.ConnectionMember_I;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
 import java.time.Instant;
+import java.util.UUID;
 
-public class ReaderDelegate<DM extends DelegateMapper> extends Reader {
+public class ReaderDelegate<DM extends DelegateMapper> extends Reader implements ConnectionMember_I {
 
     private final DM delegateMapper;
     private final Reader delegate;
@@ -14,6 +17,14 @@ public class ReaderDelegate<DM extends DelegateMapper> extends Reader {
     public ReaderDelegate(DM delegateMapper, Reader delegate) {
         this.delegateMapper = delegateMapper;
         this.delegate = delegate;
+    }
+
+    public Instant getCreateInstant() {
+        return this.createInstant;
+    }
+
+    public UUID getConnectionId() {
+        return this.delegateMapper.getConnectionId();
     }
 
     @Override
@@ -64,6 +75,9 @@ public class ReaderDelegate<DM extends DelegateMapper> extends Reader {
     @Override
     public void close() throws IOException {
         delegateMapper.close(this);
+    }
+
+    public void closeDelegate() throws IOException {
         delegate.close();
     }
 }

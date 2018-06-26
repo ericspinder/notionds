@@ -11,6 +11,7 @@ public abstract class NotionConnection<O extends Options> implements Connection,
     protected final O options;
     protected final Instant createInstant = Instant.now();
     protected final Connection delegate;
+    protected final ConnectionAnalysis connectionAnalysis;
 
     public NotionConnection(O options, Connection delegate) {
         this.options = options;

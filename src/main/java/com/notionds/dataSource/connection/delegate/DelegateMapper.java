@@ -43,7 +43,7 @@ public abstract class DelegateMapper<O extends Options, EH extends ExceptionHand
     public final UUID getConnectionId() {
         return this.connectionId;
     }
-
+            throw new RuntimeException("Problem getting delegateTree instance " + e.getMessage());
     public SQLException handle(SQLException sqlException, ConnectionMember_I where) {
         ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLException(sqlException);
 

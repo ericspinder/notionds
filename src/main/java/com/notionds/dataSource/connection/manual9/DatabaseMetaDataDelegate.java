@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
@@ -6,7 +6,7 @@ import java.sql.*;
 import java.time.Instant;
 import java.util.UUID;
 
-public class DatabaseMetaDataDelegate<DM extends DelegateMapper> implements DatabaseMetaData, ConnectionMember_I {
+public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implements DatabaseMetaData, ConnectionMember_I {
     
     private final DM delegateMapper;
     private final DatabaseMetaData delegate;

@@ -1,25 +1,23 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.NotionConnection;
+import com.notionds.dataSource.connection.NotionWrapper;
 
 import java.sql.*;
-import java.time.Instant;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import java.util.concurrent.locks.StampedLock;
 
-public class NotionConnectionDelegate<O extends Options, DM extends DelegateMapper> extends NotionConnection<O> {
+public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends NotionConnection<NW> {
 
     
-    public NotionConnectionDelegate(O options, DM delegateMapper, Connection delegate) {
-        super(options,delegate);
+    public NotionConnectionDelegate(NW notionWrapper) {
+        super(notionWrapper);
     }
 
     public UUID getConnectionId() {
-        return this.delegateMapper.getConnectionId();
+        return this.notionWrapper.getConnectionId();
     }
 
     @Override

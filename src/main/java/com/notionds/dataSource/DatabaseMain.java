@@ -1,8 +1,15 @@
 package com.notionds.dataSource;
 
-import java.lang.reflect.ParameterizedType;
+import com.notionds.dataSource.connection.ConnectionAnalysis;
+import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.NotionWrapper;
 
-public abstract class DatabaseMain<O extends Options, EH extends ExceptionHandler> {
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+
+public abstract class DatabaseMain<O extends Options, EH extends ExceptionAdvice> {
 
     private final O options;
     private final Class<EH> exceptionHandlerClass = ((Class<EH>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]);
@@ -24,6 +31,22 @@ public abstract class DatabaseMain<O extends Options, EH extends ExceptionHandle
         }
     }
 
+
+    public ConnectionAnalysis.Recommendation remedySQLException(SQLException sqlException, NotionWrapper notionWrapper) {
+        ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLException(sqlException);
+        //analysis
+        return recommendation;
+    }
+    public ConnectionAnalysis.Recommendation remedySQLClientInfoExcpetion(SQLClientInfoException sqlClientInfoException, NotionWrapper notionWrapper) {
+        ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLClientInfoException(sqlClientInfoException);
+        //analysis
+        return recommendation;
+    }
+    public ConnectionAnalysis.Recommendation remedyIoException(IOException ioException, NotionWrapper notionWrapper) {
+        ConnectionAnalysis.Recommendation recommendation = exceptionHandler.handleIoException(ioException);
+        //analysis
+        return recommendation;
+    }
 
 
 }

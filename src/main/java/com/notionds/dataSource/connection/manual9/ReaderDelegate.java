@@ -1,15 +1,14 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.UUID;
 
-public class ReaderDelegate<DM extends DelegateMapper> extends Reader implements ConnectionMember_I {
+public class ReaderDelegate<DM extends NotionWrapperManual9> extends Reader implements ConnectionMember_I {
 
     private final DM delegateMapper;
     private final Reader delegate;

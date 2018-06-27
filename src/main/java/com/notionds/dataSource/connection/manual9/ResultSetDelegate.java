@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-public class ResultSetDelegate<DM extends DelegateMapper, RS extends ResultSet> extends ConnectionMember<DM, RS> implements ResultSet {
+public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends ResultSet> extends ConnectionMember<DM, RS> implements ResultSet {
     
     public ResultSetDelegate(DM delegateMapper, RS delegate) {
         super(delegateMapper, delegate);

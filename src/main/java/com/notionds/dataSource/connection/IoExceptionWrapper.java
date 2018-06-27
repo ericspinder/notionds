@@ -1,4 +1,6 @@
-package com.notionds.dataSource;
+package com.notionds.dataSource.connection;
+
+import com.notionds.dataSource.DatabaseProblem;
 
 import java.io.IOException;
 

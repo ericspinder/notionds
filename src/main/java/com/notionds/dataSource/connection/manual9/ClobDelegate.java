@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
@@ -7,18 +7,17 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.sql.Clob;
-import java.sql.NClob;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.UUID;
 
-public class NClobDelegate <DM extends DelegateMapper> implements NClob, ConnectionMember_I {
+public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, ConnectionMember_I {
 
     private final DM delegateMapper;
-    private final NClob delegate;
+    private final Clob delegate;
     private final Instant startTime;
 
-    public NClobDelegate(DM delegatedMapper, NClob delegate) {
+    public ClobDelegate(DM delegatedMapper, Clob delegate) {
         this.delegateMapper = delegatedMapper;
         this.delegate = delegate;
         this.startTime = Instant.now();

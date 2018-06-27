@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.UUID;
 
-public class InputStreamDelegate<DM extends DelegateMapper> extends InputStream implements ConnectionMember_I {
+public class InputStreamDelegate<DM extends NotionWrapperManual9> extends InputStream implements ConnectionMember_I {
 
     protected final InputStream delegate;
     protected final DM delegateMapper;

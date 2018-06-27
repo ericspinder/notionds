@@ -1,4 +1,4 @@
-package com.notionds.dataSource;
+package com.notionds.dataSource.connection;
 
 import java.sql.SQLException;
 

@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-public class CallableStatementDelegate<DM extends DelegateMapper, CS extends CallableStatement> extends PreparedStatementDelegate<DM, CS> implements CallableStatement {
+public class CallableStatementDelegate<DM extends NotionWrapperManual9, CS extends CallableStatement> extends PreparedStatementDelegate<DM, CS> implements CallableStatement {
 
     public CallableStatementDelegate(DM delegateMapper, CS delegate) {
         super(delegateMapper, delegate);

@@ -1,12 +1,11 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.UUID;
 
-public abstract class ConnectionMember<DM extends DelegateMapper, AW extends AutoCloseable> implements ConnectionMember_I {
+public abstract class ConnectionMember<DM extends NotionWrapperManual9, AW extends AutoCloseable> implements ConnectionMember_I {
 
     protected final AW delegate;
     protected final DM delegateMapper;

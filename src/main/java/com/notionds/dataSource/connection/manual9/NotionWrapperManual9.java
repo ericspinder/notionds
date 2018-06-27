@@ -1,10 +1,11 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionAnalysis;
 import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.ExceptionHandler;
+import com.notionds.dataSource.ExceptionAdvice;
 import com.notionds.dataSource.connection.NotionWrapper;
+import com.notionds.dataSource.connection.VendorConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,51 +14,17 @@ import java.lang.reflect.ParameterizedType;
 import java.sql.*;
 import java.util.UUID;
 
-public abstract class DelegateMapper<O extends Options, EH extends ExceptionHandler, DT extends DelegateTree> extends NotionWrapper {
+public abstract class NotionWrapperManual9<O extends Options> extends NotionWrapper<O, NotionConnectionDelegate> {
 
-    private final EH exceptionHandler;
-    private final O options;
-    private final UUID connectionId = UUID.randomUUID();
-    private final Connection connection;
-    private final DT delegateTree;
+    public NotionWrapperManual9(O options, VendorConnection vendorConnection) {
+        super(options, vendorConnection);
 
-    public DelegateMapper(O options, Connection connection) {
-        this.options = options;
-        this.connection = connection;
-        try {
-            this.delegateTree = ((Class<DT>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[2]).getDeclaredConstructor().newInstance();
-
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Problem getting delegateTree instance " + e.getMessage());
-        }
-        try {
-            this.exceptionHandler = ((Class<EH>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor().newInstance();
-
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Problem getting delegateTree instance " + e.getMessage());
-        }
 
     }
-    public final UUID getConnectionId() {
-        return this.connectionId;
-    }
-            throw new RuntimeException("Problem getting delegateTree instance " + e.getMessage());
-    public SQLException handle(SQLException sqlException, ConnectionMember_I where) {
-        ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLException(sqlException);
 
-    }
-    public SQLClientInfoException handleSQLClientInfoExcpetion(SQLClientInfoException sqlClientInfoException, ConnectionMember_I where) {
-        ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLClientInfoException(sqlClientInfoException);
-    }
-    public IOException handleIoException(IOException ioException, ConnectionMember_I where) {
-        ConnectionAnalysis.Recommendation recommendation = exceptionHandler.handleIoException(ioException);
-    }
     public abstract void close(ConnectionMember_I delegatedInstance);
 
-    protected abstract void setNotionConnection(NotionConnectionDelegate notionConnection);
-    protected abstract NotionConnectionDelegate getNotionConnection();
+    protected abstract void setNotionConnectionTree(NotionConnectionDelegate notionConnectionTree);
 
     public StatementDelegate wrap(Statement statement, ConnectionMember_I parent) throws SQLException {
         StatementDelegate statementDelegate = new StatementDelegate(this, statement);

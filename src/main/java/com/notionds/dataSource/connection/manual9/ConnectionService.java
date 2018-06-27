@@ -1,14 +1,14 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.ExceptionHandler;
+import com.notionds.dataSource.ExceptionAdvice;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 
-public class ConnectionService<O extends Options, NC extends NotionConnectionDelegate, DM extends DelegateMapper<O, NC, EH>, EH extends ExceptionHandler> {
+public class ConnectionService<O extends Options, NC extends NotionConnectionDelegate, DM extends NotionWrapperManual9<O, NC, EH>, EH extends ExceptionAdvice> {
 
     private final Class<NC> notionConnectionClass;
     private final Class<DM> delegateMapperClass;
@@ -68,7 +68,7 @@ public class ConnectionService<O extends Options, NC extends NotionConnectionDel
         catch (ReflectiveOperationException roe) {
             throw new NotionStartupException(NotionStartupException.Type.RefelectiveOperationFailed, this.notionConnectionClass);
         }
-        delegateMapper.setNotionConnection(notionConnection);
+        delegateMapper.setNotionConnectionTree(notionConnection);
         return notionConnection;
     }
 }

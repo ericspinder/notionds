@@ -1,8 +1,10 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
+
+import com.notionds.dataSource.connection.NotionConnection;
 
 import java.sql.*;
 
-public class StatementDelegate<DM extends DelegateMapper, S extends Statement, NC extends NotionConnectionDelegate> extends ConnectionMember<DM, S> implements Statement {
+public class StatementDelegate<DM extends NotionWrapperManual9, S extends Statement> extends ConnectionMember<DM, S> implements Statement {
 
     public StatementDelegate(DM delegateMapper, S delegate) {
         super(delegateMapper, delegate);
@@ -286,13 +288,8 @@ public class StatementDelegate<DM extends DelegateMapper, S extends Statement, N
     }
 
     @Override
-    public NC getConnection() throws SQLException {
-        try {
-            return delegateMapper.getConnection();
-        }
-        catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
-        }
+    public NotionConnection getConnection() throws SQLException {
+            return delegateMapper.getNotionConnection();
     }
 
     @Override
@@ -515,13 +512,6 @@ public class StatementDelegate<DM extends DelegateMapper, S extends Statement, N
         }
     }
 
-    /**
-     *
-     * @param val
-     * @return
-     * @throws SQLException
-     * @since 9
-     */
     public String enquoteLiteral(String val) throws SQLException {
         try {
             return delegate.enquoteLiteral(val);

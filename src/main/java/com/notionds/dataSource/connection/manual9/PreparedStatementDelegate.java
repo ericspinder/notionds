@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegate;
+package com.notionds.dataSource.connection.manual9;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -7,7 +7,7 @@ import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
 
-public class PreparedStatementDelegate<DM extends DelegateMapper, PS extends PreparedStatement, NC extends NotionConnectionDelegate> extends StatementDelegate<DM, PS, NC> implements PreparedStatement {
+public class PreparedStatementDelegate<DM extends NotionWrapperManual9, PS extends PreparedStatement, NC extends NotionConnectionDelegate> extends StatementDelegate<DM, PS> implements PreparedStatement {
 
     public PreparedStatementDelegate(DM delegateMapper, PS delegate) {
         super(delegateMapper, delegate);

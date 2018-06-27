@@ -8,11 +8,78 @@ import java.util.concurrent.locks.StampedLock;
 
 public abstract class Options {
 
-    public static class NotionDefaults  {
+    public final class Defaults extends Options {}
+    public enum NotionDefaultStrings implements StringOption  {
 
+        ;
+        private final String key;
+        private final String description;
+        private final String defaultValue;
+        NotionDefaultStrings(String key, String description, String defaultValue) {
+            this.key = key;
+            this.description = description;
+            this.defaultValue = defaultValue;
+        }
+        public String getKey() {
+            return key;
+        }
+        public String getDescription() {
+            return this.description;
+        }
+        public String getDefaultValue() {
+            return this.defaultValue;
+        }
+    }
+    public enum NotionDefaultIntegers implements IntegerOption  {
+
+        ;
+        private final String key;
+        private final String description;
+        private final Integer defaultValue;
+        NotionDefaultIntegers(String key, String description, Integer defaultValue) {
+            this.key = key;
+            this.description = description;
+            this.defaultValue = defaultValue;
+        }
+        public String getKey() {
+            return key;
+        }
+        public String getDescription() {
+            return this.description;
+        }
+        public Integer getDefaultValue() {
+            return this.defaultValue;
+        }
+    }
+    public enum NotionDefaultBooleans implements BooleanOption  {
+
+        ;
+        private final String key;
+        private final String description;
+        private final Boolean defaultValue;
+        NotionDefaultBooleans(String key, String description, Boolean defaultValue) {
+            this.key = key;
+            this.description = description;
+            this.defaultValue = defaultValue;
+        }
+        public String getKey() {
+            return key;
+        }
+        public String getDescription() {
+            return this.description;
+        }
+        public Boolean getDefaultValue() {
+            return this.defaultValue;
+        }
     }
 
-    public Options(Set<StringOption> stringOptionsLoad, Set<IntegerOption> integerOptionsLoad, Set<BooleanOption> booleanOptionsLoad) {
+    public Options() {
+        this.setDefaultStringValues(NotionDefaultStrings.values());
+        this.setDefaultIntegerValues(NotionDefaultIntegers.values());
+        this.setDefaultBooleanValues(NotionDefaultBooleans.values());
+    }
+    public Options(StringOption[] stringOptionsLoad, IntegerOption[] integerOptionsLoad, BooleanOption[] booleanOptionsLoad) {
+        this();
         this.setDefaultStringValues(stringOptionsLoad);
         this.setDefaultIntegerValues(integerOptionsLoad);
         this.setDefaultBooleanValues(booleanOptionsLoad);
@@ -147,7 +214,7 @@ public abstract class Options {
             gate.unlockWrite(stamp);
         }
     }
-    public final void setDefaultStringValues(Set<StringOption> stringOptionsLoad) {
+    public final void setDefaultStringValues(StringOption[] stringOptionsLoad) {
         logger.info("loading default values");
         long stamp = gate.writeLock();
         try {
@@ -159,7 +226,7 @@ public abstract class Options {
             gate.unlockWrite(stamp);
         }
     }
-    public final void setDefaultIntegerValues(Set<IntegerOption> integerOptionsLoad) {
+    public final void setDefaultIntegerValues(IntegerOption[] integerOptionsLoad) {
         logger.info("loading default values");
         long stamp = gate.writeLock();
         try {
@@ -171,7 +238,7 @@ public abstract class Options {
             gate.unlockWrite(stamp);
         }
     }
-    public final void setDefaultBooleanValues(Set<BooleanOption> booleanOptionLoad) {
+    public final void setDefaultBooleanValues(BooleanOption[] booleanOptionLoad) {
         logger.info("loading default values");
         long stamp = gate.writeLock();
         try {

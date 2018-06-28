@@ -42,9 +42,9 @@ public abstract class NotionWrapper<O extends Options, NC extends NotionConnecti
     }
 
     protected void handleRecommendation(ExceptionAdvice.Recommendation recommendation) {
-        if (ExceptionAdvice.Recommendation.CloseConnectionInstance.equals(recommendation)) {
+        //if (ExceptionAdvice.Recommendation.CloseConnectionInstance.equals(recommendation)) {
 
-        }
+        //}
     }
     public SQLException handleSQLException(SQLException sqlException, ConnectionMember_I delegatedInstance) {
         Instant exceptionTime = Instant.now();
@@ -78,8 +78,8 @@ public abstract class NotionWrapper<O extends Options, NC extends NotionConnecti
 
     }
     public void closeNotionConnectionTree() {
-        if (options.)
-        this.notionConnectionTree.
+        //if (options.)
+        //this.notionConnectionTree.
     }
 
     protected abstract void setNotionConnectionTree(NotionConnectionDelegate notionConnectionTree);

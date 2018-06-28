@@ -4,9 +4,9 @@ import java.sql.*;
 
 public class AutoClosableDMD<DM extends DatabaseMetaData>  implements AutoCloseable, DatabaseMetaData {
 
-    private final DM delegate;
+    private final DatabaseMetaData delegate;
 
-    public AutoClosableDMD(DM delegate) {
+    public AutoClosableDMD(DatabaseMetaData delegate) {
         this.delegate = delegate;
     }
 

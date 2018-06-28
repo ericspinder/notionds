@@ -316,7 +316,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
         }
     }
 
-    @Deprecated(since = "1.2")
+    @Deprecated
     public InputStream getUnicodeStream(String columnLabel) throws SQLException {
         try {
             return notionWrapper.wrap(delegate.getUnicodeStream(columnLabel), this);

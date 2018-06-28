@@ -2,6 +2,7 @@ package com.notionds.dataSource.connection;
 
 import com.notionds.dataSource.ExceptionAdvice;
 import com.notionds.dataSource.Options;
+import com.notionds.dataSource.exceptions.ExceptionAccounting;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

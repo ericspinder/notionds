@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection;
+package com.notionds.dataSource.exceptions;
 
 import com.notionds.dataSource.ExceptionAdvice;
 
@@ -9,11 +9,13 @@ public class ExceptionAccounting {
 
     private final UUID connectionId;
     private ExceptionAdvice.Recommendation recommendation;
+    private final Instant connectionStartTime;
     private final Instant exceptionTime;
 
-    public ExceptionAccounting(final UUID connectionId, final ExceptionAdvice.Recommendation recommendation, final Instant exceptionTime) {
+    public ExceptionAccounting(final UUID connectionId, final ExceptionAdvice.Recommendation recommendation, final Instant connectionStartTime, final Instant exceptionTime) {
         this.connectionId = connectionId;
         this.recommendation = recommendation;
+        this.connectionStartTime = connectionStartTime;
         this.exceptionTime = exceptionTime;
     }
 
@@ -39,6 +41,10 @@ public class ExceptionAccounting {
      */
     public void setRecommendation(final ExceptionAdvice.Recommendation recommendation) {
         this.recommendation = recommendation;
+    }
+
+    public Instant getConnectionStartTime() {
+        return this.connectionStartTime;
     }
 
     public Instant getExceptionTime() {

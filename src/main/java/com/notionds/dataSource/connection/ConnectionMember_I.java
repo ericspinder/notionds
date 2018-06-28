@@ -8,4 +8,6 @@ public interface ConnectionMember_I extends AutoCloseable {
     Instant getCreateInstant();
     void closeDelegate() throws Exception;
     UUID getConnectionId();
+    State getState();
+    void setState(State state);
 }

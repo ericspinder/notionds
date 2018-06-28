@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.State;
 
 import java.sql.*;
 import java.time.Instant;
@@ -11,12 +12,20 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
     private final NotionWrapperManual9 notionWrapper;
     private final DatabaseMetaData delegate;
     private final Instant startTime;
+    private State state = State.Open;
     
 
     public DatabaseMetaDataDelegate(NotionWrapperManual9 notionWrapper, DatabaseMetaData delegate) {
         this.notionWrapper = notionWrapper;
         this.delegate = delegate;
         this.startTime = Instant.now();
+    }
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
     @Override
     public void close() throws SQLException {

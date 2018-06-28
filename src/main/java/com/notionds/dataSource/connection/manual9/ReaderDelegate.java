@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.State;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -13,10 +14,18 @@ public class ReaderDelegate<DM extends NotionWrapperManual9> extends Reader impl
     private final DM delegateMapper;
     private final Reader delegate;
     private final Instant createInstant = Instant.now();
+    private State state = State.Open;
 
     public ReaderDelegate(DM delegateMapper, Reader delegate) {
         this.delegateMapper = delegateMapper;
         this.delegate = delegate;
+    }
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     @Override

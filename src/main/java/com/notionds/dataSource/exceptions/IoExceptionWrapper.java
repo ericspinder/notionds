@@ -1,12 +1,6 @@
-package com.notionds.dataSource.connection;
-
-import com.notionds.dataSource.DatabaseProblem;
-import com.notionds.dataSource.ExceptionAdvice;
+package com.notionds.dataSource.exceptions;
 
 import java.io.IOException;
-import java.sql.SQLClientInfoException;
-import java.time.Instant;
-import java.util.UUID;
 
 public class IoExceptionWrapper extends IOException {
 

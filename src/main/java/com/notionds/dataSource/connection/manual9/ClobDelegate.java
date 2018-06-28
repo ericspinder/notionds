@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.State;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,11 +17,19 @@ public class ClobDelegate implements Clob, ConnectionMember_I {
     private final NotionWrapperManual9 notionWrapper;
     private final Clob delegate;
     private final Instant startTime;
+    private State state = State.Open;
 
     public ClobDelegate(NotionWrapperManual9 notionWrapper, Clob delegate) {
         this.notionWrapper = notionWrapper;
         this.delegate = delegate;
         this.startTime = Instant.now();
+    }
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
     public final UUID getConnectionId() {
         return this.notionWrapper.getConnectionId();

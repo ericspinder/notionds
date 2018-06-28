@@ -7,11 +7,13 @@ import java.lang.reflect.ParameterizedType;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
-public abstract class DatabaseMain<O extends Options, EH extends ExceptionAdvice> {
+public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice, DA extends DatabaseAnalysis> {
 
     private final O options;
-    private final Class<EH> exceptionHandlerClass = ((Class<EH>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]);
-    private final EH exceptionHandler;
+    private final Class<EA> exceptionAdviceClass = ((Class<EA>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]);
+    private final Class<DA> databaseAnalysisClass = ((Class<DA>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[2]).;
+    private final EA exceptionAdvice;
+    private final DA databaseAnalysis;
     private UsernamePassword usernamePassword;
     private String dbUrl;
     private final String friendlyName;
@@ -22,11 +24,19 @@ public abstract class DatabaseMain<O extends Options, EH extends ExceptionAdvice
         this.dbUrl = dbUrl;
         this.friendlyName = friendlyName;
         try {
-            this.exceptionHandler = this.exceptionHandlerClass.getDeclaredConstructor(options.getClass()).newInstance(options);
+            this.exceptionAdvice = this.exceptionAdviceClass.getDeclaredConstructor(options.getClass()).
+                    .newInstance(options);
         }
         catch (Exception e) {
             throw new RuntimeException("Problem getting delegateTree instance " + e.getMessage());
         }
+        try {
+            this.databaseAnalysis = this.databaseAnalysisClass.getDeclaredConstructor(options.getClass()).newInstance(options);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Problem getting delegateTree instance " + e.getMessage());
+        }
+
     }
 
     /**
@@ -36,7 +46,7 @@ public abstract class DatabaseMain<O extends Options, EH extends ExceptionAdvice
      * @return Recommendation the initial recommendation for connection at task, may be changed later
      */
     public ExceptionAdvice.Recommendation remedySQLException(SQLException sqlException, NotionWrapper notionWrapper) {
-        ExceptionAdvice.Recommendation recommendation =  exceptionHandler.handleSQLException(sqlException);
+        ExceptionAdvice.Recommendation recommendation =  exceptionAdvice.adviseSqlException(sqlException);
         //analysis
         return recommendation;
     }
@@ -48,7 +58,7 @@ public abstract class DatabaseMain<O extends Options, EH extends ExceptionAdvice
      * @return Recommendation the initial recommendation for connection at task, may be changed later
      */
     public ExceptionAdvice.Recommendation remedySQLClientInfoException(SQLClientInfoException sqlClientInfoException, NotionWrapper notionWrapper) {
-        ExceptionAdvice.Recommendation recommendation =  exceptionHandler.handleSQLClientInfoException(sqlClientInfoException);
+        ExceptionAdvice.Recommendation recommendation =  exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException);
         //analysis
         return recommendation;
     }
@@ -60,9 +70,16 @@ public abstract class DatabaseMain<O extends Options, EH extends ExceptionAdvice
      * @return Recommendation the initial recommendation for connection at task, may be changed later
      */
     public ExceptionAdvice.Recommendation remedyIoException(IOException ioException, NotionWrapper notionWrapper) {
-        ExceptionAdvice.Recommendation recommendation = exceptionHandler.handleIoException(ioException);
+        ExceptionAdvice.Recommendation recommendation = exceptionAdvice.adviseIoException(ioException);
         //analysis
         return recommendation;
+    }
+
+    public ExceptionAdvice.Recommendation remedyException(Exception exception, NotionWrapper notionWrapper) {
+        ExceptionAdvice.Recommendation recommendation = exceptionAdvice.adviseException(exception);
+        this.
+        return recommendation;
+
     }
 
 

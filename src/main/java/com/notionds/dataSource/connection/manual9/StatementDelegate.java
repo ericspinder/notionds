@@ -2,6 +2,7 @@ package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.NotionConnection;
+import com.notionds.dataSource.connection.State;
 
 import java.sql.*;
 import java.time.Instant;
@@ -12,10 +13,19 @@ public class StatementDelegate implements Statement, ConnectionMember_I {
     protected final Statement delegate;
     protected final NotionWrapperManual9 notionWrapper;
     protected final Instant createInstant = Instant.now();
+    private State state = State.Open;
 
     public StatementDelegate(NotionWrapperManual9 notionWrapper, Statement delegate) {
         this.notionWrapper = notionWrapper;
         this.delegate = delegate;
+    }
+
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     public final Instant getCreateInstant() {

@@ -1,12 +1,6 @@
-package com.notionds.dataSource.connection;
+package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.ExceptionAdvice;
-
-import java.sql.ClientInfoStatus;
 import java.sql.SQLClientInfoException;
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
 
 public class SqlClientInfoExceptionWrapper extends SQLClientInfoException {
 

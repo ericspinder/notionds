@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.State;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,10 +15,19 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
     private final DM notionWrapper;
     private final Blob delegate;
     private final Instant createInstant = Instant.now();
+    private State state = State.Open;
 
     public BlobDelegate(DM delegatedMapper, Blob delegate) {
         this.notionWrapper = delegatedMapper;
         this.delegate = delegate;
+    }
+
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
     public final UUID getConnectionId() {
         return this.notionWrapper.getConnectionId();

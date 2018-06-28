@@ -1,11 +1,48 @@
 package com.notionds.dataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
 public abstract class ExceptionAdvice<O extends Options> {
 
+    private static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
+
+    public static class DefaultKillConnection<O extends Options> extends ExceptionAdvice {
+
+        private Logger logger = LoggerFactory.getLogger(DefaultKillConnection.class);
+
+        public DefaultKillConnection(O options) {
+            super(options);
+        }
+
+        @Override
+        public Recommendation adviseSqlException(SQLException sqlException) {
+            logger.error(sqlException.getMessage());
+            return Recommendation.CloseConnectionInstance_When_Finished;
+        }
+
+        @Override
+        public Recommendation adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
+            logger.error(sqlClientInfoException.getMessage());
+            return Recommendation.CloseConnectionInstance_When_Finished;
+        }
+
+        @Override
+        public Recommendation adviseIoException(IOException ioException) {
+            logger.error(ioException.getMessage());
+            return Recommendation.CloseConnectionInstance_When_Finished;
+        }
+
+        @Override
+        public Recommendation adviseException(Exception exception) {
+            logger.error(exception.getMessage());
+            return Recommendation.CloseConnectionInstance_When_Finished;
+        }
+    }
 
     protected final O options;
 
@@ -13,9 +50,10 @@ public abstract class ExceptionAdvice<O extends Options> {
         this.options = options;
     }
 
-    public abstract Recommendation handleSQLException(SQLException sqlException);
-    public abstract Recommendation handleSQLClientInfoException(SQLClientInfoException sqlClientInfoException);
-    public abstract Recommendation handleIoException(IOException ioException);
+    public abstract Recommendation adviseSqlException(SQLException sqlException);
+    public abstract Recommendation adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException);
+    public abstract Recommendation adviseIoException(IOException ioException);
+    public abstract Recommendation adviseException(Exception exception);
 
     /**
      * https://en.wikipedia.org/wiki/SQLSTATE

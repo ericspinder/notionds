@@ -7,10 +7,21 @@ public abstract class NotionConnection<NW extends NotionWrapper> implements Conn
     
     protected final Instant createInstant = Instant.now();
     protected final NW notionWrapper;
+    private State state = State.Open;
 
     public NotionConnection(NW notionWrapper) {
         this.notionWrapper = notionWrapper;
     }
+
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+
     public final Instant getCreateInstant() {
         return this.createInstant;
     }

@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.State;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ public class InputStreamDelegate<DM extends NotionWrapperManual9> extends InputS
     protected final InputStream delegate;
     protected final DM delegateMapper;
     private final Instant createInstant = Instant.now();
+    private State state = State.Open;
 
 
     public InputStreamDelegate(DM delegateMapper, InputStream delegate) {
@@ -19,6 +21,13 @@ public class InputStreamDelegate<DM extends NotionWrapperManual9> extends InputS
         this.delegate = delegate;
     }
 
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
     @Override
     public int read() throws IOException {
         return delegate.read();

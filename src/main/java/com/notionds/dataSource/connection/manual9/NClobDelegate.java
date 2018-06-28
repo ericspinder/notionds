@@ -2,6 +2,7 @@ package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.NotionConnectionWeakReference;
+import com.notionds.dataSource.connection.State;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,11 +19,21 @@ public class NClobDelegate implements NClob, ConnectionMember_I {
     private final NotionWrapperManual9 notionWrapper;
     private final NClob delegate;
     private final Instant startTime = Instant.now();
+    private State state = State.Open;
 
     public NClobDelegate(NotionWrapperManual9 notionWrapper, NClob delegate) {
         this.notionWrapper = notionWrapper;
         this.delegate = delegate;
     }
+
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
     public final UUID getConnectionId() {
         return this.notionWrapper.getConnectionId();
     }

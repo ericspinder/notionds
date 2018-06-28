@@ -21,12 +21,19 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
     }
 
     @Override
+    public void closeDelegate() throws SQLException {
+        if (!this.notionWrapper.getUnderlyingVendorConnection().isClosed()) {
+            this.notionWrapper.getUnderlyingVendorConnection().close();
+        }
+    }
+
+    @Override
     public Statement createStatement() throws SQLException {
         try {
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createStatement(), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -36,7 +43,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -46,7 +53,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareCall(sql),this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -56,7 +63,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().nativeSQL(sql);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -66,7 +73,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().setAutoCommit(autoCommit);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -76,7 +83,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getAutoCommit();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -86,7 +93,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().commit();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -96,18 +103,13 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().rollback();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     @Override
     public void close() throws SQLException {
-        try {
-            this.notionWrapper.close();
-        }
-        catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
-        }
+        this.notionWrapper.closeNotionConnectionTree();
     }
 
     @Override
@@ -116,7 +118,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().isClosed();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -126,7 +128,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().getMetaData(), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -136,7 +138,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().setReadOnly(readOnly);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -146,7 +148,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().isReadOnly();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -156,7 +158,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().setCatalog(catalog);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -166,7 +168,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getCatalog();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -176,7 +178,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().setTransactionIsolation(level);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -186,7 +188,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getTransactionIsolation();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -196,7 +198,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -206,7 +208,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().clearWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -216,7 +218,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createStatement(resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -226,7 +228,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -236,7 +238,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareCall(sql, resultSetType, resultSetConcurrency), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -246,7 +248,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getTypeMap();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -256,7 +258,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().setTypeMap(map);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -266,7 +268,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().setHoldability(holdability);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -276,7 +278,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getHoldability();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -286,7 +288,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().setSavepoint();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -296,7 +298,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().setSavepoint(name);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -306,7 +308,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().rollback(savepoint);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -316,7 +318,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().releaseSavepoint(savepoint);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -326,7 +328,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -336,7 +338,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -346,7 +348,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareCall(sql, resultSetConcurrency, resultSetHoldability), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -356,7 +358,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, autoGeneratedKeys), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -366,7 +368,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, columnIndexes), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -376,7 +378,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().prepareStatement(sql, columnNames), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -386,7 +388,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createClob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -396,7 +398,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createBlob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -406,7 +408,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().createNClob(), this);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -416,7 +418,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().createSQLXML();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -426,7 +428,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().isValid(timeout);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -456,7 +458,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getClientInfo(name);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -466,7 +468,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getClientInfo();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -476,7 +478,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().createArrayOf(typeName, elements);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -486,7 +488,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().createStruct(typeName, attributes);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -496,7 +498,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().setSchema(schema);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -506,7 +508,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getSchema();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -516,7 +518,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().abort(executor);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -526,7 +528,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             notionWrapper.getUnderlyingVendorConnection().setNetworkTimeout(executor, milliseconds);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -536,7 +538,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().getNetworkTimeout();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -546,7 +548,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().unwrap(iface);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -556,7 +558,7 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
             return notionWrapper.getUnderlyingVendorConnection().isWrapperFor(iface);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 }

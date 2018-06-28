@@ -11,19 +11,19 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.UUID;
 
-public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, ConnectionMember_I {
+public class ClobDelegate implements Clob, ConnectionMember_I {
 
-    private final DM delegateMapper;
+    private final NotionWrapperManual9 notionWrapper;
     private final Clob delegate;
     private final Instant startTime;
 
-    public ClobDelegate(DM delegatedMapper, Clob delegate) {
-        this.delegateMapper = delegatedMapper;
+    public ClobDelegate(NotionWrapperManual9 notionWrapper, Clob delegate) {
+        this.notionWrapper = notionWrapper;
         this.delegate = delegate;
         this.startTime = Instant.now();
     }
     public final UUID getConnectionId() {
-        return this.delegateMapper.getConnectionId();
+        return this.notionWrapper.getConnectionId();
     }
     public final Instant getCreateInstant() {
         return this.startTime;
@@ -31,6 +31,10 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
 
     @Override
     public void close() throws SQLException {
+        this.notionWrapper.close(this);
+    }
+    @Override
+    public void closeDelegate() throws SQLException {
         this.free();
     }
 
@@ -40,7 +44,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.length();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -50,7 +54,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.getSubString(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -60,7 +64,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.getCharacterStream();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -70,7 +74,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.getAsciiStream();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -80,7 +84,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.position(searchstr, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -90,7 +94,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.position(searchstr, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -100,7 +104,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.setString(pos, str);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -110,7 +114,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.setString(pos, str, offset, len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -120,7 +124,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.setAsciiStream(pos);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -130,7 +134,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.setCharacterStream(pos);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -140,7 +144,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             delegate.truncate(len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -150,7 +154,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             delegate.free();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -160,7 +164,7 @@ public class ClobDelegate<DM extends NotionWrapperManual9> implements Clob, Conn
             return delegate.getCharacterStream(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 }

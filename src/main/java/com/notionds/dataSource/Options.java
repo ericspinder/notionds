@@ -31,7 +31,7 @@ public abstract class Options {
         }
     }
     public enum NotionDefaultIntegers implements IntegerOption  {
-
+        ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5);
         ;
         private final String key;
         private final String description;
@@ -80,9 +80,15 @@ public abstract class Options {
     }
     public Options(StringOption[] stringOptionsLoad, IntegerOption[] integerOptionsLoad, BooleanOption[] booleanOptionsLoad) {
         this();
-        this.setDefaultStringValues(stringOptionsLoad);
-        this.setDefaultIntegerValues(integerOptionsLoad);
-        this.setDefaultBooleanValues(booleanOptionsLoad);
+        if (stringOptionsLoad != null) {
+            this.setDefaultStringValues(stringOptionsLoad);
+        }
+        if (integerOptionsLoad != null) {
+            this.setDefaultIntegerValues(integerOptionsLoad);
+        }
+        if (booleanOptionsLoad != null) {
+            this.setDefaultBooleanValues(booleanOptionsLoad);
+        }
     }
 
     private static final Logger logger = LoggerFactory.getLogger(Options.class);
@@ -110,8 +116,31 @@ public abstract class Options {
     protected final Map<StringOption, String> stringOptionValues = new HashMap<>();
     protected final Map<IntegerOption, Integer> integerOptionValues = new HashMap<>();
     protected final Map<BooleanOption, Boolean> booleanOptionValues = new HashMap<>();
+    protected final Map<String, Option> allOptions = new HashMap<>();
 
 
+    public String getAllProperties() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String key: allOptions.keySet()) {
+            stringBuilder.append(key);
+            stringBuilder.append("=");
+            stringBuilder.append(get(key));
+        }
+        return stringBuilder.toString();
+    }
+    public String get(String key) {
+        Option option = allOptions.get(key);
+        if (option instanceof StringOption) {
+            return this.get((StringOption) option);
+        }
+        if (option  instanceof IntegerOption) {
+            return this.get((IntegerOption)option).toString();
+        }
+        if (option instanceof BooleanOption) {
+            return this.get((BooleanOption) option).toString();
+        }
+        throw new RuntimeException("property not found: key= " + key);
+    }
     public String get(StringOption stringOption) {
         long stamp = gate.readLock();
         try {
@@ -120,12 +149,11 @@ public abstract class Options {
         finally {
             gate.unlockWrite(stamp);
         }
-
     }
-    public String get(String string) {
+    public String get(Option anonymousStringOption) {
         long stamp = gate.readLock();
         try {
-            return stringOptionValues.get(string);
+            return stringOptionValues.get(anonymousStringOption);
         }
         finally {
             gate.unlockWrite(stamp);
@@ -150,7 +178,6 @@ public abstract class Options {
         finally {
             gate.unlockWrite(stamp);
         }
-
     }
 
     public Option loadValue(String key, String value) {
@@ -197,6 +224,7 @@ public abstract class Options {
             }
         };
         stringOptionValues.put(stringOption, value);
+        allOptions.put(stringOption.getKey(), stringOption);
         return stringOption;
     }
 
@@ -220,6 +248,7 @@ public abstract class Options {
         try {
             for (StringOption stringOption : stringOptionsLoad) {
                 stringOptionValues.put(stringOption, stringOption.getDefaultValue());
+                allOptions.put(stringOption.getKey(), stringOption);
             }
         }
         finally {
@@ -232,6 +261,7 @@ public abstract class Options {
         try {
             for (IntegerOption integerOption : integerOptionsLoad) {
                 integerOptionValues.put(integerOption, integerOption.getDefaultValue());
+                allOptions.put(integerOption.getKey(), integerOption);
             }
         }
         finally {
@@ -244,6 +274,7 @@ public abstract class Options {
         try {
             for (BooleanOption booleanOption : booleanOptionLoad) {
                 booleanOptionValues.put(booleanOption, booleanOption.getDefaultValue());
+                allOptions.put(booleanOption.getKey(), booleanOption);
             }
         }
         finally {

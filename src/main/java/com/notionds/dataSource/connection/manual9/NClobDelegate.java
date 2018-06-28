@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection.manual9;
 
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.NotionConnectionWeakReference;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,19 +13,18 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.UUID;
 
-public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, ConnectionMember_I {
+public class NClobDelegate implements NClob, ConnectionMember_I {
 
-    private final DM delegateMapper;
+    private final NotionWrapperManual9 notionWrapper;
     private final NClob delegate;
-    private final Instant startTime;
+    private final Instant startTime = Instant.now();
 
-    public NClobDelegate(DM delegatedMapper, NClob delegate) {
-        this.delegateMapper = delegatedMapper;
+    public NClobDelegate(NotionWrapperManual9 notionWrapper, NClob delegate) {
+        this.notionWrapper = notionWrapper;
         this.delegate = delegate;
-        this.startTime = Instant.now();
     }
     public final UUID getConnectionId() {
-        return this.delegateMapper.getConnectionId();
+        return this.notionWrapper.getConnectionId();
     }
     public final Instant getCreateInstant() {
         return this.startTime;
@@ -32,7 +32,11 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
 
     @Override
     public void close() throws SQLException {
-        this.free();
+        this.notionWrapper.close(this);
+    }
+    @Override
+    public void closeDelegate() throws SQLException {
+        delegate.free();
     }
 
     @Override
@@ -41,7 +45,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.length();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -51,7 +55,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.getSubString(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -61,7 +65,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.getCharacterStream();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -71,7 +75,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.getAsciiStream();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -81,7 +85,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.position(searchstr, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -91,7 +95,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.position(searchstr, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -101,7 +105,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.setString(pos, str);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -111,7 +115,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.setString(pos, str, offset, len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -121,7 +125,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.setAsciiStream(pos);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -131,7 +135,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.setCharacterStream(pos);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -141,18 +145,13 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             delegate.truncate(len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     @Override
     public void free() throws SQLException {
-        try {
-            delegate.free();
-        }
-        catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
-        }
+        this.notionWrapper.close(this);
     }
 
     @Override
@@ -161,7 +160,7 @@ public class NClobDelegate <DM extends NotionWrapperManual9> implements NClob, C
             return delegate.getCharacterStream(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 }

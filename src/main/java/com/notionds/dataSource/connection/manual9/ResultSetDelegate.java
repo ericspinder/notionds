@@ -25,17 +25,13 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.next();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void close() throws SQLException {
-        try {
-            delegate.close();
-        }
-        catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
-        }
+        this.notionWrapper.close(this);
+
     }
 
     public boolean wasNull() throws SQLException {
@@ -43,7 +39,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.wasNull();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -52,7 +48,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getString(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -61,7 +57,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getBoolean(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -70,7 +66,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getByte(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -79,7 +75,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getShort(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -88,7 +84,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getInt(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -97,7 +93,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getLong(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -106,7 +102,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getFloat(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -115,7 +111,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getDouble(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -125,7 +121,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getBigDecimal(columnIndex, scale);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -134,7 +130,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getBytes(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -143,7 +139,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getDate(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -152,7 +148,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getTime(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -161,7 +157,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getTimestamp(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -170,26 +166,26 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getAsciiStream(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     @Deprecated
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getUnicodeStream(columnIndex), this);
+            return notionWrapper.wrap(delegate.getUnicodeStream(columnIndex), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getBinaryStream(columnIndex), this);
+            return notionWrapper.wrap(delegate.getBinaryStream(columnIndex), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -198,7 +194,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getString(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -207,7 +203,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getBoolean(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -216,7 +212,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getByte(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -225,7 +221,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getShort(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -234,7 +230,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getInt(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -243,7 +239,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getLong(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -252,7 +248,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getFloat(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -261,7 +257,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getDouble(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -271,7 +267,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getBigDecimal(columnLabel, scale);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -280,7 +276,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getBytes(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -289,7 +285,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getDate(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -298,7 +294,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getTime(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -307,35 +303,35 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getTimestamp(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public InputStream getAsciiStream(String columnLabel) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getAsciiStream(columnLabel), this);
+            return notionWrapper.wrap(delegate.getAsciiStream(columnLabel), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     @Deprecated(since = "1.2")
     public InputStream getUnicodeStream(String columnLabel) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getUnicodeStream(columnLabel), this);
+            return notionWrapper.wrap(delegate.getUnicodeStream(columnLabel), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public InputStream getBinaryStream(String columnLabel) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getBinaryStream(columnLabel), this);
+            return notionWrapper.wrap(delegate.getBinaryStream(columnLabel), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -344,7 +340,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -353,7 +349,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.clearWarnings();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -362,7 +358,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getCursorName();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -371,7 +367,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getMetaData();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -380,7 +376,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getObject(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -389,7 +385,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getObject(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -398,25 +394,25 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.findColumn(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Reader getCharacterStream(int columnIndex) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getCharacterStream(columnIndex), this);
+            return notionWrapper.wrap(delegate.getCharacterStream(columnIndex), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Reader getCharacterStream(String columnLabel) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getCharacterStream(columnLabel), this);
+            return notionWrapper.wrap(delegate.getCharacterStream(columnLabel), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -425,7 +421,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getBigDecimal(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -434,7 +430,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getBigDecimal(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -443,7 +439,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.isBeforeFirst();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -452,7 +448,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.isAfterLast();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -461,7 +457,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.isFirst();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -470,7 +466,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.isLast();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -479,7 +475,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.beforeFirst();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -488,7 +484,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.afterLast();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -497,7 +493,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.first();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -506,7 +502,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.last();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -515,7 +511,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getRow();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -524,7 +520,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.absolute(row);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -533,7 +529,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.relative(rows);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -542,7 +538,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.previous();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -551,7 +547,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.setFetchDirection(direction);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -560,7 +556,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getFetchDirection();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -569,7 +565,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.setFetchSize(rows);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -578,7 +574,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getFetchSize();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -587,7 +583,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getType();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -596,7 +592,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getConcurrency();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -605,7 +601,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.rowUpdated();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -614,7 +610,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.rowInserted();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -623,7 +619,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.rowDeleted();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -632,7 +628,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNull(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -641,7 +637,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBoolean(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -650,7 +646,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateByte(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -659,7 +655,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateShort(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -668,7 +664,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateInt(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -677,7 +673,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateLong(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -686,7 +682,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateFloat(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -695,7 +691,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateDouble(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -704,7 +700,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBigDecimal(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -713,7 +709,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateString(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -722,7 +718,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBytes(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -731,7 +727,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateDate(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -740,7 +736,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateTime(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -749,7 +745,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateTimestamp(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -758,7 +754,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateAsciiStream(columnIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -767,7 +763,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBinaryStream(columnIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -776,7 +772,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateCharacterStream(columnIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -785,7 +781,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateObject(columnIndex, x, scaleOrLength);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -794,7 +790,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateObject(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -803,7 +799,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNull(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -812,7 +808,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBoolean(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -821,7 +817,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateByte(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -830,7 +826,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateShort(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -839,7 +835,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateInt(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -848,7 +844,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateLong(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -857,7 +853,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateFloat(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -866,7 +862,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateDouble(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -875,7 +871,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBigDecimal(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -884,7 +880,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateString(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -893,7 +889,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBytes(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -902,7 +898,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateDate(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -911,7 +907,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateTime(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -920,7 +916,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateTimestamp(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -929,7 +925,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateAsciiStream(columnLabel, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -938,7 +934,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBinaryStream(columnLabel, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -947,7 +943,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateCharacterStream(columnLabel, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -956,7 +952,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateObject(columnLabel, x, scaleOrLength);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -965,7 +961,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateObject(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -974,7 +970,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.insertRow();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -983,7 +979,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateRow();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -992,7 +988,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.deleteRow();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1001,7 +997,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.refreshRow();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1010,7 +1006,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.cancelRowUpdates();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1019,7 +1015,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.moveToInsertRow();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1028,16 +1024,16 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.moveToCurrentRow();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Statement getStatement() throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getStatement(), this);
+            return notionWrapper.wrap(delegate.getStatement(), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1046,7 +1042,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getObject(columnIndex, map);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1055,25 +1051,25 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getRef(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Blob getBlob(int columnIndex) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getBlob(columnIndex), this);
+            return notionWrapper.wrap(delegate.getBlob(columnIndex), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Clob getClob(int columnIndex) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getClob(columnIndex), this);
+            return notionWrapper.wrap(delegate.getClob(columnIndex), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1082,7 +1078,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getArray(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1091,7 +1087,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getObject(columnLabel, map);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1100,25 +1096,25 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getRef(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Blob getBlob(String columnLabel) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getBlob(columnLabel), this);
+            return notionWrapper.wrap(delegate.getBlob(columnLabel), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Clob getClob(String columnLabel) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getClob(columnLabel), this);
+            return notionWrapper.wrap(delegate.getClob(columnLabel), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1127,7 +1123,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getArray(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1136,7 +1132,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getDate(columnIndex, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1145,7 +1141,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getDate(columnLabel, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1154,7 +1150,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getTime(columnIndex, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1163,7 +1159,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getTime(columnLabel, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1172,7 +1168,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getTimestamp(columnIndex, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1181,7 +1177,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getTimestamp(columnLabel, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1190,7 +1186,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getURL(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1199,7 +1195,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getURL(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1208,7 +1204,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateRef(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1217,7 +1213,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateRef(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1226,7 +1222,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBlob(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1235,7 +1231,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBlob(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1244,7 +1240,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateClob(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1253,7 +1249,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateClob(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1262,7 +1258,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateArray(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1271,7 +1267,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateArray(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1280,7 +1276,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getRowId(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1289,7 +1285,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getRowId(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1298,7 +1294,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateRowId(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1307,7 +1303,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateRowId(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1316,7 +1312,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getHoldability();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1325,7 +1321,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.isClosed();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1334,7 +1330,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNString(columnIndex, nString);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1343,7 +1339,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNString(columnLabel, nString);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1352,7 +1348,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNClob(columnIndex, nClob);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1361,25 +1357,25 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNClob(columnLabel, nClob);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public NClob getNClob(int columnIndex) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getNClob(columnIndex), this);
+            return notionWrapper.wrap(delegate.getNClob(columnIndex), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public NClob getNClob(String columnLabel) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getNClob(columnLabel), this);
+            return notionWrapper.wrap(delegate.getNClob(columnLabel), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1388,7 +1384,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
                 return delegate.getSQLXML(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1397,7 +1393,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getSQLXML(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1406,7 +1402,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateSQLXML(columnIndex, xmlObject);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1415,7 +1411,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateSQLXML(columnLabel, xmlObject);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1424,7 +1420,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getNString(columnIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1433,25 +1429,25 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getNString(columnLabel);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Reader getNCharacterStream(int columnIndex) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getNCharacterStream(columnIndex), this);
+            return notionWrapper.wrap(delegate.getNCharacterStream(columnIndex), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Reader getNCharacterStream(String columnLabel) throws SQLException {
         try {
-            return delegateMapper.wrap(delegate.getNCharacterStream(columnLabel), this);
+            return notionWrapper.wrap(delegate.getNCharacterStream(columnLabel), this);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1460,7 +1456,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNCharacterStream(columnIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1469,7 +1465,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNCharacterStream(columnLabel, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1478,7 +1474,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateAsciiStream(columnIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1487,7 +1483,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBinaryStream(columnIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1496,7 +1492,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateCharacterStream(columnIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1505,7 +1501,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateAsciiStream(columnLabel, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1514,7 +1510,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBinaryStream(columnLabel, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1523,7 +1519,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateCharacterStream(columnLabel, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1532,7 +1528,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBlob(columnIndex, inputStream, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1541,7 +1537,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBlob(columnLabel, inputStream, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1550,7 +1546,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateClob(columnIndex, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1559,7 +1555,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateClob(columnLabel, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1568,7 +1564,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNClob(columnIndex, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1577,7 +1573,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNClob(columnLabel, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1586,7 +1582,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNCharacterStream(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1595,7 +1591,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNCharacterStream(columnLabel, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1604,7 +1600,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateAsciiStream(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1613,7 +1609,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBinaryStream(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1622,7 +1618,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateCharacterStream(columnIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1631,7 +1627,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateAsciiStream(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1640,7 +1636,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBinaryStream(columnLabel, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1649,7 +1645,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateCharacterStream(columnLabel, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1658,7 +1654,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBlob(columnIndex, inputStream);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1667,7 +1663,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateBlob(columnLabel, inputStream);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1676,7 +1672,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateClob(columnIndex, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1685,7 +1681,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateClob(columnLabel, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1694,7 +1690,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNClob(columnIndex, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1703,7 +1699,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateNClob(columnLabel, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1712,7 +1708,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getObject(columnIndex, type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1721,7 +1717,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.getObject(columnLabel, type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1730,7 +1726,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateObject(columnIndex, x, targetSqlType, scaleOrLength);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1739,7 +1735,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateObject(columnLabel, x, targetSqlType, scaleOrLength);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1748,7 +1744,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateObject(columnIndex, x, targetSqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1757,7 +1753,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             delegate.updateObject(columnLabel, x, targetSqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1766,7 +1762,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.unwrap(iface);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1775,7 +1771,7 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
             return delegate.isWrapperFor(iface);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 }

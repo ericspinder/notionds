@@ -31,6 +31,10 @@ public abstract class VendorConnection<O extends Options, CA extends ConnectionA
         return this.databaseMain;
     }
 
+    public CA getConnectionAnalysis() {
+        return this.connectionAnalysis;
+    }
+
     public Connection getDelegate() {
         return this.delegate;
     }

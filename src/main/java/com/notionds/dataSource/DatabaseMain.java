@@ -1,7 +1,5 @@
 package com.notionds.dataSource;
 
-import com.notionds.dataSource.connection.ConnectionAnalysis;
-import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.NotionWrapper;
 
 import java.io.IOException;
@@ -31,19 +29,38 @@ public abstract class DatabaseMain<O extends Options, EH extends ExceptionAdvice
         }
     }
 
+    /**
+     *
+     * @param sqlException
+     * @param notionWrapper
+     * @return Recommendation the initial recommendation for connection at task, may be changed later
+     */
+    public ExceptionAdvice.Recommendation remedySQLException(SQLException sqlException, NotionWrapper notionWrapper) {
+        ExceptionAdvice.Recommendation recommendation =  exceptionHandler.handleSQLException(sqlException);
+        //analysis
+        return recommendation;
+    }
 
-    public ConnectionAnalysis.Recommendation remedySQLException(SQLException sqlException, NotionWrapper notionWrapper) {
-        ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLException(sqlException);
+    /**
+     *
+     * @param sqlClientInfoException
+     * @param notionWrapper
+     * @return Recommendation the initial recommendation for connection at task, may be changed later
+     */
+    public ExceptionAdvice.Recommendation remedySQLClientInfoException(SQLClientInfoException sqlClientInfoException, NotionWrapper notionWrapper) {
+        ExceptionAdvice.Recommendation recommendation =  exceptionHandler.handleSQLClientInfoException(sqlClientInfoException);
         //analysis
         return recommendation;
     }
-    public ConnectionAnalysis.Recommendation remedySQLClientInfoExcpetion(SQLClientInfoException sqlClientInfoException, NotionWrapper notionWrapper) {
-        ConnectionAnalysis.Recommendation recommendation =  exceptionHandler.handleSQLClientInfoException(sqlClientInfoException);
-        //analysis
-        return recommendation;
-    }
-    public ConnectionAnalysis.Recommendation remedyIoException(IOException ioException, NotionWrapper notionWrapper) {
-        ConnectionAnalysis.Recommendation recommendation = exceptionHandler.handleIoException(ioException);
+
+    /**
+     *
+     * @param ioException
+     * @param notionWrapper
+     * @return Recommendation the initial recommendation for connection at task, may be changed later
+     */
+    public ExceptionAdvice.Recommendation remedyIoException(IOException ioException, NotionWrapper notionWrapper) {
+        ExceptionAdvice.Recommendation recommendation = exceptionHandler.handleIoException(ioException);
         //analysis
         return recommendation;
     }

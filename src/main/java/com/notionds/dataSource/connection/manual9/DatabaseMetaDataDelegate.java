@@ -8,15 +8,23 @@ import java.util.UUID;
 
 public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implements DatabaseMetaData, ConnectionMember_I {
     
-    private final DM delegateMapper;
+    private final NotionWrapperManual9 notionWrapper;
     private final DatabaseMetaData delegate;
     private final Instant startTime;
     
 
-    public DatabaseMetaDataDelegate(DM delegateMapper, DatabaseMetaData delegate) {
-        this.delegateMapper = delegateMapper;
+    public DatabaseMetaDataDelegate(NotionWrapperManual9 notionWrapper, DatabaseMetaData delegate) {
+        this.notionWrapper = notionWrapper;
         this.delegate = delegate;
         this.startTime = Instant.now();
+    }
+    @Override
+    public void close() throws SQLException {
+        this.notionWrapper.close(this);
+    }
+    @Override
+    public void closeDelegate() throws SQLException {
+        // no operation needed
     }
 
     @Override
@@ -26,17 +34,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
 
     @Override
     public UUID getConnectionId() {
-        return this.delegateMapper.getConnectionId();
-    }
-    
-    @Override
-    public void close() throws SQLException {
-        try {
-            delegate.close();
-        }
-        catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
-        }
+        return this.notionWrapper.getConnectionId();
     }
 
     @Override
@@ -45,7 +43,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.allProceduresAreCallable();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -55,7 +53,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.allTablesAreSelectable();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -65,7 +63,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getURL();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -75,7 +73,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getUserName();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -85,7 +83,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.isReadOnly();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -95,7 +93,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.nullsAreSortedHigh();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -105,7 +103,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.nullsAreSortedLow();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -115,7 +113,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.nullsAreSortedAtStart();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -125,7 +123,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.nullsAreSortedAtEnd();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -135,7 +133,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getDatabaseProductName();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -145,7 +143,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getDatabaseProductVersion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -155,7 +153,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getDriverName();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -165,7 +163,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getDriverVersion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -185,7 +183,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.usesLocalFiles();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -195,7 +193,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.usesLocalFilePerTable();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -205,7 +203,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsMixedCaseIdentifiers();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -215,7 +213,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.storesUpperCaseIdentifiers();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -225,7 +223,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.storesLowerCaseIdentifiers();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -235,7 +233,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.storesMixedCaseIdentifiers();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -245,7 +243,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsMixedCaseQuotedIdentifiers();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -255,7 +253,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.storesUpperCaseQuotedIdentifiers();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -265,7 +263,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.storesLowerCaseQuotedIdentifiers();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -275,7 +273,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.storesMixedCaseQuotedIdentifiers();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -285,7 +283,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getIdentifierQuoteString();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -295,7 +293,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSQLKeywords();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -305,7 +303,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getNumericFunctions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -315,7 +313,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getStringFunctions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -325,7 +323,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSystemFunctions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -335,7 +333,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getTimeDateFunctions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -345,7 +343,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSearchStringEscape();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -355,7 +353,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getExtraNameCharacters();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -365,7 +363,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsAlterTableWithAddColumn();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -375,7 +373,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsAlterTableWithDropColumn();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -385,7 +383,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsColumnAliasing();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -395,7 +393,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.nullPlusNonNullIsNull();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -405,7 +403,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsConvert();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -415,7 +413,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsConvert(fromType, toType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -425,7 +423,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsTableCorrelationNames();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -435,7 +433,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsDifferentTableCorrelationNames();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -445,7 +443,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsExpressionsInOrderBy();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -455,7 +453,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsOrderByUnrelated();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -465,7 +463,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsGroupBy();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -475,7 +473,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsGroupByUnrelated();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -485,7 +483,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsGroupByBeyondSelect();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -495,7 +493,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsLikeEscapeClause();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -505,7 +503,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsMultipleResultSets();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -515,7 +513,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsMultipleTransactions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -525,7 +523,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsNonNullableColumns();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -535,7 +533,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsMinimumSQLGrammar();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -545,7 +543,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsCoreSQLGrammar();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
     
@@ -555,7 +553,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsExtendedSQLGrammar();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -565,7 +563,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsANSI92EntryLevelSQL();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -575,7 +573,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsANSI92IntermediateSQL();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -585,7 +583,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsANSI92FullSQL();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -595,7 +593,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsIntegrityEnhancementFacility();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -605,7 +603,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsOuterJoins();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -615,7 +613,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsFullOuterJoins();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -625,7 +623,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsLimitedOuterJoins();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -635,7 +633,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSchemaTerm();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -645,7 +643,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getProcedureTerm();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -655,7 +653,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getCatalogTerm();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -665,7 +663,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.isCatalogAtStart();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -675,7 +673,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getCatalogSeparator();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -685,7 +683,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSchemasInDataManipulation();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -695,7 +693,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSchemasInProcedureCalls();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -705,7 +703,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSchemasInTableDefinitions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -715,7 +713,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSchemasInIndexDefinitions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -725,7 +723,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSchemasInPrivilegeDefinitions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -735,7 +733,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsCatalogsInDataManipulation();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -745,7 +743,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsCatalogsInProcedureCalls();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -755,7 +753,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsCatalogsInTableDefinitions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -765,7 +763,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsCatalogsInIndexDefinitions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -775,7 +773,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsCatalogsInPrivilegeDefinitions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -785,7 +783,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsPositionedDelete();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -795,7 +793,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsPositionedUpdate();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -805,7 +803,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSelectForUpdate();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -815,7 +813,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsStoredProcedures();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -825,7 +823,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSubqueriesInComparisons();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -835,7 +833,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSubqueriesInExists();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -845,7 +843,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSubqueriesInIns();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -855,7 +853,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSubqueriesInQuantifieds();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -865,7 +863,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsCorrelatedSubqueries();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -875,7 +873,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsUnion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -885,7 +883,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsUnionAll();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -895,7 +893,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsOpenCursorsAcrossCommit();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -905,7 +903,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsOpenCursorsAcrossRollback();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -915,7 +913,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsOpenStatementsAcrossCommit();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -925,7 +923,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsOpenStatementsAcrossRollback();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -935,7 +933,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxBinaryLiteralLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -945,7 +943,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxCharLiteralLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -955,7 +953,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxColumnNameLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -965,7 +963,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxColumnsInGroupBy();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -975,7 +973,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxColumnsInIndex();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -985,7 +983,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxColumnsInOrderBy();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -995,7 +993,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxColumnsInSelect();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1005,7 +1003,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxColumnsInTable();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1015,7 +1013,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxConnections();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1025,7 +1023,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxCursorNameLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1035,7 +1033,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxIndexLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1045,7 +1043,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxSchemaNameLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1055,7 +1053,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxProcedureNameLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1065,7 +1063,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxCatalogNameLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1075,7 +1073,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxRowSize();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1085,7 +1083,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.doesMaxRowSizeIncludeBlobs();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1095,7 +1093,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxStatementLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1105,7 +1103,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxStatements();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1115,7 +1113,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxTableNameLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1125,7 +1123,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxTablesInSelect();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1135,7 +1133,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxUserNameLength();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1145,7 +1143,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getDefaultTransactionIsolation();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1155,7 +1153,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsTransactions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1165,7 +1163,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsTransactionIsolationLevel(level);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1175,7 +1173,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsDataDefinitionAndDataManipulationTransactions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1185,7 +1183,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsDataManipulationTransactionsOnly();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1195,7 +1193,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.dataDefinitionCausesTransactionCommit();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1205,7 +1203,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.dataDefinitionIgnoredInTransactions();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1215,7 +1213,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getProcedures(catalog, schemaPattern, procedureNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1225,7 +1223,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getProcedureColumns(catalog, schemaPattern, procedureNamePattern, columnNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1235,7 +1233,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getTables(catalog, schemaPattern, tableNamePattern, types);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1245,7 +1243,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSchemas();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1255,7 +1253,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getCatalogs();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1265,7 +1263,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getTableTypes();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1275,7 +1273,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1285,7 +1283,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getColumnPrivileges(catalog, schema, table, columnNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1295,7 +1293,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getTablePrivileges(catalog, schemaPattern, tableNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1305,7 +1303,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getBestRowIdentifier(catalog, schema, table, scope, nullable);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1315,7 +1313,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getVersionColumns(catalog, schema, table);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1325,7 +1323,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getPrimaryKeys(catalog, schema, table);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1335,7 +1333,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getImportedKeys(catalog, schema, table);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1345,7 +1343,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getExportedKeys(catalog, schema, table);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1355,7 +1353,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getCrossReference(parentCatalog, parentSchema, parentTable, foreignCatalog, foreignSchema, foreignTable);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1365,7 +1363,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getTypeInfo();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1375,7 +1373,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getIndexInfo(catalog, schema, table, unique, approximate);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1385,7 +1383,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsResultSetType(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1395,7 +1393,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsResultSetConcurrency(type, concurrency);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1405,7 +1403,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.ownUpdatesAreVisible(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1415,7 +1413,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.ownDeletesAreVisible(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1425,7 +1423,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.ownInsertsAreVisible(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1435,7 +1433,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.othersUpdatesAreVisible(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1445,7 +1443,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.othersDeletesAreVisible(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1455,7 +1453,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.othersInsertsAreVisible(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1465,7 +1463,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.updatesAreDetected(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1475,7 +1473,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.deletesAreDetected(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1485,7 +1483,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.insertsAreDetected(type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1495,7 +1493,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsBatchUpdates();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1505,7 +1503,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getUDTs(catalog, schemaPattern, typeNamePattern, types);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1515,7 +1513,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getConnection();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1525,7 +1523,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSavepoints();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1535,7 +1533,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsNamedParameters();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1545,7 +1543,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsMultipleOpenResults();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1555,7 +1553,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsGetGeneratedKeys();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1565,7 +1563,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSuperTypes(catalog, schemaPattern, typeNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1575,7 +1573,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSuperTables(catalog, schemaPattern, tableNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1585,7 +1583,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getAttributes(catalog, schemaPattern, typeNamePattern, attributeNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1595,7 +1593,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsResultSetHoldability(holdability);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1605,7 +1603,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getResultSetHoldability();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1615,7 +1613,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getDatabaseMajorVersion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1625,7 +1623,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getDatabaseMinorVersion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1635,7 +1633,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getJDBCMajorVersion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1645,7 +1643,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getJDBCMinorVersion();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1655,7 +1653,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSQLStateType();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1665,7 +1663,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.locatorsUpdateCopy();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1675,7 +1673,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsStatementPooling();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1685,7 +1683,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getRowIdLifetime();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1695,7 +1693,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getSchemas(catalog, schemaPattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1705,7 +1703,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsStoredFunctionsUsingCallSyntax();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1715,7 +1713,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.autoCommitFailureClosesAllResultSets();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1725,7 +1723,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getClientInfoProperties();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1735,7 +1733,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getFunctions(catalog, schemaPattern, functionNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1745,7 +1743,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getFunctionColumns(catalog, schemaPattern, functionNamePattern, columnNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1755,7 +1753,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getPseudoColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1765,7 +1763,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.generatedKeyAlwaysReturned();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1775,7 +1773,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.getMaxLogicalLobSize();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1785,7 +1783,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsRefCursors();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1795,7 +1793,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.supportsSharding();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1805,7 +1803,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.unwrap(iface);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -1815,7 +1813,7 @@ public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implement
             return delegate.isWrapperFor(iface);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 }

@@ -11,17 +11,16 @@ import java.util.UUID;
 
 public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, ConnectionMember_I {
 
-    private final DM delegateMapper;
+    private final DM notionWrapper;
     private final Blob delegate;
-    private final Instant createInstant;
+    private final Instant createInstant = Instant.now();
 
     public BlobDelegate(DM delegatedMapper, Blob delegate) {
-        this.delegateMapper = delegatedMapper;
+        this.notionWrapper = delegatedMapper;
         this.delegate = delegate;
-        this.createInstant = Instant.now();
     }
     public final UUID getConnectionId() {
-        return this.delegateMapper.getConnectionId();
+        return this.notionWrapper.getConnectionId();
     }
     public final Instant getCreateInstant() {
         return this.createInstant;
@@ -29,7 +28,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
 
     @Override
     public void close() throws SQLException {
-        this.delegateMapper.close(this);
+        this.notionWrapper.close(this);
     }
     public void closeDelegate() throws SQLException {
         this.delegate.free();
@@ -41,7 +40,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.length();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -51,7 +50,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.getBytes(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -61,7 +60,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.getBinaryStream();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -71,7 +70,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.position(pattern, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -81,7 +80,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.position(pattern, start);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -91,7 +90,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.setBytes(pos, bytes);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -101,7 +100,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.setBytes(pos, bytes, offset, len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -111,7 +110,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.setBinaryStream(pos);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -121,7 +120,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             delegate.truncate(len);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -131,7 +130,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             delegate.free();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
@@ -141,7 +140,7 @@ public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, Conn
             return delegate.getBinaryStream(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 }

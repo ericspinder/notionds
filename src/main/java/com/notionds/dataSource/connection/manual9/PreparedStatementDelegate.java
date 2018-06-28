@@ -5,534 +5,542 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
+import java.time.Instant;
 import java.util.Calendar;
+import java.util.UUID;
 
-public class PreparedStatementDelegate<DM extends NotionWrapperManual9, PS extends PreparedStatement, NC extends NotionConnectionDelegate> extends StatementDelegate<DM, PS> implements PreparedStatement {
+public class PreparedStatementDelegate extends StatementDelegate implements PreparedStatement {
 
-    public PreparedStatementDelegate(DM delegateMapper, PS delegate) {
-        super(delegateMapper, delegate);
+     
+    public PreparedStatementDelegate(NotionWrapperManual9 notionWrapper, PreparedStatement delegate) {
+        super(notionWrapper, delegate);
     }
+    private PreparedStatement getPreparedStatement() {
+        return (PreparedStatement)delegate;
+    }
+    
+
 
     public ResultSet executeQuery() throws SQLException {
         try {
-            return delegate.executeQuery();
+            return getPreparedStatement().executeQuery();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public int executeUpdate() throws SQLException {
         try {
-            return delegate.executeUpdate();
+            return getPreparedStatement().executeUpdate();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
         try {
-            delegate.setNull(parameterIndex, sqlType);
+            getPreparedStatement().setNull(parameterIndex, sqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
         try {
-            delegate.setBoolean(parameterIndex, x);
+            getPreparedStatement().setBoolean(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setByte(int parameterIndex, byte x) throws SQLException {
         try {
-            delegate.setByte(parameterIndex, x);
+            getPreparedStatement().setByte(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setShort(int parameterIndex, short x) throws SQLException {
         try {
-            delegate.setShort(parameterIndex, x);
+            getPreparedStatement().setShort(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setInt(int parameterIndex, int x) throws SQLException {
         try {
-            delegate.setInt(parameterIndex, x);
+            getPreparedStatement().setInt(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setLong(int parameterIndex, long x) throws SQLException {
         try {
-            delegate.setLong(parameterIndex, x);
+            getPreparedStatement().setLong(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setFloat(int parameterIndex, float x) throws SQLException {
         try {
-            delegate.setFloat(parameterIndex, x);
+            getPreparedStatement().setFloat(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setDouble(int parameterIndex, double x) throws SQLException {
         try {
-            delegate.setDouble(parameterIndex, x);
+            getPreparedStatement().setDouble(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
         try {
-            delegate.setBigDecimal(parameterIndex, x);
+            getPreparedStatement().setBigDecimal(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setString(int parameterIndex, String x) throws SQLException {
         try {
-            delegate.setString(parameterIndex, x);
+            getPreparedStatement().setString(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
         try {
-            delegate.setBytes(parameterIndex, x);
+            getPreparedStatement().setBytes(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setDate(int parameterIndex, Date x) throws SQLException {
         try {
-            delegate.setDate(parameterIndex, x);
+            getPreparedStatement().setDate(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setTime(int parameterIndex, Time x) throws SQLException {
         try {
-            delegate.setTime(parameterIndex, x);
+            getPreparedStatement().setTime(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
         try {
-            delegate.setTimestamp(parameterIndex, x);
+            getPreparedStatement().setTimestamp(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
         try {
-            delegate.setAsciiStream(parameterIndex, x, length);
+            getPreparedStatement().setAsciiStream(parameterIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     @Deprecated
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
         try {
-            delegate.setUnicodeStream(parameterIndex, x, length);
+            getPreparedStatement().setUnicodeStream(parameterIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
         try {
-            delegate.setBinaryStream(parameterIndex, x, length);
+            getPreparedStatement().setBinaryStream(parameterIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void clearParameters() throws SQLException {
         try {
-            delegate.clearParameters();
+            getPreparedStatement().clearParameters();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
         try {
-            delegate.setObject(parameterIndex, x, targetSqlType);
+            getPreparedStatement().setObject(parameterIndex, x, targetSqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(int parameterIndex, Object x) throws SQLException {
         try {
-            delegate.setObject(parameterIndex, x);
+            getPreparedStatement().setObject(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public boolean execute() throws SQLException {
         try {
-            return delegate.execute();
+            return getPreparedStatement().execute();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void addBatch() throws SQLException {
         try {
-            delegate.addBatch();
+            getPreparedStatement().addBatch();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
         try {
-            delegate.setCharacterStream(parameterIndex, reader, length);
+            getPreparedStatement().setCharacterStream(parameterIndex, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setRef(int parameterIndex, Ref x) throws SQLException {
         try {
-            delegate.setRef(parameterIndex, x);
+            getPreparedStatement().setRef(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
         try {
-            delegate.setBlob(parameterIndex, x);
+            getPreparedStatement().setBlob(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setClob(int parameterIndex, Clob x) throws SQLException {
         try {
-            delegate.setClob(parameterIndex, x);
+            getPreparedStatement().setClob(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setArray(int parameterIndex, Array x) throws SQLException {
         try {
-            delegate.setArray(parameterIndex, x);
+            getPreparedStatement().setArray(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public ResultSetMetaData getMetaData() throws SQLException {
         try {
-            return delegate.getMetaData();
+            return getPreparedStatement().getMetaData();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
         try {
-            delegate.setDate(parameterIndex, x, cal);
+            getPreparedStatement().setDate(parameterIndex, x, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
         try {
-            delegate.setTime(parameterIndex, x, cal);
+            getPreparedStatement().setTime(parameterIndex, x, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
         try {
-            delegate.setTimestamp(parameterIndex, x, cal);
+            getPreparedStatement().setTimestamp(parameterIndex, x, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         try {
-            delegate.setNull(parameterIndex, sqlType, typeName);
+            getPreparedStatement().setNull(parameterIndex, sqlType, typeName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setURL(int parameterIndex, URL x) throws SQLException {
         try {
-            delegate.setURL(parameterIndex, x);
+            getPreparedStatement().setURL(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public ParameterMetaData getParameterMetaData() throws SQLException {
         try {
-            return delegate.getParameterMetaData();
+            return getPreparedStatement().getParameterMetaData();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setRowId(int parameterIndex, RowId x) throws SQLException {
         try {
-            delegate.setRowId(parameterIndex, x);
+            getPreparedStatement().setRowId(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNString(int parameterIndex, String value) throws SQLException {
         try {
-            delegate.setNString(parameterIndex, value);
+            getPreparedStatement().setNString(parameterIndex, value);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
         try {
-            delegate.setNCharacterStream(parameterIndex, value, length);
+            getPreparedStatement().setNCharacterStream(parameterIndex, value, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNClob(int parameterIndex, NClob value) throws SQLException {
         try {
-            delegate.setNClob(parameterIndex, value);
+            getPreparedStatement().setNClob(parameterIndex, value);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
         try {
-            delegate.setClob(parameterIndex, reader, length);
+            getPreparedStatement().setClob(parameterIndex, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
         try {
-            delegate.setBlob(parameterIndex, inputStream, length);
+            getPreparedStatement().setBlob(parameterIndex, inputStream, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
         try {
-            delegate.setNClob(parameterIndex, reader, length);
+            getPreparedStatement().setNClob(parameterIndex, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
         try {
-            delegate.setSQLXML(parameterIndex, xmlObject);
+            getPreparedStatement().setSQLXML(parameterIndex, xmlObject);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
         try {
-            delegate.setObject(parameterIndex, x, targetSqlType, scaleOrLength);
+            getPreparedStatement().setObject(parameterIndex, x, targetSqlType, scaleOrLength);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
         try {
-            delegate.setAsciiStream(parameterIndex, x, length);
+            getPreparedStatement().setAsciiStream(parameterIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
         try {
-            delegate.setBinaryStream(parameterIndex, x, length);
+            getPreparedStatement().setBinaryStream(parameterIndex, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
         try {
-            delegate.setCharacterStream(parameterIndex, reader, length);
+            getPreparedStatement().setCharacterStream(parameterIndex, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
         try {
-            delegate.setAsciiStream(parameterIndex, x);
+            getPreparedStatement().setAsciiStream(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
         try {
-            delegate.setBinaryStream(parameterIndex, x);
+            getPreparedStatement().setBinaryStream(parameterIndex, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
         try {
-            delegate.setCharacterStream(parameterIndex, reader);
+            getPreparedStatement().setCharacterStream(parameterIndex, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
         try {
-            delegate.setNCharacterStream(parameterIndex, value);
+            getPreparedStatement().setNCharacterStream(parameterIndex, value);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setClob(int parameterIndex, Reader reader) throws SQLException {
         try {
-            delegate.setClob(parameterIndex, reader);
+            getPreparedStatement().setClob(parameterIndex, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
         try {
-            delegate.setBlob(parameterIndex, inputStream);
+            getPreparedStatement().setBlob(parameterIndex, inputStream);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNClob(int parameterIndex, Reader reader) throws SQLException {
         try {
-            delegate.setNClob(parameterIndex, reader);
+            getPreparedStatement().setNClob(parameterIndex, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
         try {
-            delegate.setObject(parameterIndex, x, targetSqlType, scaleOrLength);
+            getPreparedStatement().setObject(parameterIndex, x, targetSqlType, scaleOrLength);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
         try {
-            delegate.setObject(parameterIndex, x, targetSqlType);
+            getPreparedStatement().setObject(parameterIndex, x, targetSqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public long executeLargeUpdate() throws SQLException {
         try {
-            return delegate.executeLargeUpdate();
+            return getPreparedStatement().executeLargeUpdate();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 }

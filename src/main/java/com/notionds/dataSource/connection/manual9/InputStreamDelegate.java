@@ -25,6 +25,10 @@ public class InputStreamDelegate<DM extends NotionWrapperManual9> extends InputS
     }
 
     @Override
+    public void closeDelegate() throws IOException {
+        this.delegate.close();
+    }
+    @Override
     public void close() throws IOException {
         this.delegateMapper.close(this);
     }

@@ -1,5 +1,7 @@
 package com.notionds.dataSource.connection.manual9;
 
+import com.notionds.dataSource.connection.NotionWrapper;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -8,1099 +10,1103 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-public class CallableStatementDelegate<DM extends NotionWrapperManual9, CS extends CallableStatement> extends PreparedStatementDelegate<DM, CS> implements CallableStatement {
+public class CallableStatementDelegate extends PreparedStatementDelegate implements CallableStatement {
 
-    public CallableStatementDelegate(DM delegateMapper, CS delegate) {
-        super(delegateMapper, delegate);
+    public CallableStatementDelegate(NotionWrapperManual9 notionWrapper, CallableStatement delegate) {
+        super(notionWrapper, delegate);
+    }
+    
+    private CallableStatement getCallableStatement() {
+        return (CallableStatement)delegate;
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterIndex, sqlType);
+            getCallableStatement().registerOutParameter(parameterIndex, sqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType, int scale) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterIndex, sqlType, scale);
+            getCallableStatement().registerOutParameter(parameterIndex, sqlType, scale);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public boolean wasNull() throws SQLException {
         try {
-            return delegate.wasNull();
+            return getCallableStatement().wasNull();
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public String getString(int parameterIndex) throws SQLException {
         try {
-            return delegate.getString(parameterIndex);
+            return getCallableStatement().getString(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public boolean getBoolean(int parameterIndex) throws SQLException {
         try {
-            return delegate.getBoolean(parameterIndex);
+            return getCallableStatement().getBoolean(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public byte getByte(int parameterIndex) throws SQLException {
         try {
-            return delegate.getByte(parameterIndex);
+            return getCallableStatement().getByte(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public short getShort(int parameterIndex) throws SQLException {
         try {
-            return delegate.getShort(parameterIndex);
+            return getCallableStatement().getShort(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public int getInt(int parameterIndex) throws SQLException {
         try {
-            return delegate.getInt(parameterIndex);
+            return getCallableStatement().getInt(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public long getLong(int parameterIndex) throws SQLException {
         try {
-            return delegate.getLong(parameterIndex);
+            return getCallableStatement().getLong(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public float getFloat(int parameterIndex) throws SQLException {
         try {
-            return delegate.getFloat(parameterIndex);
+            return getCallableStatement().getFloat(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public double getDouble(int parameterIndex) throws SQLException {
         try {
-            return delegate.getDouble(parameterIndex);
+            return getCallableStatement().getDouble(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     @Deprecated
     public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
         try {
-            return delegate.getBigDecimal(parameterIndex, scale);
+            return getCallableStatement().getBigDecimal(parameterIndex, scale);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public byte[] getBytes(int parameterIndex) throws SQLException {
         try {
-            return delegate.getBytes(parameterIndex);
+            return getCallableStatement().getBytes(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Date getDate(int parameterIndex) throws SQLException {
         try {
-            return delegate.getDate(parameterIndex);
+            return getCallableStatement().getDate(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Time getTime(int parameterIndex) throws SQLException {
         try {
-            return delegate.getTime(parameterIndex);
+            return getCallableStatement().getTime(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Timestamp getTimestamp(int parameterIndex) throws SQLException {
         try {
-            return delegate.getTimestamp(parameterIndex);
+            return getCallableStatement().getTimestamp(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Object getObject(int parameterIndex) throws SQLException {
         try {
-            return delegate.getObject(parameterIndex);
+            return getCallableStatement().getObject(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public BigDecimal getBigDecimal(int parameterIndex) throws SQLException {
         try {
-            return delegate.getBigDecimal(parameterIndex);
+            return getCallableStatement().getBigDecimal(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Object getObject(int parameterIndex, Map<String, Class<?>> map) throws SQLException {
         try {
-            return delegate.getObject(parameterIndex, map);
+            return getCallableStatement().getObject(parameterIndex, map);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Ref getRef(int parameterIndex) throws SQLException {
         try {
-            return delegate.getRef(parameterIndex);
+            return getCallableStatement().getRef(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Blob getBlob(int parameterIndex) throws SQLException {
         try {
-            return delegate.getBlob(parameterIndex);
+            return getCallableStatement().getBlob(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Clob getClob(int parameterIndex) throws SQLException {
         try {
-            return delegate.getClob(parameterIndex);
+            return getCallableStatement().getClob(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Array getArray(int parameterIndex) throws SQLException {
         try {
-            return delegate.getArray(parameterIndex);
+            return getCallableStatement().getArray(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
         try {
-            return delegate.getDate(parameterIndex, cal);
+            return getCallableStatement().getDate(parameterIndex, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Time getTime(int parameterIndex, Calendar cal) throws SQLException {
         try {
-            return delegate.getTime(parameterIndex, cal);
+            return getCallableStatement().getTime(parameterIndex, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Timestamp getTimestamp(int parameterIndex, Calendar cal) throws SQLException {
         try {
-            return delegate.getTimestamp(parameterIndex, cal);
+            return getCallableStatement().getTimestamp(parameterIndex, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType, String typeName) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterIndex, sqlType, typeName);
+            getCallableStatement().registerOutParameter(parameterIndex, sqlType, typeName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(String parameterName, int sqlType) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterName, sqlType);
+            getCallableStatement().registerOutParameter(parameterName, sqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(String parameterName, int sqlType, int scale) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterName, sqlType, scale);
+            getCallableStatement().registerOutParameter(parameterName, sqlType, scale);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(String parameterName, int sqlType, String typeName) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterName, sqlType, typeName);
+            getCallableStatement().registerOutParameter(parameterName, sqlType, typeName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public URL getURL(int parameterIndex) throws SQLException {
         try {
-            return delegate.getURL(parameterIndex);
+            return getCallableStatement().getURL(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setURL(String parameterName, URL val) throws SQLException {
         try {
-            delegate.setURL(parameterName, val);
+            getCallableStatement().setURL(parameterName, val);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNull(String parameterName, int sqlType) throws SQLException {
         try {
-            delegate.setNull(parameterName, sqlType);
+            getCallableStatement().setNull(parameterName, sqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBoolean(String parameterName, boolean x) throws SQLException {
         try {
-            delegate.setBoolean(parameterName, x);
+            getCallableStatement().setBoolean(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setByte(String parameterName, byte x) throws SQLException {
         try {
-            delegate.setByte(parameterName, x);
+            getCallableStatement().setByte(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setShort(String parameterName, short x) throws SQLException {
         try {
-            delegate.setShort(parameterName, x);
+            getCallableStatement().setShort(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setInt(String parameterName, int x) throws SQLException {
         try {
-            delegate.setInt(parameterName, x);
+            getCallableStatement().setInt(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setLong(String parameterName, long x) throws SQLException {
         try {
-            delegate.setLong(parameterName, x);
+            getCallableStatement().setLong(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setFloat(String parameterName, float x) throws SQLException {
         try {
-            delegate.setFloat(parameterName, x);
+            getCallableStatement().setFloat(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setDouble(String parameterName, double x) throws SQLException {
         try {
-            delegate.setDouble(parameterName, x);
+            getCallableStatement().setDouble(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBigDecimal(String parameterName, BigDecimal x) throws SQLException {
         try {
-            delegate.setBigDecimal(parameterName, x);
+            getCallableStatement().setBigDecimal(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setString(String parameterName, String x) throws SQLException {
         try {
-            delegate.setString(parameterName, x);
+            getCallableStatement().setString(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBytes(String parameterName, byte[] x) throws SQLException {
         try {
-            delegate.setBytes(parameterName, x);
+            getCallableStatement().setBytes(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setDate(String parameterName, Date x) throws SQLException {
         try {
-            delegate.setDate(parameterName, x);
+            getCallableStatement().setDate(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setTime(String parameterName, Time x) throws SQLException {
         try {
-            delegate.setTime(parameterName, x);
+            getCallableStatement().setTime(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setTimestamp(String parameterName, Timestamp x) throws SQLException {
         try {
-            delegate.setTimestamp(parameterName, x);
+            getCallableStatement().setTimestamp(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException {
         try {
-            delegate.setAsciiStream(parameterName, x, length);
+            getCallableStatement().setAsciiStream(parameterName, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException {
         try {
-            delegate.setBinaryStream(parameterName, x, length);
+            getCallableStatement().setBinaryStream(parameterName, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException {
         try {
-            delegate.setObject(parameterName, x, targetSqlType, scale);
+            getCallableStatement().setObject(parameterName, x, targetSqlType, scale);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(String parameterName, Object x, int targetSqlType) throws SQLException {
         try {
-            delegate.setObject(parameterName, x, targetSqlType);
+            getCallableStatement().setObject(parameterName, x, targetSqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(String parameterName, Object x) throws SQLException {
         try {
-            delegate.setObject(parameterName, x);
+            getCallableStatement().setObject(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
         try {
-            delegate.setCharacterStream(parameterName, reader, length);
+            getCallableStatement().setCharacterStream(parameterName, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setDate(String parameterName, Date x, Calendar cal) throws SQLException {
         try {
-            delegate.setDate(parameterName, x, cal);
+            getCallableStatement().setDate(parameterName, x, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setTime(String parameterName, Time x, Calendar cal) throws SQLException {
         try {
-            delegate.setTime(parameterName, x, cal);
+            getCallableStatement().setTime(parameterName, x, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException {
         try {
-            delegate.setTimestamp(parameterName, x, cal);
+            getCallableStatement().setTimestamp(parameterName, x, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
         try {
-            delegate.setNull(parameterName, sqlType, typeName);
+            getCallableStatement().setNull(parameterName, sqlType, typeName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public String getString(String parameterName) throws SQLException {
         try {
-            return delegate.getString(parameterName);
+            return getCallableStatement().getString(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public boolean getBoolean(String parameterName) throws SQLException {
         try {
-            return delegate.getBoolean(parameterName);
+            return getCallableStatement().getBoolean(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public byte getByte(String parameterName) throws SQLException {
         try {
-            return delegate.getByte(parameterName);
+            return getCallableStatement().getByte(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public short getShort(String parameterName) throws SQLException {
         try {
-            return delegate.getShort(parameterName);
+            return getCallableStatement().getShort(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public int getInt(String parameterName) throws SQLException {
         try {
-            return delegate.getInt(parameterName);
+            return getCallableStatement().getInt(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public long getLong(String parameterName) throws SQLException {
         try {
-            return delegate.getLong(parameterName);
+            return getCallableStatement().getLong(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public float getFloat(String parameterName) throws SQLException {
         try {
-            return delegate.getFloat(parameterName);
+            return getCallableStatement().getFloat(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public double getDouble(String parameterName) throws SQLException {
         try {
-            return delegate.getDouble(parameterName);
+            return getCallableStatement().getDouble(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public byte[] getBytes(String parameterName) throws SQLException {
         try {
-            return delegate.getBytes(parameterName);
+            return getCallableStatement().getBytes(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Date getDate(String parameterName) throws SQLException {
         try {
-            return delegate.getDate(parameterName);
+            return getCallableStatement().getDate(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Time getTime(String parameterName) throws SQLException {
         try {
-            return delegate.getTime(parameterName);
+            return getCallableStatement().getTime(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Timestamp getTimestamp(String parameterName) throws SQLException {
         try {
-            return delegate.getTimestamp(parameterName);
+            return getCallableStatement().getTimestamp(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Object getObject(String parameterName) throws SQLException {
         try {
-            return delegate.getObject(parameterName);
+            return getCallableStatement().getObject(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public BigDecimal getBigDecimal(String parameterName) throws SQLException {
         try {
-            return delegate.getBigDecimal(parameterName);
+            return getCallableStatement().getBigDecimal(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Object getObject(String parameterName, Map<String, Class<?>> map) throws SQLException {
         try {
-            return delegate.getObject(parameterName, map);
+            return getCallableStatement().getObject(parameterName, map);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Ref getRef(String parameterName) throws SQLException {
         try {
-            return delegate.getRef(parameterName);
+            return getCallableStatement().getRef(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Blob getBlob(String parameterName) throws SQLException {
         try {
-            return delegate.getBlob(parameterName);
+            return getCallableStatement().getBlob(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Clob getClob(String parameterName) throws SQLException {
         try {
-            return delegate.getClob(parameterName);
+            return getCallableStatement().getClob(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Array getArray(String parameterName) throws SQLException {
         try {
-            return delegate.getArray(parameterName);
+            return getCallableStatement().getArray(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Date getDate(String parameterName, Calendar cal) throws SQLException {
         try {
-            return delegate.getDate(parameterName, cal);
+            return getCallableStatement().getDate(parameterName, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Time getTime(String parameterName, Calendar cal) throws SQLException {
         try {
-            return delegate.getTime(parameterName, cal);
+            return getCallableStatement().getTime(parameterName, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Timestamp getTimestamp(String parameterName, Calendar cal) throws SQLException {
         try {
-            return delegate.getTimestamp(parameterName, cal);
+            return getCallableStatement().getTimestamp(parameterName, cal);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public URL getURL(String parameterName) throws SQLException {
         try {
-            return delegate.getURL(parameterName);
+            return getCallableStatement().getURL(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public RowId getRowId(int parameterIndex) throws SQLException {
         try {
-            return delegate.getRowId(parameterIndex);
+            return getCallableStatement().getRowId(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public RowId getRowId(String parameterName) throws SQLException {
         try {
-            return delegate.getRowId(parameterName);
+            return getCallableStatement().getRowId(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setRowId(String parameterName, RowId x) throws SQLException {
         try {
-            delegate.setRowId(parameterName, x);
+            getCallableStatement().setRowId(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNString(String parameterName, String value) throws SQLException {
         try {
-            delegate.setNString(parameterName, value);
+            getCallableStatement().setNString(parameterName, value);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException {
         try {
-            delegate.setNCharacterStream(parameterName, value, length);
+            getCallableStatement().setNCharacterStream(parameterName, value, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNClob(String parameterName, NClob value) throws SQLException {
         try {
-            delegate.setNClob(parameterName, value);
+            getCallableStatement().setNClob(parameterName, value);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setClob(String parameterName, Reader reader, long length) throws SQLException {
         try {
-            delegate.setClob(parameterName, reader, length);
+            getCallableStatement().setClob(parameterName, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
         try {
-            delegate.setBlob(parameterName, inputStream, length);
+            getCallableStatement().setBlob(parameterName, inputStream, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
         try {
-            delegate.setNClob(parameterName, reader, length);
+            getCallableStatement().setNClob(parameterName, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public NClob getNClob(int parameterIndex) throws SQLException {
         try {
-            return delegate.getNClob(parameterIndex);
+            return getCallableStatement().getNClob(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public NClob getNClob(String parameterName) throws SQLException {
         try {
-            return delegate.getNClob(parameterName);
+            return getCallableStatement().getNClob(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException {
         try {
-            delegate.setSQLXML(parameterName, xmlObject);
+            getCallableStatement().setSQLXML(parameterName, xmlObject);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public SQLXML getSQLXML(int parameterIndex) throws SQLException {
         try {
-            return delegate.getSQLXML(parameterIndex);
+            return getCallableStatement().getSQLXML(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public SQLXML getSQLXML(String parameterName) throws SQLException {
         try {
-            return delegate.getSQLXML(parameterName);
+            return getCallableStatement().getSQLXML(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public String getNString(int parameterIndex) throws SQLException {
         try {
-            return delegate.getNString(parameterIndex);
+            return getCallableStatement().getNString(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public String getNString(String parameterName) throws SQLException {
         try {
-            return delegate.getNString(parameterName);
+            return getCallableStatement().getNString(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
         try {
-            return delegate.getNCharacterStream(parameterIndex);
+            return getCallableStatement().getNCharacterStream(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Reader getNCharacterStream(String parameterName) throws SQLException {
         try {
-            return delegate.getNCharacterStream(parameterName);
+            return getCallableStatement().getNCharacterStream(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Reader getCharacterStream(int parameterIndex) throws SQLException {
         try {
-            return delegate.getCharacterStream(parameterIndex);
+            return getCallableStatement().getCharacterStream(parameterIndex);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public Reader getCharacterStream(String parameterName) throws SQLException {
         try {
-            return delegate.getCharacterStream(parameterName);
+            return getCallableStatement().getCharacterStream(parameterName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBlob(String parameterName, Blob x) throws SQLException {
         try {
-            delegate.setBlob(parameterName, x);
+            getCallableStatement().setBlob(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setClob(String parameterName, Clob x) throws SQLException {
         try {
-            delegate.setClob(parameterName, x);
+            getCallableStatement().setClob(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
         try {
-            delegate.setAsciiStream(parameterName, x, length);
+            getCallableStatement().setAsciiStream(parameterName, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
         try {
-            delegate.setBinaryStream(parameterName, x, length);
+            getCallableStatement().setBinaryStream(parameterName, x, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
         try {
-            delegate.setCharacterStream(parameterName, reader, length);
+            getCallableStatement().setCharacterStream(parameterName, reader, length);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setAsciiStream(String parameterName, InputStream x) throws SQLException {
         try {
-            delegate.setAsciiStream(parameterName, x);
+            getCallableStatement().setAsciiStream(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBinaryStream(String parameterName, InputStream x) throws SQLException {
         try {
-            delegate.setBinaryStream(parameterName, x);
+            getCallableStatement().setBinaryStream(parameterName, x);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
         try {
-            delegate.setCharacterStream(parameterName, reader);
+            getCallableStatement().setCharacterStream(parameterName, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNCharacterStream(String parameterName, Reader value) throws SQLException {
         try {
-            delegate.setNCharacterStream(parameterName, value);
+            getCallableStatement().setNCharacterStream(parameterName, value);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setClob(String parameterName, Reader reader) throws SQLException {
         try {
-            delegate.setClob(parameterName, reader);
+            getCallableStatement().setClob(parameterName, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
         try {
-            delegate.setBlob(parameterName, inputStream);
+            getCallableStatement().setBlob(parameterName, inputStream);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setNClob(String parameterName, Reader reader) throws SQLException {
         try {
-            delegate.setNClob(parameterName, reader);
+            getCallableStatement().setNClob(parameterName, reader);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
         try {
-            return delegate.getObject(parameterIndex, type);
+            return getCallableStatement().getObject(parameterIndex, type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
         try {
-            return delegate.getObject(parameterName, type);
+            return getCallableStatement().getObject(parameterName, type);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
         try {
-            delegate.setObject(parameterName, x, targetSqlType, scaleOrLength);
+            getCallableStatement().setObject(parameterName, x, targetSqlType, scaleOrLength);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void setObject(String parameterName, Object x, SQLType targetSqlType) throws SQLException {
         try {
-            delegate.setObject(parameterName, x, targetSqlType);
+            getCallableStatement().setObject(parameterName, x, targetSqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(int parameterIndex, SQLType sqlType) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterIndex, sqlType);
+            getCallableStatement().registerOutParameter(parameterIndex, sqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(int parameterIndex, SQLType sqlType, int scale) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterIndex, sqlType, scale);
+            getCallableStatement().registerOutParameter(parameterIndex, sqlType, scale);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(int parameterIndex, SQLType sqlType, String typeName) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterIndex, sqlType, typeName);
+            getCallableStatement().registerOutParameter(parameterIndex, sqlType, typeName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(String parameterName, SQLType sqlType) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterName, sqlType);
+            getCallableStatement().registerOutParameter(parameterName, sqlType);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(String parameterName, SQLType sqlType, int scale) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterName, sqlType, scale);
+            getCallableStatement().registerOutParameter(parameterName, sqlType, scale);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 
     public void registerOutParameter(String parameterName, SQLType sqlType, String typeName) throws SQLException {
         try {
-            delegate.registerOutParameter(parameterName, sqlType, typeName);
+            getCallableStatement().registerOutParameter(parameterName, sqlType, typeName);
         }
         catch (SQLException sqlException) {
-            throw this.delegateMapper.handle(sqlException, this);
+            throw this.notionWrapper.handleSQLException(sqlException, this);
         }
     }
 }

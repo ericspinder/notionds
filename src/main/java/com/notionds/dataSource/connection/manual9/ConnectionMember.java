@@ -8,12 +8,12 @@ import java.util.UUID;
 public abstract class ConnectionMember<DM extends NotionWrapperManual9, AW extends AutoCloseable> implements ConnectionMember_I {
 
     protected final AW delegate;
-    protected final DM delegateMapper;
+    protected final DM notionWrapper;
     protected final Instant createInstant = Instant.now();
 
 
-    public ConnectionMember(DM delegateMapper, AW delegate) {
-        this.delegateMapper = delegateMapper;
+    public ConnectionMember(DM NotionWrapper, AW delegate) {
+        this.notionWrapper = NotionWrapper;
         this.delegate = delegate;
     }
 
@@ -23,6 +23,7 @@ public abstract class ConnectionMember<DM extends NotionWrapperManual9, AW exten
 
     @Override
     public UUID getConnectionId() {
-        return this.delegateMapper.getConnectionId();
+        return this.notionWrapper.getConnectionId();
     }
 }
+

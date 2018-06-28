@@ -108,21 +108,6 @@ public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends N
     }
 
     @Override
-    public void close() throws SQLException {
-        this.notionWrapper.closeNotionConnectionTree();
-    }
-
-    @Override
-    public boolean isClosed() throws SQLException {
-        try {
-            return notionWrapper.getUnderlyingVendorConnection().isClosed();
-        }
-        catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
-        }
-    }
-
-    @Override
     public DatabaseMetaData getMetaData() throws SQLException {
         try {
             return this.notionWrapper.wrap(notionWrapper.getUnderlyingVendorConnection().getMetaData(), this);

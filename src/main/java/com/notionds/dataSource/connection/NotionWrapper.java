@@ -78,8 +78,17 @@ public abstract class NotionWrapper<O extends Options, NC extends NotionConnecti
 
     }
     public void closeNotionConnectionTree() {
-        //if (options.)
-        //this.notionConnectionTree.
+        if (this.notionConnectionTree != null && NotionWeakReference.State.Open.equals(this.notionConnectionTree.getState())) {
+            NotionConnection notionConnection = this.notionConnectionTree.get();
+            try {
+                if (!notionConnection.isClosed()) {
+
+                }
+            }
+            catch(SQLException sqle) {
+
+            }
+        }
     }
 
     protected abstract void setNotionConnectionTree(NotionConnectionDelegate notionConnectionTree);

@@ -2,9 +2,6 @@ package com.notionds.dataSource.connection;
 
 import java.sql.*;
 import java.time.Instant;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Executor;
 
 public abstract class NotionConnection<NW extends NotionWrapper> implements Connection, ConnectionMember_I {
     
@@ -16,6 +13,20 @@ public abstract class NotionConnection<NW extends NotionWrapper> implements Conn
     }
     public final Instant getCreateInstant() {
         return this.createInstant;
+    }
+    @Override
+    public final void close() throws SQLException {
+        this.notionWrapper.closeNotionConnectionTree();
+    }
+
+    @Override
+    public final boolean isClosed() throws SQLException {
+        try {
+            return notionWrapper.getUnderlyingVendorConnection().isClosed();
+        }
+        catch (SQLException sqlException) {
+            throw this.notionWrapper.handleSQLException(sqlException, this);
+        }
     }
 
 

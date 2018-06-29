@@ -24,8 +24,7 @@ public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice
         this.dbUrl = dbUrl;
         this.friendlyName = friendlyName;
         try {
-            this.exceptionAdvice = this.exceptionAdviceClass.getDeclaredConstructor(options.getClass()).
-                    .newInstance(options);
+            this.exceptionAdvice = this.exceptionAdviceClass.getDeclaredConstructor(options.getClass()).newInstance(options);
         }
         catch (Exception e) {
             throw new RuntimeException("Problem getting delegateTree instance " + e.getMessage());

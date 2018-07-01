@@ -1,15 +1,17 @@
 package com.notionds.dataSource.exceptions;
 
+import com.notionds.dataSource.OperationAccounting;
+
 import java.sql.SQLException;
 
 public class SqlExceptionWrapper extends SQLException {
 
 
-    private final ExceptionAccounting exceptionAccounting;
+    private final OperationAccounting operationAccounting;
 
-    public SqlExceptionWrapper(ExceptionAccounting exceptionAccounting, SQLException cause) {
-        super(exceptionAccounting.toString(), cause);
-        this.exceptionAccounting = exceptionAccounting;
+    public SqlExceptionWrapper(OperationAccounting operationAccounting, SQLException cause) {
+        super(operationAccounting.toString(), cause);
+        this.operationAccounting = operationAccounting;
     }
 
     @Override
@@ -17,7 +19,7 @@ public class SqlExceptionWrapper extends SQLException {
         return this;
     }
 
-    public ExceptionAccounting getExceptionAccounting() {
-        return this.exceptionAccounting;
+    public OperationAccounting getOperationAccounting() {
+        return this.operationAccounting;
     }
 }

@@ -1,47 +1,16 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.State;
+import com.notionds.dataSource.connection.generator.BlobOfNotion;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.util.UUID;
 
-public class BlobDelegate<DM extends NotionWrapperManual9> implements Blob, ConnectionMember_I {
+public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
 
-    private final DM notionWrapper;
-    private final Blob delegate;
-    private final Instant createInstant = Instant.now();
-    private State state = State.Open;
-
-    public BlobDelegate(DM delegatedMapper, Blob delegate) {
-        this.notionWrapper = delegatedMapper;
-        this.delegate = delegate;
-    }
-
-    public State getState() {
-        return this.state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-    public final UUID getConnectionId() {
-        return this.notionWrapper.getConnectionId();
-    }
-    public final Instant getCreateInstant() {
-        return this.createInstant;
-    }
-
-    @Override
-    public void close() throws SQLException {
-        this.notionWrapper.close(this);
-    }
-    public void closeDelegate() throws SQLException {
-        this.delegate.free();
+    public BlobDelegate(ConnectionContainerManual9 notionWrapper, Blob delegate) {
+        super(notionWrapper, delegate);
     }
 
     @Override

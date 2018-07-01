@@ -1,24 +1,25 @@
-package com.notionds.dataSource.connection.manual9;
+package com.notionds.dataSource.connection.generator;
 
+import com.notionds.dataSource.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.State;
+import com.notionds.dataSource.connection.manual9.ConnectionContainerManual9;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
-import java.time.Instant;
-import java.util.UUID;
 
-public class ReaderDelegate<DM extends NotionWrapperManual9> extends Reader implements ConnectionMember_I {
+public class ReaderDelegate<NW extends ConnectionContainerManual9> extends Reader implements ConnectionMember_I {
 
-    private final DM delegateMapper;
+    private final NW notionWrapper;
     private final Reader delegate;
-    private final Instant createInstant = Instant.now();
+    private final OperationAccounting operationAccounting;
     private State state = State.Open;
 
-    public ReaderDelegate(DM delegateMapper, Reader delegate) {
-        this.delegateMapper = delegateMapper;
+    public ReaderDelegate(NW notionWrapper, Reader delegate) {
+        this.notionWrapper = notionWrapper;
         this.delegate = delegate;
+        this.operationAccounting = new OperationAccounting(notionWrapper.getConnectionId());
     }
     public State getState() {
         return this.state;
@@ -28,16 +29,13 @@ public class ReaderDelegate<DM extends NotionWrapperManual9> extends Reader impl
         this.state = state;
     }
 
-    @Override
-    public void closeDelegate() throws IOException {
-        this.delegate.close();
-    }
-    public Instant getCreateInstant() {
-        return this.createInstant;
+    public OperationAccounting getOperationAccounting() {
+        return this.operationAccounting;
     }
 
-    public UUID getConnectionId() {
-        return this.delegateMapper.getConnectionId();
+
+    protected void closeDelegate() throws IOException {
+        this.delegate.close();
     }
 
     @Override
@@ -87,6 +85,6 @@ public class ReaderDelegate<DM extends NotionWrapperManual9> extends Reader impl
 
     @Override
     public void close() throws IOException {
-        delegateMapper.close(this);
+        notionWrapper.close(this);
     }
 }

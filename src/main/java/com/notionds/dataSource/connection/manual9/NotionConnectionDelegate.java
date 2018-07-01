@@ -1,23 +1,17 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.connection.NotionConnection;
-import com.notionds.dataSource.connection.NotionWrapper;
+import com.notionds.dataSource.connection.generator.ConnectionMember;
 
 import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
-public class NotionConnectionDelegate<NW extends NotionWrapperManual9> extends NotionConnection<NW> {
+public class NotionConnectionDelegate extends ConnectionMember<ConnectionContainerManual9, Connection> implements Connection {
 
     
-    public NotionConnectionDelegate(NW notionWrapper) {
-        super(notionWrapper);
-    }
-
-    public UUID getConnectionId() {
-        return this.notionWrapper.getConnectionId();
+    public NotionConnectionDelegate(ConnectionContainerManual9 notionWrapper, Connection delegate) {
+        super(notionWrapper, delegate);
     }
 
     @Override

@@ -5,21 +5,17 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
-import java.time.Instant;
 import java.util.Calendar;
-import java.util.UUID;
 
 public class PreparedStatementDelegate extends StatementDelegate implements PreparedStatement {
 
      
-    public PreparedStatementDelegate(NotionWrapperManual9 notionWrapper, PreparedStatement delegate) {
+    public PreparedStatementDelegate(ConnectionContainerManual9 notionWrapper, PreparedStatement delegate) {
         super(notionWrapper, delegate);
     }
     private PreparedStatement getPreparedStatement() {
         return (PreparedStatement)delegate;
     }
-    
-
 
     public ResultSet executeQuery() throws SQLException {
         try {

@@ -1,14 +1,16 @@
 package com.notionds.dataSource.exceptions;
 
+import com.notionds.dataSource.OperationAccounting;
+
 import java.io.IOException;
 
 public class IoExceptionWrapper extends IOException {
 
-    private final ExceptionAccounting exceptionAccounting;
+    private final OperationAccounting operationAccounting;
 
-    public IoExceptionWrapper(ExceptionAccounting exceptionAccounting, IOException cause) {
-        super(exceptionAccounting.toString(), cause);
-        this.exceptionAccounting = exceptionAccounting;
+    public IoExceptionWrapper(OperationAccounting operationAccounting, IOException cause) {
+        super(operationAccounting.toString(), cause);
+        this.operationAccounting = operationAccounting;
     }
 
     @Override
@@ -16,8 +18,8 @@ public class IoExceptionWrapper extends IOException {
         return this;
     }
 
-    public ExceptionAccounting getExceptionAccounting() {
-        return this.exceptionAccounting;
+    public OperationAccounting getOperationAccounting() {
+        return this.operationAccounting;
     }
 
 }

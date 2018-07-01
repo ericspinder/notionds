@@ -1,16 +1,18 @@
 package com.notionds.dataSource.exceptions;
 
+import com.notionds.dataSource.OperationAccounting;
+
 public class ExceptionWrapper extends Exception {
 
-    private final ExceptionAccounting exceptionAccounting;
+    private final OperationAccounting operationAccounting;
 
-    public ExceptionWrapper(ExceptionAccounting exceptionAccounting, Exception cause) {
-        super(exceptionAccounting.toString(), cause, false, false);
-        this.exceptionAccounting = exceptionAccounting;
+    public ExceptionWrapper(OperationAccounting operationAccounting, Exception cause) {
+        super(operationAccounting.toString(), cause, false, false);
+        this.operationAccounting = operationAccounting;
     }
 
-    public ExceptionAccounting getExceptionAccounting() {
-        return this.exceptionAccounting;
+    public OperationAccounting getOperationAccounting() {
+        return this.operationAccounting;
     }
 
 }

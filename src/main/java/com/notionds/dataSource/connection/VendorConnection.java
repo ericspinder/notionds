@@ -13,7 +13,7 @@ public abstract class VendorConnection<O extends Options, CA extends ConnectionA
     private final DatabaseMain databaseMain;
     private final Connection delegate;
     private final CA connectionAnalysis;
-    private final ReferenceQueue<ConnectionMember_I> referenceQueue = new ReferenceQueue<>();
+
 
     public VendorConnection(O options, DatabaseMain databaseMain, Connection delegate) {
         this.options = options;
@@ -39,8 +39,6 @@ public abstract class VendorConnection<O extends Options, CA extends ConnectionA
         return this.delegate;
     }
 
-    public ReferenceQueue<ConnectionMember_I> getReferenceQueue() {
-        return this.referenceQueue;
-    }
+
 
 }

@@ -1,47 +1,16 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.NotionConnection;
-import com.notionds.dataSource.connection.State;
+import com.notionds.dataSource.connection.generator.ConnectionMember;
 
-import java.sql.*;
-import java.time.Instant;
-import java.util.UUID;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
 
-public class StatementDelegate implements Statement, ConnectionMember_I {
+public class StatementDelegate extends ConnectionMember<ConnectionContainerManual9, Statement> implements Statement {
 
-    protected final Statement delegate;
-    protected final NotionWrapperManual9 notionWrapper;
-    protected final Instant createInstant = Instant.now();
-    private State state = State.Open;
-
-    public StatementDelegate(NotionWrapperManual9 notionWrapper, Statement delegate) {
-        this.notionWrapper = notionWrapper;
-        this.delegate = delegate;
-    }
-
-    public State getState() {
-        return this.state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    public final Instant getCreateInstant() {
-        return this.createInstant;
-    }
-
-    @Override
-    public UUID getConnectionId() {
-        return this.notionWrapper.getConnectionId();
-    }
-
-    @Override
-    public void closeDelegate() throws SQLException {
-        if (!this.delegate.isClosed()) {
-            this.delegate.close();
-        }
+    public StatementDelegate(ConnectionContainerManual9 notionWrapper, Statement delegate) {
+        super (notionWrapper, delegate);
     }
 
     @Override
@@ -310,7 +279,7 @@ public class StatementDelegate implements Statement, ConnectionMember_I {
     }
 
     @Override
-    public NotionConnection getConnection() throws SQLException {
+    public NotionConnection_Keep_for_now getConnection() throws SQLException {
         return notionWrapper.getNotionConnection();
     }
 

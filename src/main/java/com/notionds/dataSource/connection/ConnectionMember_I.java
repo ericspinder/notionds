@@ -1,13 +1,13 @@
 package com.notionds.dataSource.connection;
 
-import java.time.Instant;
-import java.util.UUID;
+import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.generator.ConnectionContainer;
 
 public interface ConnectionMember_I extends AutoCloseable {
 
-    Instant getCreateInstant();
-    void closeDelegate() throws Exception;
-    UUID getConnectionId();
+    ConnectionContainer getConnectionContainer();
+    OperationAccounting getOperationAccounting();
     State getState();
     void setState(State state);
+
 }

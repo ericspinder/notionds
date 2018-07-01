@@ -1,7 +1,5 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.connection.NotionWrapper;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -12,7 +10,7 @@ import java.util.Map;
 
 public class CallableStatementDelegate extends PreparedStatementDelegate implements CallableStatement {
 
-    public CallableStatementDelegate(NotionWrapperManual9 notionWrapper, CallableStatement delegate) {
+    public CallableStatementDelegate(ConnectionContainerManual9 notionWrapper, CallableStatement delegate) {
         super(notionWrapper, delegate);
     }
     

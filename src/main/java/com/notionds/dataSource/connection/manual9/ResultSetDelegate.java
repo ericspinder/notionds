@@ -1,5 +1,7 @@
 package com.notionds.dataSource.connection.manual9;
 
+import com.notionds.dataSource.connection.generator.ConnectionMember;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -8,16 +10,10 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends ResultSet> extends ConnectionMember<DM, RS> implements ResultSet {
+public class ResultSetDelegate extends ConnectionMember<ConnectionContainerManual9, ResultSet> implements ResultSet {
     
-    public ResultSetDelegate(DM delegateMapper, RS delegate) {
+    public ResultSetDelegate(ConnectionContainerManual9 delegateMapper, ResultSet delegate) {
         super(delegateMapper, delegate);
-    }
-
-    public void closeDelegate() throws SQLException {
-        if (!this.delegate.isClosed()) {
-            this.delegate.close();
-        }
     }
 
     public boolean next() throws SQLException {
@@ -27,11 +23,6 @@ public class ResultSetDelegate<DM extends NotionWrapperManual9, RS extends Resul
         catch (SQLException sqlException) {
             throw this.notionWrapper.handleSQLException(sqlException, this);
         }
-    }
-
-    public void close() throws SQLException {
-        this.notionWrapper.close(this);
-
     }
 
     public boolean wasNull() throws SQLException {

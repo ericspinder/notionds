@@ -1,5 +1,6 @@
-package com.notionds.dataSource;
+package com.notionds.dataSource.exceptions;
 
+import com.notionds.dataSource.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

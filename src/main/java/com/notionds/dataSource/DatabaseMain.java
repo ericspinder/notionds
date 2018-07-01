@@ -1,6 +1,7 @@
 package com.notionds.dataSource;
 
-import com.notionds.dataSource.connection.NotionWrapper;
+import com.notionds.dataSource.connection.generator.ConnectionContainer;
+import com.notionds.dataSource.exceptions.ExceptionAdvice;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -41,10 +42,10 @@ public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice
     /**
      *
      * @param sqlException
-     * @param notionWrapper
+     * @param connectionContainer
      * @return Recommendation the initial recommendation for connection at task, may be changed later
      */
-    public ExceptionAdvice.Recommendation remedySQLException(SQLException sqlException, NotionWrapper notionWrapper) {
+    public ExceptionAdvice.Recommendation remedySQLException(SQLException sqlException, ConnectionContainer connectionContainer) {
         ExceptionAdvice.Recommendation recommendation =  exceptionAdvice.adviseSqlException(sqlException);
         //analysis
         return recommendation;
@@ -53,10 +54,10 @@ public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice
     /**
      *
      * @param sqlClientInfoException
-     * @param notionWrapper
+     * @param connectionContainer
      * @return Recommendation the initial recommendation for connection at task, may be changed later
      */
-    public ExceptionAdvice.Recommendation remedySQLClientInfoException(SQLClientInfoException sqlClientInfoException, NotionWrapper notionWrapper) {
+    public ExceptionAdvice.Recommendation remedySQLClientInfoException(SQLClientInfoException sqlClientInfoException, ConnectionContainer connectionContainer) {
         ExceptionAdvice.Recommendation recommendation =  exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException);
         //analysis
         return recommendation;
@@ -65,16 +66,16 @@ public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice
     /**
      *
      * @param ioException
-     * @param notionWrapper
+     * @param connectionContainer
      * @return Recommendation the initial recommendation for connection at task, may be changed later
      */
-    public ExceptionAdvice.Recommendation remedyIoException(IOException ioException, NotionWrapper notionWrapper) {
+    public ExceptionAdvice.Recommendation remedyIoException(IOException ioException, ConnectionContainer connectionContainer) {
         ExceptionAdvice.Recommendation recommendation = exceptionAdvice.adviseIoException(ioException);
         //analysis
         return recommendation;
     }
 
-    public ExceptionAdvice.Recommendation remedyException(Exception exception, NotionWrapper notionWrapper) {
+    public ExceptionAdvice.Recommendation remedyException(Exception exception, ConnectionContainer connectionContainer) {
         ExceptionAdvice.Recommendation recommendation = exceptionAdvice.adviseException(exception);
         this.
         return recommendation;

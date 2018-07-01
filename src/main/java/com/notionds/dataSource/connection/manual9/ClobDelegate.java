@@ -1,7 +1,6 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.State;
+import com.notionds.dataSource.connection.generator.ClobOfNotion;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,42 +8,11 @@ import java.io.Reader;
 import java.io.Writer;
 import java.sql.Clob;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.util.UUID;
 
-public class ClobDelegate implements Clob, ConnectionMember_I {
+public class ClobDelegate extends ClobOfNotion<ConnectionContainerManual9> {
 
-    private final NotionWrapperManual9 notionWrapper;
-    private final Clob delegate;
-    private final Instant startTime;
-    private State state = State.Open;
-
-    public ClobDelegate(NotionWrapperManual9 notionWrapper, Clob delegate) {
-        this.notionWrapper = notionWrapper;
-        this.delegate = delegate;
-        this.startTime = Instant.now();
-    }
-    public State getState() {
-        return this.state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-    public final UUID getConnectionId() {
-        return this.notionWrapper.getConnectionId();
-    }
-    public final Instant getCreateInstant() {
-        return this.startTime;
-    }
-
-    @Override
-    public void close() throws SQLException {
-        this.notionWrapper.close(this);
-    }
-    @Override
-    public void closeDelegate() throws SQLException {
-        this.free();
+    public ClobDelegate(ConnectionContainerManual9 notionWrapper, Clob delegate) {
+        super(notionWrapper, delegate);
     }
 
     @Override

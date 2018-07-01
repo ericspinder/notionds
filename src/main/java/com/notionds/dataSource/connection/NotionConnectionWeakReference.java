@@ -1,21 +1,12 @@
 package com.notionds.dataSource.connection;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import com.notionds.dataSource.connection.manual9.NotionConnection_Keep_for_now;
+import com.notionds.dataSource.connection.generator.ConnectionContainer;
 
-public class NotionConnectionWeakReference<NW extends NotionConnection> extends NotionWeakReference<NW> {
+public class NotionConnectionWeakReference<NW extends NotionConnection_Keep_for_now, Connection> extends NotionWeakReference<NW, Connection> {
 
-    private final Map<NotionWeakReference, State> children = new ConcurrentHashMap<>();
-
-    public NotionConnectionWeakReference(NW notionConnection, NotionWrapper notionWrapper) {
-        super(notionConnection,notionWrapper);
+    public NotionConnectionWeakReference(NW notionConnection, Connection connection, ConnectionContainer connectionContainer) {
+        super(notionConnection,connection, connectionContainer);
     }
 
-    public void addChild(NotionWeakReference child) {
-        this.children.put(child, State.Open);
-    }
-
-    public Map<NotionWeakReference, State> getChildren() {
-        return this.children;
-    }
 }

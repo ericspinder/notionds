@@ -3,7 +3,9 @@ package com.notionds.dataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.locks.StampedLock;
 
 public abstract class Options {
@@ -31,7 +33,10 @@ public abstract class Options {
         }
     }
     public enum NotionDefaultIntegers implements IntegerOption  {
-        ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5);
+        ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5),
+        ConnectionAnalysis_Max_Normal_Seconds("com.notion.connectionAnalysis.maxNormalSeconds", "The maximum time of an operation before it's reported as abnormal", 10),
+
+
         ;
         private final String key;
         private final String description;
@@ -52,6 +57,7 @@ public abstract class Options {
         }
     }
     public enum NotionDefaultBooleans implements BooleanOption  {
+        ConnectionContainer_Check_ResultSet("com.notion.connectionContainer.checkResultSet", "Order a check of all ResultSets before closing when close() had not been called, until the connection had been closed", true),
 
         ;
         private final String key;

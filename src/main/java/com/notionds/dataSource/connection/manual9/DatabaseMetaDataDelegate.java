@@ -1,49 +1,13 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.State;
+import com.notionds.dataSource.connection.generator.NoCloseNeededNotion;
 
 import java.sql.*;
-import java.time.Instant;
-import java.util.UUID;
 
-public class DatabaseMetaDataDelegate<DM extends NotionWrapperManual9> implements DatabaseMetaData, ConnectionMember_I {
-    
-    private final NotionWrapperManual9 notionWrapper;
-    private final DatabaseMetaData delegate;
-    private final Instant startTime;
-    private State state = State.Open;
-    
+public class DatabaseMetaDataDelegate extends NoCloseNeededNotion<ConnectionContainerManual9> implements DatabaseMetaData {
 
-    public DatabaseMetaDataDelegate(NotionWrapperManual9 notionWrapper, DatabaseMetaData delegate) {
-        this.notionWrapper = notionWrapper;
-        this.delegate = delegate;
-        this.startTime = Instant.now();
-    }
-    public State getState() {
-        return this.state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-    @Override
-    public void close() throws SQLException {
-        this.notionWrapper.close(this);
-    }
-    @Override
-    public void closeDelegate() throws SQLException {
-        // no operation needed
-    }
-
-    @Override
-    public Instant getCreateInstant() {
-        return this.startTime;
-    }
-
-    @Override
-    public UUID getConnectionId() {
-        return this.notionWrapper.getConnectionId();
+    public DatabaseMetaDataDelegate(ConnectionContainerManual9 notionWrapper, DatabaseMetaData delegate) {
+        super(notionWrapper, delegate);
     }
 
     @Override

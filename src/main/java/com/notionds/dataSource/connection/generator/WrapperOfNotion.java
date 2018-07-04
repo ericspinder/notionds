@@ -12,16 +12,13 @@ import java.sql.*;
 public abstract class WrapperOfNotion<O extends Options> {
 
     protected final O options;
-    protected final ConnectionContainer connectionContainer;
 
-    public WrapperOfNotion(O options, ConnectionContainer connectionContainer) {
+    public WrapperOfNotion(O options) {
         this.options = options;
-        this.connectionContainer = connectionContainer;
     }
 
 
-    public abstract ConnectionMember<?, Statement> createDelegate(Object object);
-
+    public abstract Class<ConnectionMember_I> getDelegateClass(Class clazz);
 
 
 }

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.ref.ReferenceQueue;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.sql.*;
 import java.time.Instant;
@@ -30,15 +31,10 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
     private final W wrapper;
     private ReferenceQueue<ConnectionMember_I> referenceQueue = new ReferenceQueue<>();
 
-    public ConnectionContainer(O options, VendorConnection vendorConnection) {
+    public ConnectionContainer(O options, VendorConnection vendorConnection, W wrapper) {
         this.options = options;
         this.vendorConnection = vendorConnection;
-        try {
-            this.wrapper = ((Class<W>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor().newInstance(options);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Cannot create WrapperOfNotion: " + e.getMessage());
-        }
+        this.wrapper = wrapper; //((Class<W>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor().newInstance(options);
     }
     public Connection getNotionConnection() {
         if (this.notionConnectionTree == null) {
@@ -134,7 +130,7 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
                     Object delegate = notionWeakReference.getDelegate();
                     if (!forceClose && options.get(Options.NotionDefaultBooleans.ConnectionContainer_Check_ResultSet)) {
                         if (delegate instanceof ResultSet) {
-                            if (((ResultSet) delegate).isBeforeFirst()) {
+                            if (!((ResultSet) delegate).isBeforeFirst()) {
                                 // isBeforeFirst will be true when it hasn't yet been 'nexted' or more importantly when the ResultSet is finished
                                 return false;
                             }
@@ -200,10 +196,17 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
 
     protected abstract void setNotionConnectionTree(NotionConnectionDelegate notionConnectionTree);
 
-    protected ConnectionMember_I wrap(Object delegate) {
-        ConnectionMember_I connectionDelegate = wrapper.createDelegate(delegate);
-        NotionWeakReference weakReference = new NotionWeakReference(connectionDelegate, delegate, this);
-        return connectionDelegate;
+    protected ConnectionMember_I wrap(Class clazz, Object delegate) {
+        Class<ConnectionMember_I> connectionDelegateClass = wrapper.getDelegateClass(clazz);
+        try {
+            Constructor<ConnectionMember_I> connectionDelegateConstructor = connectionDelegateClass.getDeclaredConstructor(Object.class, ConnectionContainer.class);
+            ConnectionMember_I connectionDelegate = connectionDelegateConstructor.newInstance(delegate, this);
+            NotionWeakReference weakReference = new NotionWeakReference(connectionDelegate, delegate);
+            return connectionDelegate;
+        }
+        catch (ReflectiveOperationException nsme) {
+
+        }
     }
 
 

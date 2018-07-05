@@ -45,9 +45,9 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
     public NotionWeakReference getNotionConnectionWeakReference() {
         if (this.notionConnectionTree == null) {
             try {
-                this.notionConnectionTree = new NotionWeakReference(this.wrap(vendorConnection.getDelegate()), this.vendorConnection.getDelegate());
+                //this.notionConnectionTree = new NotionWeakReference(this.wrap(vendorConnection.getDelegate()), this.vendorConnection.getDelegate());
             } catch (Exception e) {
-                throw new RuntimeException("Problem creating NotionConnection_Keep_for_now instance " + e.getMessage());
+                throw new RuntimeException("Problem creating " + e.getMessage());
             }
         }
         return this.notionConnectionTree;
@@ -99,11 +99,13 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
         return this.connectionId;
     }
 
-    public void close(ConnectionMember_I delegatedInstance) {
+    public void closeSqlException(ConnectionMember_I delegatedInstance) throws SQLException {
 
     }
+    public void closeIoException(ConnectionMember_I delegatedInstance) throws IOException {
 
-    protected NotionWeakReference getFirstChild()
+    }
+    public void closeFree(ConnectionMember_I delgatedInstance)
     public void closeAllChildren() {
         if (this.notionConnectionTree != null ) {
             Map<NotionWeakReference, Object> children = this.notionConnectionTree.getChildren();
@@ -118,14 +120,15 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
             if (notionWeakReference.getChildren().isEmpty()) {
                 return notionWeakReference;
             }
-            this.getFirstChild();
+            this.getFirstChild(notionWeakReference.getChildren());
         }
+        return null;
     }
     protected boolean closeAndClear(NotionWeakReference notionWeakReference, boolean forceClose) {
         long stamp = weakWrapperCloseGate.writeLock();
         try {
             ConnectionMember_I child = (ConnectionMember_I) notionWeakReference.get();
-            if (child != null && !State.Closed.equals(child.getState())) {
+            if (child != null && !State.Closed.equals(child.getOperationAccounting().getState())) {
                 try {
                     Object delegate = notionWeakReference.getDelegate();
                     if (!forceClose && options.get(Options.NotionDefaultBooleans.ConnectionContainer_Check_ResultSet)) {
@@ -157,7 +160,7 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
                 } catch (Exception e) {
                     this.handleException(e, child);
                 } finally {
-                    child.setState(State.Closed);
+                    child.getOperationAccounting().setState(State.Closed);
                 }
             }
             notionWeakReference.clear();
@@ -167,47 +170,12 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
             weakWrapperCloseGate.unlockWrite(stamp);
         }
     }
-    public void closeNotionConnectionTree() {
-        if (this.notionConnectionTree != null ) {
-            NotionConnection_Keep_for_now notionConnection = this.notionConnectionTree.get();
-            if (!State.Closed.equals(notionConnection.getState())) {
-                try {
-                    if (!notionConnection.isClosed()) {
-                        notionConnection.closeDelegate();
-                    }
-                }
-                catch(SQLException sqle) {
-                    this.handleSQLException(sqle, notionConnection);
-                }
-                catch(IOException ioe) {
-                    this.handleIoException(ioe, notionConnection);
-                }
-                catch (Exception e) {
-                    this.handleException(e, notionConnection);
-                }
-                finally {
-
-                }
-            }
-            this.notionConnectionTree.clear();
-            this.notionConnectionTree = null;
-        }
-    }
 
     protected abstract void setNotionConnectionTree(NotionConnectionDelegate notionConnectionTree);
 
-    protected ConnectionMember_I wrap(Class clazz, Object delegate) {
-        Class<ConnectionMember_I> connectionDelegateClass = wrapper.getDelegateClass(clazz);
-        try {
-            Constructor<ConnectionMember_I> connectionDelegateConstructor = connectionDelegateClass.getDeclaredConstructor(Object.class, ConnectionContainer.class);
-            ConnectionMember_I connectionDelegate = connectionDelegateConstructor.newInstance(delegate, this);
-            NotionWeakReference weakReference = new NotionWeakReference(connectionDelegate, delegate);
-            return connectionDelegate;
-        }
-        catch (ReflectiveOperationException nsme) {
-
-        }
+    public ConnectionMember_I wrap(Object delegate, Class clazz) {
+        ConnectionMember_I wrapped = wrapper.getDelegate(delegate, clazz.getClass());
+        NotionWeakReference weakReference = new NotionWeakReference(wrapped, delegate);
+        return wrapped;
     }
-
-
 }

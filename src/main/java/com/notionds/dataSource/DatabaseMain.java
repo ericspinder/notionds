@@ -12,7 +12,7 @@ public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice
 
     private final O options;
     private final Class<EA> exceptionAdviceClass = ((Class<EA>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]);
-    private final Class<DA> databaseAnalysisClass = ((Class<DA>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[2]).;
+    private final Class<DA> databaseAnalysisClass = ((Class<DA>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[2]);
     private final EA exceptionAdvice;
     private final DA databaseAnalysis;
     private UsernamePassword usernamePassword;
@@ -77,7 +77,7 @@ public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice
 
     public ExceptionAdvice.Recommendation remedyException(Exception exception, ConnectionContainer connectionContainer) {
         ExceptionAdvice.Recommendation recommendation = exceptionAdvice.adviseException(exception);
-        this.
+        //todo check for failover type recommendations
         return recommendation;
 
     }

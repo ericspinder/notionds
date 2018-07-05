@@ -1,16 +1,44 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.connection.generator.BlobOfNotion;
+import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.State;
+import com.notionds.dataSource.connection.generator.ConnectionContainer;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
-public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
+public class BlobOfNotion<NW extends ConnectionContainer> implements Blob, ConnectionMember_I {
 
-    public BlobDelegate(ConnectionContainerManual9 notionWrapper, Blob delegate) {
-        super(notionWrapper, delegate);
+    protected final NW connectionContainer;
+    protected final Blob delegate;
+    private final OperationAccounting operationAccounting;
+
+    public BlobOfNotion(NW connectionContainer, Blob delegate) {
+        this.connectionContainer = connectionContainer;
+        this.delegate = delegate;
+        this.operationAccounting = new OperationAccounting(connectionContainer.getConnectionId());
+    }
+
+    public final OperationAccounting getOperationAccounting() {
+        return this.operationAccounting;
+    }
+
+    public final ConnectionContainer getConnectionContainer() {
+        return this.connectionContainer;
+    }
+
+    @Override
+    public final void close() throws SQLException {
+        try  {
+            this.connectionContainer.close(this);
+        }
+        catch (SQLException sqlException) {
+            throw this.connectionContainer.handleSQLException(sqlException, this);
+        }
+
     }
 
     @Override
@@ -19,7 +47,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             return delegate.length();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -29,7 +57,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             return delegate.getBytes(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -39,7 +67,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             return delegate.getBinaryStream();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -49,7 +77,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             return delegate.position(pattern, start);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -59,7 +87,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             return delegate.position(pattern, start);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -69,7 +97,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             return delegate.setBytes(pos, bytes);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -79,17 +107,17 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             return delegate.setBytes(pos, bytes, offset, len);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
     @Override
     public OutputStream setBinaryStream(long pos) throws SQLException {
         try {
-            return delegate.setBinaryStream(pos);
+            return (OutputStream) this.connectionContainer.wrap(delegate.setBinaryStream(pos), OutputStream.class);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -99,7 +127,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             delegate.truncate(len);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -109,7 +137,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             delegate.free();
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 
@@ -119,7 +147,7 @@ public class BlobDelegate extends BlobOfNotion<ConnectionContainerManual9> {
             return delegate.getBinaryStream(pos, length);
         }
         catch (SQLException sqlException) {
-            throw this.notionWrapper.handleSQLException(sqlException, this);
+            throw this.connectionContainer.handleSQLException(sqlException, this);
         }
     }
 }

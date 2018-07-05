@@ -1,5 +1,6 @@
 package com.notionds.dataSource;
 
+import com.notionds.dataSource.connection.State;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
 
 import java.time.Duration;
@@ -10,6 +11,7 @@ public class OperationAccounting {
 
     private final UUID connectionId;
     private final Instant startTime = Instant.now();
+    private State state;
     private ExceptionAdvice.Recommendation recommendation;
     private Instant finishTime;
     private Duration duration;
@@ -60,5 +62,12 @@ public class OperationAccounting {
     }
     public final Duration getDuration() {
         return this.duration;
+    }
+    public final State getState() {
+        return this.state;
+    }
+    public final OperationAccounting setState(State state) {
+        this.state = state;
+        return this;
     }
 }

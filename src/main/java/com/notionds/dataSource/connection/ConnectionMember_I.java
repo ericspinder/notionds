@@ -7,7 +7,5 @@ public interface ConnectionMember_I extends AutoCloseable {
 
     ConnectionContainer getConnectionContainer();
     OperationAccounting getOperationAccounting();
-    State getState();
-    void setState(State state);
 
 }

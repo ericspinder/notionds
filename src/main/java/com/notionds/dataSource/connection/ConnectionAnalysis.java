@@ -22,7 +22,7 @@ public abstract class ConnectionAnalysis<O extends Options> {
         if (options.get(Options.NotionDefaultIntegers.ConnectionAnalysis_Max_Normal_Seconds) >= operationAccounting.getDuration().toSeconds()) {
 
         }
-        this.operationMap.put(operationAccounting, delegatedInstance.getState());
+        this.operationMap.put(operationAccounting, operationAccounting.getState());
         return operationAccounting;
     }
 
@@ -32,7 +32,7 @@ public abstract class ConnectionAnalysis<O extends Options> {
      * if needed
      *
      * if Options.NotionDefaultIntegers.ConnectionAnalysis_Max_Exceptions is set to '0' then a single failure will trigger
-     * a close of the underlying once the NotionConnection_Keep_for_now is in garbage collection
+     * a close of the underlying once the Notion Connection is in garbage collection
      *
      * @param operationAccounting
      * @return
@@ -41,7 +41,7 @@ public abstract class ConnectionAnalysis<O extends Options> {
         if (options.get(Options.NotionDefaultIntegers.ConnectionAnalysis_Max_Exceptions).intValue() >= exceptionMap.size()) {
             operationAccounting.setRecommendation(ExceptionAdvice.Recommendation.CloseConnectionInstance_When_Finished);
         }
-        exceptionMap.put(operationAccounting, delegatedInstance.getState());
+        exceptionMap.put(operationAccounting, operationAccounting.getState());
         return operationAccounting;
     }
 

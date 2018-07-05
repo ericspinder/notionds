@@ -18,7 +18,7 @@ public abstract class WrapperOfNotion<O extends Options> {
     }
 
 
-    public abstract Class<ConnectionMember_I> getDelegateClass(Class clazz);
+    public abstract ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz);
 
 
 }

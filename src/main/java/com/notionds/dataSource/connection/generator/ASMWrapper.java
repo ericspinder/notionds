@@ -2,18 +2,19 @@ package com.notionds.dataSource.connection.generator;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import org.objectweb.asm.ClassReader;
 
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.StampedLock;
 
-public class WrapperASM<O extends Options> extends WrapperOfNotion {
+public class ASMWrapper<O extends Options> extends WrapperOfNotion {
 
     private Map<Class, Class<ConnectionMember_I>> cache = new HashMap<>();
     private StampedLock creationGate = new StampedLock();
 
-    public WrapperASM(O options) {
+    public ASMWrapper(O options) {
         super(options);
     }
 
@@ -24,11 +25,11 @@ public class WrapperASM<O extends Options> extends WrapperOfNotion {
             return delegateClass;
         }
         // The autostart should have captured all of the classes needed
-
+        return null;
     }
 
     private void createDelegateObjectFromInterface(Class delegateClass) {
-
+        //ClassReader classReader = new ClassReader();
     }
 
 }

@@ -4,6 +4,7 @@ import com.notionds.dataSource.connection.generator.ConnectionContainer;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
@@ -11,7 +12,9 @@ import java.sql.SQLException;
 public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice, DA extends DatabaseAnalysis> {
 
     private final O options;
+    @SuppressWarnings("unchecked")
     private final Class<EA> exceptionAdviceClass = ((Class<EA>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]);
+    @SuppressWarnings("unchecked")
     private final Class<DA> databaseAnalysisClass = ((Class<DA>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[2]);
     private final EA exceptionAdvice;
     private final DA databaseAnalysis;

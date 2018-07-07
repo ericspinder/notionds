@@ -31,14 +31,13 @@ public class BlobOfNotion<NW extends ConnectionContainer> implements Blob, Conne
     }
 
     @Override
-    public final void close() throws SQLException {
+    public final void closeDelegate() throws SQLException {
         try  {
-            this.connectionContainer.close(this);
+            this.connectionContainer.closeFree(this);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
         }
-
     }
 
     @Override
@@ -134,7 +133,7 @@ public class BlobOfNotion<NW extends ConnectionContainer> implements Blob, Conne
     @Override
     public void free() throws SQLException {
         try {
-            delegate.free();
+            this.closeDelegate();
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);

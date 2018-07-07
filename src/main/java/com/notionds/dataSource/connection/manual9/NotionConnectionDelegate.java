@@ -39,11 +39,13 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
         return this.operationAccounting;
     }
 
+    public void closeDelegate() throws SQLException {
+        this.connectionContainer.closeSqlException(this);
+    }
     @Override
     public final void close() throws SQLException {
-        this.connectionContainer.close(this);
+        this.closeDelegate();
     }
-
 
     @Override
     public final boolean isClosed() throws SQLException {

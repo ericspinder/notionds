@@ -3,7 +3,6 @@ package com.notionds.dataSource.connection.generator;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 public class ProxyWrapper<O extends Options> extends WrapperOfNotion<O> {

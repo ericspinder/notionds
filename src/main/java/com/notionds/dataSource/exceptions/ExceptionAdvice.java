@@ -12,7 +12,7 @@ public abstract class ExceptionAdvice<O extends Options> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
 
-    public static class DefaultKillConnection<O extends Options> extends ExceptionAdvice {
+    public static class DefaultKillConnection<O extends Options> extends ExceptionAdvice<O> {
 
         private Logger logger = LoggerFactory.getLogger(DefaultKillConnection.class);
 

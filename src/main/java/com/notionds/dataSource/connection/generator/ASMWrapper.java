@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.StampedLock;
 
-public class ASMWrapper<O extends Options> extends WrapperOfNotion {
+public class ASMWrapper<O extends Options> extends WrapperOfNotion<O> {
 
-    private Map<Class, Class<ConnectionMember_I>> cache = new HashMap<>();
+    private Map<Class, Class<ConnectionMember>> cache = new HashMap<>();
     private StampedLock creationGate = new StampedLock();
 
     public ASMWrapper(O options) {
@@ -19,13 +19,17 @@ public class ASMWrapper<O extends Options> extends WrapperOfNotion {
     }
 
     @Override
-    public Class<ConnectionMember_I> getDelegateClass(Class clazz) {
-        Class<ConnectionMember_I> delegateClass = cache.get(clazz);
-        if (delegateClass != null) {
-            return delegateClass;
+    public ConnectionMember getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz) {
+        Class<ConnectionMember> delegateClass = cache.get(clazz);
+        if (delegateClass == null) {
+            // The autostart should have captured all of the classes needed
         }
-        // The autostart should have captured all of the classes needed
-        return null;
+        try {
+            return delegateClass.getDeclaredConstructor(ConnectionContainer.class, Object.class).newInstance(connectionContainer, delegate);
+        }
+        catch (ReflectiveOperationException roe) {
+            throw new RuntimeException("Problem creating new delegated class using the ASMWrapper" + roe.getMessage(), roe);
+        }
     }
 
     private void createDelegateObjectFromInterface(Class delegateClass) {

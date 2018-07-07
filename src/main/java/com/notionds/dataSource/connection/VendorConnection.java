@@ -14,7 +14,7 @@ public abstract class VendorConnection<O extends Options, CA extends ConnectionA
     private final Connection delegate;
     private final CA connectionAnalysis;
 
-
+    @SuppressWarnings("unchecked")
     public VendorConnection(O options, DatabaseMain databaseMain, Connection delegate) {
         this.options = options;
         this.databaseMain = databaseMain;

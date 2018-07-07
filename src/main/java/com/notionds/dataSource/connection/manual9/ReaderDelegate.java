@@ -74,8 +74,12 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
         delegate.reset();
     }
 
+    public void closeDelegate() throws IOException {
+        this.connectionContainer.closeIoException(this);
+    }
+
     @Override
     public void close() throws IOException {
-        connectionContainer.closeIoException(this);
+        this.closeDelegate();
     }
 }

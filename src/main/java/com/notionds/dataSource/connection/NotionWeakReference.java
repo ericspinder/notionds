@@ -11,6 +11,7 @@ public class NotionWeakReference extends WeakReference<ConnectionMember_I> {
     private final Object delegate;
     private final Map<NotionWeakReference, Object> children = new ConcurrentHashMap<>();
 
+    @SuppressWarnings("unchecked")
     public NotionWeakReference(ConnectionMember_I connectionMember, Object delegate) {
         super(connectionMember, connectionMember.getConnectionContainer().getReferenceQueue());
         this.delegate = delegate;

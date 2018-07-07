@@ -105,7 +105,12 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
     public void closeIoException(ConnectionMember_I delegatedInstance) throws IOException {
 
     }
-    public void closeFree(ConnectionMember_I delgatedInstance)
+    public void closeFree(ConnectionMember_I delgatedInstance) throws SQLException {
+
+    }
+    public void closeNotNeeded(ConnectionMember_I delegatedInstance) {
+
+    }
     public void closeAllChildren() {
         if (this.notionConnectionTree != null ) {
             Map<NotionWeakReference, Object> children = this.notionConnectionTree.getChildren();
@@ -174,7 +179,7 @@ public abstract class ConnectionContainer<O extends Options, W extends WrapperOf
     protected abstract void setNotionConnectionTree(NotionConnectionDelegate notionConnectionTree);
 
     public ConnectionMember_I wrap(Object delegate, Class clazz) {
-        ConnectionMember_I wrapped = wrapper.getDelegate(delegate, clazz.getClass());
+        ConnectionMember_I wrapped = wrapper.getDelegate(this, delegate, clazz.getClass());
         NotionWeakReference weakReference = new NotionWeakReference(wrapped, delegate);
         return wrapped;
     }

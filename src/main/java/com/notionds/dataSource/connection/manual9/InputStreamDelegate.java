@@ -33,12 +33,12 @@ public class InputStreamDelegate extends InputStream implements ConnectionMember
         return delegate.read();
     }
 
-    protected void closeDelegate() throws IOException {
-        this.delegate.close();
+    public void closeDelegate() throws IOException {
+        this.connectionContainer.closeIoException(this);
     }
     @Override
     public void close() throws IOException {
-        this.connectionContainer.closeIoException(this);
+        this.closeDelegate();
     }
 
 }

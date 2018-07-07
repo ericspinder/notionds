@@ -33,14 +33,8 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
         return this.connectionContainer;
     }
 
-    @Override
-    public void close() throws SQLException {
-        try {
-            this.connectionContainer.close(this);
-        }
-        catch (SQLException sqlException) {
-            throw this.connectionContainer.handleSQLException(sqlException, this);
-        }
+    public void closeDelegate() throws SQLException {
+        this.connectionContainer.closeSqlException(this);
     }
 
     @Override
@@ -156,7 +150,7 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
     @Override
     public void free() throws SQLException {
         try {
-            delegate.free();
+            this.closeDelegate();
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);

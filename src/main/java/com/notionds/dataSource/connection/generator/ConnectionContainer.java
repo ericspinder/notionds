@@ -2,21 +2,21 @@ package com.notionds.dataSource.connection.generator;
 
 import com.notionds.dataSource.OperationAccounting;
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.*;
-import com.notionds.dataSource.connection.manual9.*;
+import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.NotionWeakReference;
+import com.notionds.dataSource.connection.State;
+import com.notionds.dataSource.connection.VendorConnection;
+import com.notionds.dataSource.connection.manual9.NotionConnectionDelegate;
 import com.notionds.dataSource.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 import java.lang.ref.ReferenceQueue;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
 import java.sql.*;
 import java.time.Instant;
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.locks.StampedLock;
 
 public abstract class ConnectionContainer<O extends Options, W extends WrapperOfNotion> {

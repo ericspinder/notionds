@@ -4,7 +4,6 @@ import com.notionds.dataSource.connection.generator.ConnectionContainer;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;

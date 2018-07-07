@@ -1,11 +1,10 @@
  package com.notionds.dataSource.connection;
 
-import com.notionds.dataSource.DatabaseMain;
-import com.notionds.dataSource.Options;
+ import com.notionds.dataSource.DatabaseMain;
+ import com.notionds.dataSource.Options;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.reflect.ParameterizedType;
-import java.sql.Connection;
+ import java.lang.reflect.ParameterizedType;
+ import java.sql.Connection;
 
 public abstract class VendorConnection<O extends Options, CA extends ConnectionAnalysis> {
 

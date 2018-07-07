@@ -1,7 +1,5 @@
 package com.notionds.dataSource.connection;
 
-import com.notionds.dataSource.connection.generator.ConnectionContainer;
-
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

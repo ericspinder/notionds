@@ -2,16 +2,12 @@ package com.notionds.dataSource.connection.generator;
 
 import com.notionds.dataSource.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.manual9.InputStreamDelegate;
-import com.notionds.dataSource.connection.manual9.ReaderDelegate;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.*;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
 
 public abstract class ConnectionMember implements ConnectionMember_I {
 

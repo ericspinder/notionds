@@ -1,13 +1,14 @@
-package com.notionds.dataSource.connection.generator;
+package com.notionds.dataSource.connection.delegation;
 
 import com.notionds.dataSource.Options;
+import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
-public abstract class WrapperOfNotion<O extends Options> {
+public abstract class DelegationOfNotion<O extends Options> {
 
     protected final O options;
 
-    public WrapperOfNotion(O options) {
+    public DelegationOfNotion(O options) {
         this.options = options;
     }
 

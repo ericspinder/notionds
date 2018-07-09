@@ -3,7 +3,7 @@ package com.notionds.dataSource.connection.manual9;
 import com.notionds.dataSource.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.State;
-import com.notionds.dataSource.connection.generator.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionContainer;
 
 import java.sql.*;
 import java.util.Map;

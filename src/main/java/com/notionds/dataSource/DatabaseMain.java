@@ -1,6 +1,6 @@
 package com.notionds.dataSource;
 
-import com.notionds.dataSource.connection.generator.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
 
 import java.io.IOException;

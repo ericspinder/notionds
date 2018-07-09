@@ -58,7 +58,7 @@ public abstract class Options {
     }
     public enum NotionDefaultBooleans implements BooleanOption  {
         ConnectionContainer_Check_ResultSet("com.notion.connectionContainer.checkResultSet", "Order a check of all ResultSets before closing when close() had not been called, until the connection had been closed", true),
-
+        ConnectionPool_Use("com.notion.pool.usePool", "Should pool connections", true),
         ;
         private final String key;
         private final String description;

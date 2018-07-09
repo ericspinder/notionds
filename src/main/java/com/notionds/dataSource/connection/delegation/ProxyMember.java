@@ -1,7 +1,6 @@
-package com.notionds.dataSource.connection.generator;
+package com.notionds.dataSource.connection.delegation;
 
-import com.notionds.dataSource.connection.manual9.InputStreamDelegate;
-import com.notionds.dataSource.connection.manual9.ReaderDelegate;
+import com.notionds.dataSource.connection.ConnectionContainer;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -59,7 +58,7 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
                 && m.getReturnType().isInterface()) {
 
             try {
-                return connectionContainer.wrap(m.invoke(delegate, args), m.getReturnType());
+                return connectionContainer.wrap(m.invoke(delegate, args), m.getReturnType(), this);
             }
             catch(InvocationTargetException ite) {
                 this.throwCause(ite.getCause());

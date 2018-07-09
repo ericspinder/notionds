@@ -1,17 +1,18 @@
-package com.notionds.dataSource.connection.generator;
+package com.notionds.dataSource.connection.delegation;
 
 import com.notionds.dataSource.Options;
+import com.notionds.dataSource.connection.ConnectionContainer;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.StampedLock;
 
-public class ASMWrapper<O extends Options> extends WrapperOfNotion<O> {
+public class ASMDelegation<O extends Options> extends DelegationOfNotion<O> {
 
     private Map<Class, Class<ConnectionMember>> cache = new HashMap<>();
     private StampedLock creationGate = new StampedLock();
 
-    public ASMWrapper(O options) {
+    public ASMDelegation(O options) {
         super(options);
     }
 
@@ -25,7 +26,7 @@ public class ASMWrapper<O extends Options> extends WrapperOfNotion<O> {
             return delegateClass.getDeclaredConstructor(ConnectionContainer.class, Object.class).newInstance(connectionContainer, delegate);
         }
         catch (ReflectiveOperationException roe) {
-            throw new RuntimeException("Problem creating new delegated class using the ASMWrapper" + roe.getMessage(), roe);
+            throw new RuntimeException("Problem creating new delegated class using the ASMDelegation" + roe.getMessage(), roe);
         }
     }
 

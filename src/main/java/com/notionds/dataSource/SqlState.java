@@ -95,7 +95,7 @@ public enum SqlState {
     SqlState87("2200E","X","22","data exception","00E","null value in array target"),
     SqlState88("2200F","X","22","data exception","00F","zero-length character string"),
     SqlState89("2200G","X","22","data exception","00G","most specific type mismatch"),
-    SqlState90("2200H","X","22","data exception","00H","sequence generator limit exceeded"),
+    SqlState90("2200H","X","22","data exception","00H","sequence delegation limit exceeded"),
     SqlState91("2200J","X","22","data exception","00J","nonidentical notations with the same name","SQL/XML"),
     SqlState92("2200K","X","22","data exception","00K","nonidentical unparsed entities with the same name","SQL/XML"),
     SqlState93("2200L","X","22","data exception","00L","not an XML document","SQL/XML"),

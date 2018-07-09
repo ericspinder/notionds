@@ -32,7 +32,7 @@ public abstract class ConnectionAnalysis<O extends Options> {
      * if needed
      *
      * if Options.NotionDefaultIntegers.ConnectionAnalysis_Max_Exceptions is set to '0' then a single failure will trigger
-     * a close of the underlying once the Notion Connection is in garbage collection
+     * a close of the underlying once the NotionPhantomReference Connection is in garbage collection
      *
      * @param operationAccounting
      * @return

@@ -1,8 +1,8 @@
-package com.notionds.dataSource.connection.manual9;
+package com.notionds.dataSource.connection.delegation;
 
 import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.generator.ConnectionContainer;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,8 +1,8 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 
-public class ExceptionWrapper extends Exception {
+public class ExceptionWrapper extends Exception implements NotionExceptionWrapper {
 
     private final OperationAccounting operationAccounting;
 

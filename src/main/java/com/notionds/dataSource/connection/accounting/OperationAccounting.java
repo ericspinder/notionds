@@ -1,4 +1,4 @@
-package com.notionds.dataSource;
+package com.notionds.dataSource.connection.accounting;
 
 import com.notionds.dataSource.connection.State;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
@@ -13,7 +13,6 @@ public class OperationAccounting {
     private final Instant startTime = Instant.now();
     private State state;
     private ExceptionAdvice.Recommendation recommendation;
-    private Instant finishTime;
     private Duration duration;
 
     public OperationAccounting(final UUID connectionId) {
@@ -22,9 +21,9 @@ public class OperationAccounting {
 
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Connection Id = ").append(connectionId);
-        stringBuilder.append("Recommendation = ").append(recommendation);
-        stringBuilder.append("Finish Time = ").append(finishTime);
+        stringBuilder.append("Connection_Id=").append(connectionId);
+        stringBuilder.append("Recommendation=").append(recommendation);
+        stringBuilder.append("Duration=").append(duration.toString());
         return stringBuilder.toString();
     }
     public final UUID getConnectionId() {
@@ -50,12 +49,8 @@ public class OperationAccounting {
     }
 
     public final OperationAccounting setFinishTime(Instant finishTime) {
-        this.finishTime = finishTime;
-        this.duration = Duration.between(this.startTime, this.finishTime);
+        this.duration = Duration.between(this.startTime, finishTime);
         return this;
-    }
-    public final Instant getFinishTime() {
-        return this.finishTime;
     }
     public final OperationAccounting finishNow() {
         return this.setFinishTime(Instant.now());

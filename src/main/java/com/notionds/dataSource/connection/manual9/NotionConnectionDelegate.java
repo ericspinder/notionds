@@ -1,6 +1,6 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.State;
 import com.notionds.dataSource.connection.ConnectionContainer;
@@ -39,9 +39,10 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
         return this.operationAccounting;
     }
 
-    public void closeDelegate() throws SQLException {
-        this.connectionContainer.closeSqlException(this);
+    public void closeDelegate() {
+        this.connectionContainer.getConnectionCleanup().close(this);
     }
+
     @Override
     public final void close() throws SQLException {
         this.closeDelegate();
@@ -56,7 +57,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public Statement createStatement() throws SQLException {
         try {
-            return (Statement) this.connectionContainer.wrap(delegate.createStatement(), Statement.class);
+            return (Statement) this.connectionContainer.wrap(delegate.createStatement(), Statement.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -66,7 +67,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         try {
-            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql), PreparedStatement.class);
+            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql), PreparedStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -76,7 +77,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
         try {
-            return (CallableStatement) this.connectionContainer.wrap(delegate.prepareCall(sql),CallableStatement.class);
+            return (CallableStatement) this.connectionContainer.wrap(delegate.prepareCall(sql),CallableStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -136,7 +137,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
         try {
-            return (DatabaseMetaData) this.connectionContainer.wrap(delegate.getMetaData(), DatabaseMetaData.class);
+            return (DatabaseMetaData) this.connectionContainer.wrap(delegate.getMetaData(), DatabaseMetaData.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -226,7 +227,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return (Statement) this.connectionContainer.wrap(delegate.createStatement(resultSetType, resultSetConcurrency), Statement.class);
+            return (Statement) this.connectionContainer.wrap(delegate.createStatement(resultSetType, resultSetConcurrency), Statement.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -236,7 +237,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency), PreparedStatement.class);
+            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency), PreparedStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -246,7 +247,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         try {
-            return (CallableStatement) this.connectionContainer.wrap(delegate.prepareCall(sql, resultSetType, resultSetConcurrency), CallableStatement.class);
+            return (CallableStatement) this.connectionContainer.wrap(delegate.prepareCall(sql, resultSetType, resultSetConcurrency), CallableStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -336,7 +337,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return (Statement) this.connectionContainer.wrap(delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), Statement.class);
+            return (Statement) this.connectionContainer.wrap(delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), Statement.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -346,7 +347,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), PreparedStatement.class);
+            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), PreparedStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -356,7 +357,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         try {
-            return (CallableStatement) this.connectionContainer.wrap(delegate.prepareCall(sql, resultSetConcurrency, resultSetHoldability), CallableStatement.class);
+            return (CallableStatement) this.connectionContainer.wrap(delegate.prepareCall(sql, resultSetConcurrency, resultSetHoldability), CallableStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -366,7 +367,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
         try {
-            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, autoGeneratedKeys), PreparedStatement.class);
+            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, autoGeneratedKeys), PreparedStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -376,7 +377,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
         try {
-            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, columnIndexes), PreparedStatement.class);
+            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, columnIndexes), PreparedStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -386,7 +387,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
         try {
-            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, columnNames), PreparedStatement.class);
+            return (PreparedStatement) this.connectionContainer.wrap(delegate.prepareStatement(sql, columnNames), PreparedStatement.class, this, sql);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -396,7 +397,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public Clob createClob() throws SQLException {
         try {
-            return (Clob) this.connectionContainer.wrap(delegate.createClob(), Clob.class);
+            return (Clob) this.connectionContainer.wrap(delegate.createClob(), Clob.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -406,7 +407,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public Blob createBlob() throws SQLException {
         try {
-            return (Blob) this.connectionContainer.wrap(delegate.createBlob(), Blob.class);
+            return (Blob) this.connectionContainer.wrap(delegate.createBlob(), Blob.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -416,7 +417,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public NClob createNClob() throws SQLException {
         try {
-            return (NClob) this.connectionContainer.wrap(delegate.createNClob(), NClob.class);
+            return (NClob) this.connectionContainer.wrap(delegate.createNClob(), NClob.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -426,7 +427,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public SQLXML createSQLXML() throws SQLException {
         try {
-            return (SQLXML) this.connectionContainer.wrap(delegate.createSQLXML(), SQLXML.class);
+            return (SQLXML) this.connectionContainer.wrap(delegate.createSQLXML(), SQLXML.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -486,7 +487,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         try {
-            return (Array) this.connectionContainer.wrap(delegate.createArrayOf(typeName, elements), Array.class);
+            return (Array) this.connectionContainer.wrap(delegate.createArrayOf(typeName, elements), Array.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -496,7 +497,7 @@ public class NotionConnectionDelegate implements Connection, ConnectionMember_I 
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
         try {
-            return (Struct) this.connectionContainer.wrap(delegate.createStruct(typeName, attributes), Struct.class);
+            return (Struct) this.connectionContainer.wrap(delegate.createStruct(typeName, attributes), Struct.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);

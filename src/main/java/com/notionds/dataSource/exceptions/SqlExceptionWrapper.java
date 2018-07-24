@@ -1,10 +1,10 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 
 import java.sql.SQLException;
 
-public class SqlExceptionWrapper extends SQLException {
+public class SqlExceptionWrapper extends SQLException implements NotionExceptionWrapper {
 
 
     private final OperationAccounting operationAccounting;

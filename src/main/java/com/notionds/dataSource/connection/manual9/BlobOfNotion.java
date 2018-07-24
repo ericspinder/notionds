@@ -1,6 +1,6 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.ConnectionContainer;
 
@@ -30,13 +30,8 @@ public class BlobOfNotion<NW extends ConnectionContainer> implements Blob, Conne
     }
 
     @Override
-    public final void closeDelegate() throws SQLException {
-        try  {
-            this.connectionContainer.closeFree(this);
-        }
-        catch (SQLException sqlException) {
-            throw this.connectionContainer.handleSQLException(sqlException, this);
-        }
+    public final void closeDelegate() {
+        this.connectionContainer.getConnectionCleanup().close(this);
     }
 
     @Override
@@ -112,7 +107,7 @@ public class BlobOfNotion<NW extends ConnectionContainer> implements Blob, Conne
     @Override
     public OutputStream setBinaryStream(long pos) throws SQLException {
         try {
-            return (OutputStream) this.connectionContainer.wrap(delegate.setBinaryStream(pos), OutputStream.class);
+            return (OutputStream) this.connectionContainer.wrap(delegate.setBinaryStream(pos), OutputStream.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -131,12 +126,7 @@ public class BlobOfNotion<NW extends ConnectionContainer> implements Blob, Conne
 
     @Override
     public void free() throws SQLException {
-        try {
-            this.closeDelegate();
-        }
-        catch (SQLException sqlException) {
-            throw this.connectionContainer.handleSQLException(sqlException, this);
-        }
+        this.closeDelegate();
     }
 
     @Override

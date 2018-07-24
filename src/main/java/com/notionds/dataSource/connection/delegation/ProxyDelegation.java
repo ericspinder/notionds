@@ -1,5 +1,6 @@
 package com.notionds.dataSource.connection.delegation;
 
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
@@ -12,12 +13,13 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
         super(options);
     }
 
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz) {
+    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz, OperationAccounting operationAccounting) {
 
         ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
                 ProxyDelegation.class.getClassLoader(),
                 new java.lang.Class[] {clazz, ConnectionMember_I.class},
-                new ProxyMember(connectionContainer, delegate));
+                new ProxyMember(connectionContainer, delegate, operationAccounting));
         return connectionMember;
     }
+
 }

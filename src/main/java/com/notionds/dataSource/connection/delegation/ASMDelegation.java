@@ -1,5 +1,6 @@
 package com.notionds.dataSource.connection.delegation;
 
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 
@@ -17,13 +18,13 @@ public class ASMDelegation<O extends Options> extends DelegationOfNotion<O> {
     }
 
     @Override
-    public ConnectionMember getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz) {
+    public ConnectionMember getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz, OperationAccounting operationAccounting) {
         Class<ConnectionMember> delegateClass = cache.get(clazz);
         if (delegateClass == null) {
             // The autostart should have captured all of the classes needed
         }
         try {
-            return delegateClass.getDeclaredConstructor(ConnectionContainer.class, Object.class).newInstance(connectionContainer, delegate);
+            return delegateClass.getDeclaredConstructor(ConnectionContainer.class, Object.class, OperationAccounting.class).newInstance(connectionContainer, delegate, operationAccounting);
         }
         catch (ReflectiveOperationException roe) {
             throw new RuntimeException("Problem creating new delegated class using the ASMDelegation" + roe.getMessage(), roe);

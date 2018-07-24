@@ -1,6 +1,6 @@
 package com.notionds.dataSource.connection;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 
 public interface ConnectionMember_I {
 

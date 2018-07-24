@@ -1,6 +1,6 @@
 package com.notionds.dataSource.connection.manual9;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.ConnectionContainer;
 
@@ -17,10 +17,10 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
     protected final Clob delegate;
     private final OperationAccounting operationAccounting;
 
-    public ClobOfNotion(ConnectionContainer connectionContainer, Clob delegate) {
+    public ClobOfNotion(ConnectionContainer connectionContainer, Clob delegate, OperationAccounting operationAccounting) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
-        this.operationAccounting = new OperationAccounting(connectionContainer.getConnectionId());
+        this.operationAccounting = operationAccounting;
 
     }
 
@@ -32,8 +32,8 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
         return this.connectionContainer;
     }
 
-    public void closeDelegate() throws SQLException {
-        this.connectionContainer.closeSqlException(this);
+    public void closeDelegate() {
+        this.connectionContainer.getConnectionCleanup().close(this);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
     @Override
     public Reader getCharacterStream() throws SQLException {
         try {
-            return (Reader) this.connectionContainer.wrap(delegate.getCharacterStream(), Reader.class);
+            return (Reader) this.connectionContainer.wrap(delegate.getCharacterStream(), Reader.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -69,7 +69,7 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
     @Override
     public InputStream getAsciiStream() throws SQLException {
         try {
-            return (InputStream) connectionContainer.wrap(delegate.getAsciiStream(), InputStream.class);
+            return (InputStream) connectionContainer.wrap(delegate.getAsciiStream(), InputStream.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -119,7 +119,7 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
     @Override
     public OutputStream setAsciiStream(long pos) throws SQLException {
         try {
-            return (OutputStream) this.connectionContainer.wrap(delegate.setAsciiStream(pos), OutputStream.class);
+            return (OutputStream) this.connectionContainer.wrap(delegate.setAsciiStream(pos), OutputStream.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -129,7 +129,7 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
     @Override
     public Writer setCharacterStream(long pos) throws SQLException {
         try {
-            return (Writer) this.connectionContainer.wrap(delegate.setCharacterStream(pos), Writer.class);
+            return (Writer) this.connectionContainer.wrap(delegate.setCharacterStream(pos), Writer.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);
@@ -148,18 +148,13 @@ public class ClobOfNotion implements Clob, ConnectionMember_I {
 
     @Override
     public void free() throws SQLException {
-        try {
-            this.closeDelegate();
-        }
-        catch (SQLException sqlException) {
-            throw this.connectionContainer.handleSQLException(sqlException, this);
-        }
+        this.closeDelegate();
     }
 
     @Override
     public Reader getCharacterStream(long pos, long length) throws SQLException {
         try {
-            return (Reader) this.connectionContainer.wrap(delegate.getCharacterStream(pos, length), Reader.class);
+            return (Reader) this.connectionContainer.wrap(delegate.getCharacterStream(pos, length), Reader.class, this, null);
         }
         catch (SQLException sqlException) {
             throw this.connectionContainer.handleSQLException(sqlException, this);

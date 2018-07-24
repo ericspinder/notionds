@@ -17,4 +17,6 @@ public class CCWeakReferenceType1<VC extends VendorConnection> extends WeakRefer
     public VC getVendorConnection() {
         return this.vendorConnection;
     }
+
+
 }

@@ -1,6 +1,6 @@
 package com.notionds.dataSource.connection.delegation;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 
@@ -14,10 +14,10 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
     private final Reader delegate;
     private final OperationAccounting operationAccounting;
 
-    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate) {
+    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, OperationAccounting operationAccounting) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
-        this.operationAccounting = new OperationAccounting(connectionContainer.getConnectionId());
+        this.operationAccounting = operationAccounting;
     }
 
     public OperationAccounting getOperationAccounting() {
@@ -30,32 +30,32 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
 
     @Override
     public int read(CharBuffer target) throws IOException {
-        return delegate.read(target);
+        try {
+            return delegate.read(target);
+        }
+        catch (IOException ioe) {
+            throw connectionContainer.handleIoException(ioe, this);
+        }
     }
 
     @Override
     public int read() throws IOException {
-        return delegate.read();
+        try {
+            return delegate.read();
+        }
+        catch (IOException ioe) {
+            throw connectionContainer.handleIoException(ioe, this);
+        }
     }
 
     @Override
     public int read(char[] cbuf) throws IOException {
-        return delegate.read(cbuf);
-    }
-
-    @Override
-    public int read(char[] cbuf, int off, int len) throws IOException {
-        return delegate.read(cbuf, off, len);
-    }
-
-    @Override
-    public long skip(long n) throws IOException {
-        return delegate.skip(n);
-    }
-
-    @Override
-    public boolean ready() throws IOException {
-        return delegate.ready();
+        try {
+            return delegate.read(cbuf);
+        }
+        catch (IOException ioe) {
+            throw connectionContainer.handleIoException(ioe, this);
+        }
     }
 
     @Override
@@ -64,13 +64,53 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
     }
 
     @Override
+    public int read(char[] cbuf, int off, int len) throws IOException {
+        try {
+            return delegate.read(cbuf, off, len);
+        }
+        catch (IOException ioe) {
+            throw connectionContainer.handleIoException(ioe, this);
+        }
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+        try {
+            return delegate.skip(n);
+        }
+        catch (IOException ioe) {
+            throw connectionContainer.handleIoException(ioe, this);
+        }
+    }
+
+    @Override
+    public boolean ready() throws IOException {
+        try {
+            return delegate.ready();
+        }
+        catch (IOException ioe) {
+            throw connectionContainer.handleIoException(ioe, this);
+        }
+    }
+
+    @Override
     public void mark(int readAheadLimit) throws IOException {
-        delegate.mark(readAheadLimit);
+        try {
+            delegate.mark(readAheadLimit);
+        }
+        catch (IOException ioe) {
+            throw connectionContainer.handleIoException(ioe, this);
+        }
     }
 
     @Override
     public void reset() throws IOException {
-        delegate.reset();
+        try {
+            delegate.reset();
+        }
+        catch (IOException ioe) {
+            throw connectionContainer.handleIoException(ioe, this);
+        }
     }
 
     public void closeDelegate() throws IOException {

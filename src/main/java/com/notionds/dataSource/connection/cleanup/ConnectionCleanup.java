@@ -23,6 +23,8 @@ public abstract class ConnectionCleanup<O extends Options, NC extends NotionClea
 
     public abstract void close(ConnectionMember_I connectionMember);
 
+    public abstract void closeChildren(ConnectionMember_I connectionMember_i);
+
     public abstract ConnectionMember_I add(ConnectionMember_I connectionMember, Object delegate, ConnectionMember_I parent);
 
 }

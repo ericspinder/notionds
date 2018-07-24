@@ -32,7 +32,7 @@ public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup>
             return (Connection) this.connectionWeakReference.get();
         }
         else {
-            return (Connection) connectionContainer.wrap(notionCleanup.getVendorConnection(connectionContainer), Connection.class, null);
+            return (Connection) connectionContainer.wrap(notionCleanup.getVendorConnection(connectionContainer), Connection.class, null, null);
         }
     }
 

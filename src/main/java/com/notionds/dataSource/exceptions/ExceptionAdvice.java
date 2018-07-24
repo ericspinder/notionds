@@ -1,5 +1,6 @@
 package com.notionds.dataSource.exceptions;
 
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
+import java.time.Instant;
 
 public abstract class ExceptionAdvice<O extends Options> {
 
@@ -21,25 +23,25 @@ public abstract class ExceptionAdvice<O extends Options> {
         }
 
         @Override
-        public Recommendation adviseSqlException(SQLException sqlException) {
+        public Recommendation parseSQLException(SQLException sqlException) {
             logger.error(sqlException.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
 
         @Override
-        public Recommendation adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
+        public Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
             logger.error(sqlClientInfoException.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
 
         @Override
-        public Recommendation adviseIoException(IOException ioException) {
+        public Recommendation parseIOException(IOException ioException) {
             logger.error(ioException.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
 
         @Override
-        public Recommendation adviseException(Exception exception) {
+        public Recommendation parseException(Exception exception) {
             logger.error(exception.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
@@ -51,10 +53,27 @@ public abstract class ExceptionAdvice<O extends Options> {
         this.options = options;
     }
 
-    public abstract Recommendation adviseSqlException(SQLException sqlException);
-    public abstract Recommendation adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException);
-    public abstract Recommendation adviseIoException(IOException ioException);
-    public abstract Recommendation adviseException(Exception exception);
+    protected abstract Recommendation parseSQLException(SQLException sqlException);
+    protected abstract Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException);
+    protected abstract Recommendation parseIOException(IOException ioException);
+    protected abstract Recommendation parseException(Exception exception);
+
+    public SqlExceptionWrapper adviseSqlException(SQLException sqlException, OperationAccounting operationAccounting) {
+        operationAccounting.setFinishTime(Instant.now()).setRecommendation(this.parseSQLException(sqlException));
+        return new SqlExceptionWrapper(operationAccounting, sqlException);
+    }
+    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, OperationAccounting operationAccounting) {
+        operationAccounting.setFinishTime(Instant.now()).setRecommendation(this.parseSQLClientInfoException(sqlClientInfoException));
+        return new SqlClientInfoExceptionWrapper(operationAccounting, sqlClientInfoException);
+    }
+    public IoExceptionWrapper adviseIoException(IOException ioException, OperationAccounting operationAccounting) {
+        operationAccounting.setFinishTime(Instant.now()).setRecommendation(this.parseIOException(ioException));
+        return new IoExceptionWrapper(operationAccounting, ioException);
+    }
+    public ExceptionWrapper adviseException(Exception exception, OperationAccounting operationAccounting) {
+        operationAccounting.setFinishTime(Instant.now()).setRecommendation(this.parseException(exception));
+        return new ExceptionWrapper(operationAccounting, exception);
+    }
 
     /**
      * https://en.wikipedia.org/wiki/SQLSTATE

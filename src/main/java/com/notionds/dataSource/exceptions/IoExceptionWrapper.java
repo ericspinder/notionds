@@ -1,10 +1,10 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 
 import java.io.IOException;
 
-public class IoExceptionWrapper extends IOException {
+public class IoExceptionWrapper extends IOException implements NotionExceptionWrapper {
 
     private final OperationAccounting operationAccounting;
 

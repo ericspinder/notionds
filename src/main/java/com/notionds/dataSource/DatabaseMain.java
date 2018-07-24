@@ -41,48 +41,7 @@ public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice
 
     }
 
-    /**
-     *
-     * @param sqlException
-     * @param connectionContainer
-     * @return Recommendation the initial recommendation for connection at task, may be changed later
-     */
-    public ExceptionAdvice.Recommendation remedySQLException(SQLException sqlException, ConnectionContainer connectionContainer) {
-        ExceptionAdvice.Recommendation recommendation =  exceptionAdvice.adviseSqlException(sqlException);
-        //analysis
-        return recommendation;
-    }
 
-    /**
-     *
-     * @param sqlClientInfoException
-     * @param connectionContainer
-     * @return Recommendation the initial recommendation for connection at task, may be changed later
-     */
-    public ExceptionAdvice.Recommendation remedySQLClientInfoException(SQLClientInfoException sqlClientInfoException, ConnectionContainer connectionContainer) {
-        ExceptionAdvice.Recommendation recommendation =  exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException);
-        //analysis
-        return recommendation;
-    }
-
-    /**
-     *
-     * @param ioException
-     * @param connectionContainer
-     * @return Recommendation the initial recommendation for connection at task, may be changed later
-     */
-    public ExceptionAdvice.Recommendation remedyIoException(IOException ioException, ConnectionContainer connectionContainer) {
-        ExceptionAdvice.Recommendation recommendation = exceptionAdvice.adviseIoException(ioException);
-        //analysis
-        return recommendation;
-    }
-
-    public ExceptionAdvice.Recommendation remedyException(Exception exception, ConnectionContainer connectionContainer) {
-        ExceptionAdvice.Recommendation recommendation = exceptionAdvice.adviseException(exception);
-        //todo check for failover type recommendations
-        return recommendation;
-
-    }
 
 
 }

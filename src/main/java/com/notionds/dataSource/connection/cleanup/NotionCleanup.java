@@ -12,6 +12,7 @@ public abstract class NotionCleanup<O extends Options, CC extends ConnectionClea
     protected final O options;
     protected final Class<CC> connectionCleanupClass;
 
+    @SuppressWarnings("unchecked")
     public NotionCleanup(O options) {
         this.options = options;
         try {

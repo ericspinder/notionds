@@ -1,10 +1,12 @@
 package com.notionds.dataSource.connection.delegation;
 
-import com.notionds.dataSource.OperationAccounting;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.ConnectionContainer;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.SQLClientInfoException;
@@ -16,10 +18,10 @@ public abstract class ConnectionMember implements ConnectionMember_I {
     protected final ConnectionContainer connectionContainer;
     private final OperationAccounting operationAccounting;
 
-    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate) {
+    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate, OperationAccounting operationAccounting) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
-        this.operationAccounting = new OperationAccounting(connectionContainer.getConnectionId());
+        this.operationAccounting = operationAccounting;
     }
 
     public ConnectionContainer getConnectionContainer() {
@@ -31,16 +33,7 @@ public abstract class ConnectionMember implements ConnectionMember_I {
     }
 
     public void closeDelegate() throws Exception {
-        if (delegate instanceof AutoCloseable) {
-            connectionContainer.closeSqlException(this);
-            return;
-        }
-        if (delegate instanceof Clob || delegate instanceof Blob) {
-            connectionContainer.closeFree(this);
-            return;
-        }
-        connectionContainer.closeNotNeeded(this);
-        return;
+        connectionContainer.getConnectionCleanup().close(this);
     }
 
 

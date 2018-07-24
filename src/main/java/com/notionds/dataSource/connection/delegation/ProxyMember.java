@@ -1,17 +1,20 @@
 package com.notionds.dataSource.connection.delegation;
 
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.connection.ConnectionContainer;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Statement;
 
 public class ProxyMember extends ConnectionMember implements InvocationHandler {
 
-    public ProxyMember(ConnectionContainer connectionContainer, Object delegate) {
-        super(connectionContainer, delegate);
+    public ProxyMember(ConnectionContainer connectionContainer, Object delegate, OperationAccounting operationAccounting) {
+        super(connectionContainer, delegate, operationAccounting);
     }
 
     @Override
@@ -34,6 +37,7 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
                 return getOperationAccounting();
             case "getConnection":
                 return connectionContainer.getNotionConnection();
+
         }
         if (m.getReturnType().equals(Void.TYPE)) {
             try {
@@ -58,7 +62,10 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
                 && m.getReturnType().isInterface()) {
 
             try {
-                return connectionContainer.wrap(m.invoke(delegate, args), m.getReturnType(), this);
+                if (args != null && m.getReturnType().isAssignableFrom(Statement.class) && args[0] instanceof String) {
+                    return connectionContainer.wrap(m.invoke(delegate, args), m.getReturnType(), this, (String) args[0]);
+                }
+                return connectionContainer.wrap(m.invoke(delegate, args), m.getReturnType(), this, null);
             }
             catch(InvocationTargetException ite) {
                 this.throwCause(ite.getCause());
@@ -68,7 +75,7 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
         else if (m.getReturnType().getCanonicalName().equals("java.io.InputStream")) {
 
             try {
-                return new InputStreamDelegate(connectionContainer, (InputStream) m.invoke(delegate, args));
+                return new InputStreamDelegate(connectionContainer, (InputStream) m.invoke(delegate, args), new OperationAccounting(this.getOperationAccounting().getConnectionId()));
             }
             catch (InvocationTargetException ite) {
                 this.throwCause(ite.getCause());
@@ -78,7 +85,16 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
         else if (m.getReturnType().getCanonicalName().equals("java.io.Reader")) {
 
             try {
-                return new ReaderDelegate(connectionContainer, (Reader) m.invoke(delegate, args));
+                return new ReaderDelegate(connectionContainer, (Reader) m.invoke(delegate, args), new OperationAccounting(this.getOperationAccounting().getConnectionId()));
+            }
+            catch (InvocationTargetException ite) {
+                this.throwCause(ite.getCause());
+                throw ite;
+            }
+        }
+        else if (m.getReturnType().getCanonicalName().equals("java.io.OutputStream")) {
+            try {
+                return new OutputStreamDelegate(connectionContainer, (OutputStream) m.invoke(delegate, args), new OperationAccounting(this.getOperationAccounting().getConnectionId()));
             }
             catch (InvocationTargetException ite) {
                 this.throwCause(ite.getCause());

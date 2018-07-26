@@ -12,8 +12,6 @@ import com.notionds.dataSource.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.Flushable;
 import java.io.IOException;
 import java.sql.*;
 import java.util.UUID;
@@ -54,22 +52,22 @@ public class ConnectionContainer<O extends Options,
     }
     public SQLException handleSQLException(SQLException sqlException, ConnectionMember_I delegatedInstance) {
         SqlExceptionWrapper sqlExceptionWrapper = this.exceptionAdvice.adviseSqlException(sqlException, delegatedInstance.getOperationAccounting());
-        this.handleRecommendation(this.connectionAnalysis.analyizeException(sqlExceptionWrapper));
+        this.handleRecommendation(this.connectionAnalysis.reviewException(sqlExceptionWrapper));
         return sqlExceptionWrapper;
     }
     public SQLClientInfoException handleSQLClientInfoExcpetion(SQLClientInfoException sqlClientInfoException, ConnectionMember_I delegatedInstance) {
         SqlClientInfoExceptionWrapper sqlClientInfoExceptionWrapper = this.exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException, delegatedInstance.getOperationAccounting());
-        this.handleRecommendation(this.connectionAnalysis.analyizeException(sqlClientInfoExceptionWrapper));
+        this.handleRecommendation(this.connectionAnalysis.reviewException(sqlClientInfoExceptionWrapper));
         return sqlClientInfoExceptionWrapper;
     }
     public IOException handleIoException(IOException ioException, ConnectionMember_I delegatedInstance) {
         IoExceptionWrapper ioExceptionWrapper = this.exceptionAdvice.adviseIoException(ioException, delegatedInstance.getOperationAccounting());
-        this.handleRecommendation(this.connectionAnalysis.analyizeException(ioExceptionWrapper));
+        this.handleRecommendation(this.connectionAnalysis.reviewException(ioExceptionWrapper));
         return  ioExceptionWrapper;
     }
     public Exception handleException(Exception exception, ConnectionMember_I delegatedInstance) {
         ExceptionWrapper exceptionWrapper = this.exceptionAdvice.adviseException(exception, delegatedInstance.getOperationAccounting());
-        this.handleRecommendation((this.connectionAnalysis.analyizeException(exceptionWrapper)));
+        this.handleRecommendation((this.connectionAnalysis.reviewException(exceptionWrapper)));
         return exceptionWrapper;
     }
 

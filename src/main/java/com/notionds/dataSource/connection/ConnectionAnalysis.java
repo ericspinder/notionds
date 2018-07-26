@@ -8,25 +8,77 @@ import com.notionds.dataSource.connection.accounting.StatementAccounting;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class ConnectionAnalysis<O extends Options, DM extends DatabaseMain> {
+public abstract class ConnectionAnalysis<O extends Options,
+        DM extends DatabaseMain,
+        OA extends OperationAccounting,
+        SA extends StatementAccounting,
+        PA extends PreparedStatementAccounting,
+        CA extends CallableStatementAccounting> {
 
     private final O options;
 
     protected AtomicInteger exceptionCount;
     protected final DM databaseMain;
+    private final Constructor<OA> operationAccountingConstructor;
+    private final Constructor<SA> statementAccountingConstructor;
+    private final Constructor<PA> preparedStatementAccountingConstructor;
+    private final Constructor<CA> callableStatementAccountingConstructor;
 
     public ConnectionAnalysis(O options, DM databaseMain) {
         this.options = options;
         this.databaseMain = databaseMain;
+        try {
+            this.operationAccountingConstructor = ((Class<OA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(UUID.class);
+            this.statementAccountingConstructor = ((Class<SA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(UUID.class);
+            this.preparedStatementAccountingConstructor = ((Class<PA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(UUID.class, String.class);
+            this.callableStatementAccountingConstructor = ((Class<CA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(UUID.class, String.class);
+        }
+        catch (ReflectiveOperationException roe) {
+            throw new RuntimeException("problem creating constructors for ConnectionAnalysis: " + roe.getMessage());
+        }
     }
 
-    public abstract StatementAccounting addStatement(StatementAccounting statementAccounting);
-    public abstract CallableStatementAccounting addCallableStatement(CallableStatementAccounting callableStatementAccounting);
-    public abstract PreparedStatementAccounting addPreparedStatement(PreparedStatementAccounting preparedStatementAccounting);
-    protected abstract OperationAccounting addOperation(OperationAccounting operationAccounting, ConnectionMember_I delegatedInstance);
-    protected abstract ExceptionAdvice.Recommendation addException(Exception exception);
+    public OA createOperationAccounting(UUID connectionId) {
+        try {
+            return this.addOperationAccounting((OA)this.operationAccountingConstructor.newInstance(connectionId));
+        }
+        catch (ReflectiveOperationException roe) {
+            throw new RuntimeException("problem creating instance of OperationAccounting: " + roe.getMessage());
+        }
+    }
+    protected abstract OA addOperationAccounting(OA operationAccounting);
+    public SA createStatementAccounting(UUID connectionId) {
+        try {
+            return this.addStatementAccounting((SA)this.statementAccountingConstructor.newInstance(connectionId));
+        }
+        catch (ReflectiveOperationException roe) {
+            throw new RuntimeException("problem creating instance of StatementAccounting: " + roe.getMessage());
+        }
+    }
+    protected abstract SA addStatementAccounting(SA statementAccounting);
+    public PA createPreparedStatement(UUID connectionId, String maybeSql) {
+        try {
+            return this.addPreparedStatementAccounting((PA)this.preparedStatementAccountingConstructor.newInstance(connectionId, maybeSql));
+        }
+        catch (ReflectiveOperationException roe) {
+            throw new RuntimeException("problem creating instance of PreparedStatementAccounting: " + roe.getMessage());
+        }
+    }
+    protected abstract PA addPreparedStatementAccounting(PA preparedStatementAccounting);
+    public CA createCallableStatement(UUID connectionId, String maybeSql) {
+        try {
+            return this.addCallableStatementAccounting((CA) this.callableStatementAccountingConstructor.newInstance(connectionId, maybeSql));
+        } catch (ReflectiveOperationException roe) {
+            throw new RuntimeException("problem creating instance of CallableStatementAccounting: " + roe.getMessage());
+        }
+    }
+    protected abstract CA addCallableStatementAccounting(CA callableStatementAccounting);
+
 
     /**
      * Adds an accounting of failures associated with the VendorConnection
@@ -39,11 +91,12 @@ public abstract class ConnectionAnalysis<O extends Options, DM extends DatabaseM
      * @param exceptionWrapper
      * @return
      */
-    public ExceptionAdvice.Recommendation analyizeException(NotionExceptionWrapper exceptionWrapper) {
+    public ExceptionAdvice.Recommendation reviewException(NotionExceptionWrapper exceptionWrapper) {
 
         if (options.get(Options.NotionDefaultIntegers.ConnectionAnalysis_Max_Exceptions).intValue() >= exceptionCount.addAndGet(1)) {
             return ExceptionAdvice.Recommendation.CloseConnectionInstance_When_Finished;
         }
-
+        return this.addException(exceptionWrapper);
     }
+    protected abstract ExceptionAdvice.Recommendation addException(NotionExceptionWrapper exceptionWrapper);
 }

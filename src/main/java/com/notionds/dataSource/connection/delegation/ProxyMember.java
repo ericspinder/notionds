@@ -37,7 +37,8 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
                 return getOperationAccounting();
             case "getConnection":
                 return connectionContainer.getNotionConnection();
-
+            case "execute":
+            case "executeBatch":
         }
         if (m.getReturnType().equals(Void.TYPE)) {
             try {

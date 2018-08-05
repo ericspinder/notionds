@@ -24,8 +24,7 @@ public class ConnectionContainer<O extends Options,
         NC extends NotionCleanup<O, CC, VC>,
         VC extends VendorConnection> {
 
-    private final Logger logger = LoggerFactory.getLogger(ConnectionContainer.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionContainer.class);
 
     private final O options;
     private final UUID connectionId = UUID.randomUUID();
@@ -38,7 +37,7 @@ public class ConnectionContainer<O extends Options,
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.connectionAnalysis = connectionAnalysis;
-        this.delegation = delegation; //((Class<W>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor().newInstance(options);
+        this.delegation = delegation;
         this.connectionCleanup = notionCleanup.register(vendorConnection);
     }
     public Connection getNotionConnection() {
@@ -78,52 +77,11 @@ public class ConnectionContainer<O extends Options,
     public final CC getConnectionCleanup() {
         return this.connectionCleanup;
     }
-/*
-    public void closeSqlException(ConnectionMember_I delegatedInstance) throws SQLException {
 
-    }
-    public void closeIoException(ConnectionMember_I delegatedInstance) throws IOException {
-        if (delegatedInstance instanceof Flushable) {
-            try {
-                ((Flushable)delegatedInstance).flush();
-            }
-            catch (IOException ioe) {
-                // eat it, closing anyways
-            }
-        }
-        if (delegatedInstance instanceof Closeable) {
-
-        }
-
-    }
-    public void closeFree(ConnectionMember_I delgatedInstance) throws SQLException {
-
-    }
-    public void closeNotNeeded(ConnectionMember_I delegatedInstance) {
-        this.connectionCleanup.close(delegatedInstance);
-    }
-*/
-
-    @SuppressWarnings("unchecked")
     public ConnectionMember_I wrap(Object delegate, Class clazz, ConnectionMember_I parent, String maybeSql) {
-        OperationAccounting operationAccounting = null;
-        if (clazz.isAssignableFrom(Statement.class)) {
-            if (clazz.isAssignableFrom(CallableStatement.class)) {
-                operationAccounting = new CallableStatementAccounting(this.getConnectionId(), maybeSql);
-            }
-            else if (clazz.isAssignableFrom(PreparedStatement.class)) {
-                operationAccounting = new PreparedStatementAccounting(this.connectionId, maybeSql);
-            }
-            else {
-                operationAccounting = new StatementAccounting(this.getConnectionId());
-            }
-        }
-        else {
-            operationAccounting = new OperationAccounting(this.getConnectionId());
-        }
+        OperationAccounting operationAccounting = this.connectionAnalysis.createAccounting(clazz, this.connectionId, maybeSql);
         ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, clazz.getClass(), operationAccounting);
         this.connectionCleanup.add(wrapped, delegate, parent);
         return wrapped;
     }
-
 }

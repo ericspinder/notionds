@@ -10,6 +10,10 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,8 +46,20 @@ public abstract class ConnectionAnalysis<O extends Options,
             throw new RuntimeException("problem creating constructors for ConnectionAnalysis: " + roe.getMessage());
         }
     }
+    public OperationAccounting createAccounting(Class clazz, UUID connectionId, String maybeSql) {
+        if (clazz.isAssignableFrom(Statement.class)) {
+            if (clazz.isAssignableFrom(CallableStatement.class)) {
+                return this.createCallableStatement(connectionId, maybeSql);
+            }
+            if (clazz.isAssignableFrom(PreparedStatement.class)) {
+                return this.createPreparedStatement(connectionId, maybeSql);
+            }
+            return this.createStatementAccounting(connectionId);
+        }
+        return this.createOperationAccounting(connectionId);
+    }
 
-    public OA createOperationAccounting(UUID connectionId) {
+    protected OA createOperationAccounting(UUID connectionId) {
         try {
             return this.addOperationAccounting((OA)this.operationAccountingConstructor.newInstance(connectionId));
         }
@@ -52,7 +68,7 @@ public abstract class ConnectionAnalysis<O extends Options,
         }
     }
     protected abstract OA addOperationAccounting(OA operationAccounting);
-    public SA createStatementAccounting(UUID connectionId) {
+    protected SA createStatementAccounting(UUID connectionId) {
         try {
             return this.addStatementAccounting((SA)this.statementAccountingConstructor.newInstance(connectionId));
         }
@@ -61,7 +77,7 @@ public abstract class ConnectionAnalysis<O extends Options,
         }
     }
     protected abstract SA addStatementAccounting(SA statementAccounting);
-    public PA createPreparedStatement(UUID connectionId, String maybeSql) {
+    protected PA createPreparedStatement(UUID connectionId, String maybeSql) {
         try {
             return this.addPreparedStatementAccounting((PA)this.preparedStatementAccountingConstructor.newInstance(connectionId, maybeSql));
         }
@@ -70,7 +86,7 @@ public abstract class ConnectionAnalysis<O extends Options,
         }
     }
     protected abstract PA addPreparedStatementAccounting(PA preparedStatementAccounting);
-    public CA createCallableStatement(UUID connectionId, String maybeSql) {
+    protected CA createCallableStatement(UUID connectionId, String maybeSql) {
         try {
             return this.addCallableStatementAccounting((CA) this.callableStatementAccountingConstructor.newInstance(connectionId, maybeSql));
         } catch (ReflectiveOperationException roe) {

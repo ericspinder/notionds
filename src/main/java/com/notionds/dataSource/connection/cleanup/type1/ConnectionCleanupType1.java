@@ -3,28 +3,33 @@ package com.notionds.dataSource.connection.cleanup.type1;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.VendorConnection;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
 import com.notionds.dataSource.connection.cleanup.NotionCleanup;
+import com.notionds.dataSource.connection.delegation.ConnectionMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
-import java.sql.*;
-import java.util.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.locks.StampedLock;
 
-public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup> extends ConnectionCleanup<O, NC> {
+public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup, VC extends VendorConnection> extends ConnectionCleanup<O, NC, VC> {
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionCleanupType1.class);
 
     private ConnectionMemberWeakReferenceType1 connectionWeakReference = null;
     private Map<ConnectionMember_I, ConnectionMemberWeakReferenceType1> allWeakReferences = new WeakHashMap<>();
     private final ReferenceQueue<ConnectionMember_I> referenceQueue;
-    private final StampedLock gate = new StampedLock();
 
-    public ConnectionCleanupType1(O options, NC notionCleanup, ReferenceQueue<ConnectionMember_I> referenceQueue) {
-        super(options, notionCleanup);
+    public ConnectionCleanupType1(O options, NC notionCleanup, VC vendorConnection, ReferenceQueue<ConnectionMember_I> referenceQueue) {
+        super(options, notionCleanup, vendorConnection);
         this.referenceQueue = referenceQueue;
     }
     public Connection getConnection(ConnectionContainer connectionContainer) {
@@ -32,7 +37,7 @@ public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup>
             return (Connection) this.connectionWeakReference.get();
         }
         else {
-            return (Connection) connectionContainer.wrap(notionCleanup.getVendorConnection(connectionContainer), Connection.class, null, null);
+            return (Connection) connectionContainer.wrap(this.vendorConnection, Connection.class, null, null);
         }
     }
 
@@ -43,16 +48,14 @@ public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup>
         }
     }
 
-    public ConnectionMember_I add(ConnectionMember_I connectionMember, Connection delegate, ConnectionMember_I parent) {
-        if (this.connectionWeakReference == null) {
-            this.connectionWeakReference = new ConnectionMemberWeakReferenceType1(connectionMember, delegate, this.referenceQueue);
-        }
-        throw new RuntimeException("Can only add one connection delegate");
-    }
-
     public ConnectionMember_I add(ConnectionMember_I connectionMember, Object delegate, ConnectionMember_I parent) {
         ConnectionMemberWeakReferenceType1 weakReference = new ConnectionMemberWeakReferenceType1(connectionMember, delegate, this.referenceQueue);
-        this.allWeakReferences.get(parent).addChild(weakReference);
+        if (this.connectionWeakReference == null && parent == null && connectionMember instanceof Connection) {
+            this.connectionWeakReference = weakReference;
+        }
+        else {
+            this.allWeakReferences.get(parent).addChild(weakReference);
+        }
         this.allWeakReferences.put(connectionMember, weakReference);
         return connectionMember;
     }

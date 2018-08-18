@@ -38,6 +38,10 @@ public abstract class VendorConnection<O extends Options, CA extends ConnectionA
         return this.delegate;
     }
 
+    public void release() {
+
+    }
+
 
 
 }

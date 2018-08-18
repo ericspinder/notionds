@@ -1,7 +1,7 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.Options;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

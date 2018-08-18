@@ -1,12 +1,8 @@
 package com.notionds.dataSource;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
 
-import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
-import java.sql.SQLClientInfoException;
-import java.sql.SQLException;
 
 public abstract class DatabaseMain<O extends Options, EA extends ExceptionAdvice, DA extends DatabaseAnalysis> {
 

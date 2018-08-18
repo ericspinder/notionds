@@ -1,9 +1,9 @@
 package com.notionds.dataSource.connection.delegation;
 
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.accounting.OperationAccounting;
 
 public abstract class DelegationOfNotion<O extends Options> {
 

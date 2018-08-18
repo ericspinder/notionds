@@ -3,7 +3,6 @@ package com.notionds.dataSource.connection.cleanup;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.VendorConnection;
-import com.notionds.dataSource.connection.manual9.NotionConnectionDelegate;
 
 import java.lang.reflect.ParameterizedType;
 
@@ -23,9 +22,6 @@ public abstract class NotionCleanup<O extends Options, CC extends ConnectionClea
         }
     }
 
-    public abstract VC getVendorConnection(ConnectionContainer connectionContainer);
-
     public abstract CC register(VC vendorConnection);
-
 
 }

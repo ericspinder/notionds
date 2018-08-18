@@ -1,26 +1,25 @@
 package com.notionds.dataSource.connection;
 
-import com.notionds.dataSource.*;
-import com.notionds.dataSource.connection.accounting.CallableStatementAccounting;
+import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.accounting.OperationAccounting;
-import com.notionds.dataSource.connection.accounting.PreparedStatementAccounting;
-import com.notionds.dataSource.connection.accounting.StatementAccounting;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
-import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 import com.notionds.dataSource.connection.cleanup.NotionCleanup;
+import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 import com.notionds.dataSource.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class ConnectionContainer<O extends Options,
         EA extends ExceptionAdvice,
         CA extends ConnectionAnalysis,
         D extends DelegationOfNotion,
-        CC extends ConnectionCleanup<O, NC>,
+        CC extends ConnectionCleanup<O, NC, VC>,
         NC extends NotionCleanup<O, CC, VC>,
         VC extends VendorConnection> {
 
@@ -33,7 +32,7 @@ public class ConnectionContainer<O extends Options,
     private final D delegation;
     private final CC connectionCleanup;
 
-    public ConnectionContainer(O options, EA exceptionAdvice, CA connectionAnalysis, VC vendorConnection, D delegation, NC notionCleanup) {
+    public ConnectionContainer(O options, EA exceptionAdvice, VC vendorConnection, D delegation, NC notionCleanup) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.connectionAnalysis = connectionAnalysis;

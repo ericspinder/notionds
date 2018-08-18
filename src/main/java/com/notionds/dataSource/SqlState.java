@@ -1,7 +1,5 @@
 package com.notionds.dataSource;
 
-import java.sql.SQLClientInfoException;
-
 /**
  * copied from https://en.wikipedia.org/wiki/SQLSTATE
  * oracle: https://docs.oracle.com/cd/B14117_01/appdev.101/a58231/appd.htm

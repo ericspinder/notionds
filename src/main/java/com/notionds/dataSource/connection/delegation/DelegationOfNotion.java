@@ -14,6 +14,6 @@ public abstract class DelegationOfNotion<O extends Options> {
     }
 
 
-    public abstract ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz, OperationAccounting operationAccounting);
+    public abstract ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, OperationAccounting operationAccounting);
 
 }

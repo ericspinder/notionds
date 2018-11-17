@@ -7,7 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-public class OperationAccounting {
+public abstract class OperationAccounting {
 
     private final UUID connectionId;
     private final Instant startTime = Instant.now();

@@ -1,8 +1,10 @@
-package com.notionds.dataSource.connection.delegation;
+package com.notionds.dataSource.connection.delegation.asm;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.delegation.ConnectionMember;
+import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 
 import java.util.HashMap;
 import java.util.Map;

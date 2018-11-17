@@ -8,13 +8,13 @@ import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
-public abstract class ConnectionMember implements ConnectionMember_I {
+public abstract class ConnectionMember<O extends OperationAccounting> implements ConnectionMember_I {
 
     protected final Object delegate;
     protected final ConnectionContainer connectionContainer;
-    private final OperationAccounting operationAccounting;
+    private final O operationAccounting;
 
-    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate, OperationAccounting operationAccounting) {
+    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate, O operationAccounting) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
         this.operationAccounting = operationAccounting;
@@ -24,7 +24,7 @@ public abstract class ConnectionMember implements ConnectionMember_I {
         return this.connectionContainer;
     }
 
-    public OperationAccounting getOperationAccounting() {
+    public O getOperationAccounting() {
         return this.operationAccounting;
     }
 

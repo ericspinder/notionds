@@ -4,5 +4,5 @@ public interface SqlStatement {
 
     String getCurrentSql();
 
-    ExecuteAccounting startExecuteAccounting();
+    ExecuteTimer startExecuteAccounting();
 }

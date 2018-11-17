@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegation;
+package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;

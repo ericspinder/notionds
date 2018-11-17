@@ -32,7 +32,7 @@ public class ConnectionContainer<O extends Options,
     private final D delegation;
     private final CC connectionCleanup;
 
-    public ConnectionContainer(O options, EA exceptionAdvice, VC vendorConnection, D delegation, NC notionCleanup) {
+    public ConnectionContainer(O options, EA exceptionAdvice, CA connectionAnalysis, VC vendorConnection, D delegation, NC notionCleanup) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.connectionAnalysis = connectionAnalysis;
@@ -79,7 +79,7 @@ public class ConnectionContainer<O extends Options,
 
     public ConnectionMember_I wrap(Object delegate, Class clazz, ConnectionMember_I parent, String maybeSql) {
         OperationAccounting operationAccounting = this.connectionAnalysis.createAccounting(clazz, this.connectionId, maybeSql);
-        ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, clazz.getClass(), operationAccounting);
+        ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, operationAccounting);
         this.connectionCleanup.add(wrapped, delegate, parent);
         return wrapped;
     }

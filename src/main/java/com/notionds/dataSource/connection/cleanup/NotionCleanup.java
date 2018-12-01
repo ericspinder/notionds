@@ -22,6 +22,8 @@ public abstract class NotionCleanup<O extends Options, CC extends ConnectionClea
         }
     }
 
-    public abstract CC register(VC vendorConnection);
+    public CC register(VC vendorConnection) {
+        this.connectionCleanupClass.getDeclaredConstructor(VendorConnection.class)
+    }
 
 }

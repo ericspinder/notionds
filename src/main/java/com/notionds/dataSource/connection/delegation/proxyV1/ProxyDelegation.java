@@ -8,6 +8,8 @@ import com.notionds.dataSource.connection.accounting.OperationAccounting;
 import com.notionds.dataSource.connection.accounting.PreparedStatementAccounting;
 import com.notionds.dataSource.connection.accounting.StatementAccounting;
 import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,11 +23,14 @@ import java.util.List;
 
 public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
 
+    private Logger logger = LoggerFactory.getLogger(ProxyDelegation.class);
+
     public ProxyDelegation(O options) {
         super(options);
     }
 
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, OperationAccounting operationAccounting) {
+        logger.trace("getDelegate(...Object....");
         Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
         if (interfaces != null) {
             ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
@@ -34,10 +39,12 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
                     new ProxyMember(connectionContainer, delegate, operationAccounting));
             return connectionMember;
         }
+        logger.error("No Interfaces");
         return null;
 
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Statement delegate, StatementAccounting statementAccounting) {
+        logger.trace("getDelegate(...Statement....");
         Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
         ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
                 ProxyDelegation.class.getClassLoader(),
@@ -46,6 +53,7 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
         return connectionMember;
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, PreparedStatement delegate, Class clazz, PreparedStatementAccounting preparedStatementAccounting) {
+        logger.trace("getDelegate(...PreparedStatement....");
         Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
         ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
                 ProxyDelegation.class.getClassLoader(),
@@ -54,6 +62,7 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
         return connectionMember;
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, CallableStatement delegate, Class clazz, CallableStatementAccounting callableStatementAccounting) {
+        logger.trace("getDelegate(...CallableStatement....");
         Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
         ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
                 ProxyDelegation.class.getClassLoader(),
@@ -73,13 +82,15 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
     }
 
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, InputStream delegate, OperationAccounting operationAccounting) {
+        logger.trace("getDelegate(...InputStream....");
         return new InputStreamDelegate(connectionContainer, delegate, operationAccounting);
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Reader delegate, OperationAccounting operationAccounting) {
+        logger.trace("getDelegate(...Reader....");
         return new ReaderDelegate(connectionContainer, delegate, operationAccounting);
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, OutputStream delegate, OperationAccounting operationAccounting) {
+        logger.trace("getDelegate(...OutputStream....");
         return new OutputStreamDelegate(connectionContainer, delegate, operationAccounting);
     }
-
 }

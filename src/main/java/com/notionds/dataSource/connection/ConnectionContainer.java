@@ -28,14 +28,12 @@ public class ConnectionContainer<O extends Options,
     private final O options;
     private final UUID connectionId = UUID.randomUUID();
     private final EA exceptionAdvice;
-    private final CA connectionAnalysis;
     private final D delegation;
     private final CC connectionCleanup;
 
-    public ConnectionContainer(O options, EA exceptionAdvice, CA connectionAnalysis, VC vendorConnection, D delegation, NC notionCleanup) {
+    public ConnectionContainer(O options, EA exceptionAdvice, VC vendorConnection, D delegation, NC notionCleanup) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
-        this.connectionAnalysis = connectionAnalysis;
         this.delegation = delegation;
         this.connectionCleanup = notionCleanup.register(vendorConnection);
     }
@@ -43,29 +41,24 @@ public class ConnectionContainer<O extends Options,
         return this.connectionCleanup.getConnection(this);
     }
 
-    protected void handleRecommendation(ExceptionAdvice.Recommendation recommendation) {
-        //if (ExceptionAdvice.Recommendation.CloseConnectionInstance.equals(recommendation)) {
-
-        //}
-    }
     public SQLException handleSQLException(SQLException sqlException, ConnectionMember_I delegatedInstance) {
         SqlExceptionWrapper sqlExceptionWrapper = this.exceptionAdvice.adviseSqlException(sqlException, delegatedInstance.getOperationAccounting());
-        this.handleRecommendation(this.connectionAnalysis.reviewException(sqlExceptionWrapper));
+        this.connectionCleanup.reviewException(sqlExceptionWrapper);
         return sqlExceptionWrapper;
     }
     public SQLClientInfoException handleSQLClientInfoExcpetion(SQLClientInfoException sqlClientInfoException, ConnectionMember_I delegatedInstance) {
         SqlClientInfoExceptionWrapper sqlClientInfoExceptionWrapper = this.exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException, delegatedInstance.getOperationAccounting());
-        this.handleRecommendation(this.connectionAnalysis.reviewException(sqlClientInfoExceptionWrapper));
+        this.connectionCleanup.reviewException(sqlClientInfoExceptionWrapper);
         return sqlClientInfoExceptionWrapper;
     }
     public IOException handleIoException(IOException ioException, ConnectionMember_I delegatedInstance) {
         IoExceptionWrapper ioExceptionWrapper = this.exceptionAdvice.adviseIoException(ioException, delegatedInstance.getOperationAccounting());
-        this.handleRecommendation(this.connectionAnalysis.reviewException(ioExceptionWrapper));
+        this.connectionCleanup.reviewException(ioExceptionWrapper);
         return  ioExceptionWrapper;
     }
     public Exception handleException(Exception exception, ConnectionMember_I delegatedInstance) {
         ExceptionWrapper exceptionWrapper = this.exceptionAdvice.adviseException(exception, delegatedInstance.getOperationAccounting());
-        this.handleRecommendation((this.connectionAnalysis.reviewException(exceptionWrapper)));
+        this.connectionCleanup.reviewException(exceptionWrapper);
         return exceptionWrapper;
     }
 

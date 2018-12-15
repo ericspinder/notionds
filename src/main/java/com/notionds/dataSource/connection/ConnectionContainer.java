@@ -70,6 +70,10 @@ public class ConnectionContainer<O extends Options,
         return this.connectionCleanup;
     }
 
+    public ConnectionMember_I wrap(Object delegate, Class clazz, ConnectionMember_I parent) {
+        return this.wrap(delegate, clazz, parent, null);
+    }
+
     public ConnectionMember_I wrap(Object delegate, Class clazz, ConnectionMember_I parent, String maybeSql) {
         OperationAccounting operationAccounting = this.connectionAnalysis.createAccounting(clazz, this.connectionId, maybeSql);
         ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, operationAccounting);

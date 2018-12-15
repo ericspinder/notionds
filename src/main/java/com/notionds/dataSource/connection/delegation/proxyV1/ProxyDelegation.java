@@ -70,16 +70,6 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
                 new CallableMember(connectionContainer, delegate, callableStatementAccounting));
         return connectionMember;
     }
-    private Class[] getConnectionMemberInterfaces(Class clazz)  {
-        Class[] oldArray = clazz.getInterfaces();
-        if (oldArray.length == 0) {
-            return null;
-        }
-        Class[] newArray = new Class[oldArray.length + 1];
-        System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
-        newArray[oldArray.length] = ConnectionMember_I.class;
-        return newArray;
-    }
 
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, InputStream delegate, OperationAccounting operationAccounting) {
         logger.trace("getDelegate(...InputStream....");
@@ -92,5 +82,15 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, OutputStream delegate, OperationAccounting operationAccounting) {
         logger.trace("getDelegate(...OutputStream....");
         return new OutputStreamDelegate(connectionContainer, delegate, operationAccounting);
+    }
+    private Class[] getConnectionMemberInterfaces(Class clazz)  {
+        Class[] oldArray = clazz.getInterfaces();
+        if (oldArray.length == 0) {
+            return null;
+        }
+        Class[] newArray = new Class[oldArray.length + 1];
+        System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
+        newArray[oldArray.length] = ConnectionMember_I.class;
+        return newArray;
     }
 }

@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.accounting;
+package com.notionds.dataSource.connection.logging;
 
 import java.time.Duration;
 import java.time.Instant;

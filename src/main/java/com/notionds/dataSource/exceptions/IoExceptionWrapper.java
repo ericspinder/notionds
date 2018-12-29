@@ -1,16 +1,16 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
 
 public class IoExceptionWrapper extends IOException implements NotionExceptionWrapper {
 
-    private final OperationAccounting operationAccounting;
+    private final DbObjectLogging dbObjectLogging;
 
-    public IoExceptionWrapper(OperationAccounting operationAccounting, IOException cause) {
-        super(operationAccounting.toString(), cause);
-        this.operationAccounting = operationAccounting;
+    public IoExceptionWrapper(DbObjectLogging dbObjectLogging, IOException cause) {
+        super(dbObjectLogging.toString(), cause);
+        this.dbObjectLogging = dbObjectLogging;
     }
 
     @Override
@@ -18,8 +18,8 @@ public class IoExceptionWrapper extends IOException implements NotionExceptionWr
         return this;
     }
 
-    public OperationAccounting getOperationAccounting() {
-        return this.operationAccounting;
+    public DbObjectLogging getDbObjectLogging() {
+        return this.dbObjectLogging;
     }
 
 }

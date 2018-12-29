@@ -1,26 +1,19 @@
 package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.accounting.CallableStatementAccounting;
-import com.notionds.dataSource.connection.accounting.PreparedStatementAccounting;
+import com.notionds.dataSource.connection.logging.CallableStatementLogging;
 
 import java.lang.reflect.Method;
 
-public class CallableMember extends ProxyMember<CallableStatementAccounting> {
+public class CallableMember extends ProxyMember<CallableStatementLogging> {
 
-    public CallableMember(ConnectionContainer connectionContainer, Object delegate, CallableStatementAccounting callableStatementAccounting) {
-        super(connectionContainer, delegate, callableStatementAccounting);
+    public CallableMember(ConnectionContainer connectionContainer, Object delegate, CallableStatementLogging callableStatementLogging) {
+        super(connectionContainer, delegate, callableStatementLogging);
     }
     @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-        switch (m.getName()) {
-            case "execute":
-                this.getOperationAccounting()..getCurrentSql();
-                break;
-            case "executeQuery":
-                break;
-            case "executeUpdate":
-                break;
+        if (m.getName().startsWith("execute")) {
+
         }
         return super.invoke(proxy, m, args);
     }

@@ -1,16 +1,16 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.sql.SQLClientInfoException;
 
 public class SqlClientInfoExceptionWrapper extends SQLClientInfoException implements NotionExceptionWrapper {
 
-    private final OperationAccounting operationAccounting;
+    private final DbObjectLogging dbObjectLogging;
 
-    public SqlClientInfoExceptionWrapper(OperationAccounting operationAccounting, SQLClientInfoException cause) {
-        super(operationAccounting.toString(), cause.getFailedProperties(), cause);
-        this.operationAccounting = operationAccounting;
+    public SqlClientInfoExceptionWrapper(DbObjectLogging dbObjectLogging, SQLClientInfoException cause) {
+        super(dbObjectLogging.toString(), cause.getFailedProperties(), cause);
+        this.dbObjectLogging = dbObjectLogging;
     }
 
     @Override
@@ -18,8 +18,8 @@ public class SqlClientInfoExceptionWrapper extends SQLClientInfoException implem
         return this;
     }
 
-    public OperationAccounting getOperationAccounting() {
-        return this.operationAccounting;
+    public DbObjectLogging getDbObjectLogging() {
+        return this.dbObjectLogging;
     }
 
 }

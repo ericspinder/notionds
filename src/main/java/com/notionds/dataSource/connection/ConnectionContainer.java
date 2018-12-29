@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
 import com.notionds.dataSource.connection.cleanup.NotionCleanup;
 import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
@@ -30,34 +30,36 @@ public class ConnectionContainer<O extends Options,
     private final EA exceptionAdvice;
     private final D delegation;
     private final CC connectionCleanup;
+    private final ConnectionAnalysis connectionAnalysis;
 
-    public ConnectionContainer(O options, EA exceptionAdvice, VC vendorConnection, D delegation, NC notionCleanup) {
+    public ConnectionContainer(O options, EA exceptionAdvice, D delegation, NC notionCleanup, VC vendorConnection) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.delegation = delegation;
         this.connectionCleanup = notionCleanup.register(vendorConnection);
+        this.connectionAnalysis = vendorConnection.getConnectionAnalysis();
     }
     public Connection getNotionConnection() {
         return this.connectionCleanup.getConnection(this);
     }
 
     public SQLException handleSQLException(SQLException sqlException, ConnectionMember_I delegatedInstance) {
-        SqlExceptionWrapper sqlExceptionWrapper = this.exceptionAdvice.adviseSqlException(sqlException, delegatedInstance.getOperationAccounting());
+        SqlExceptionWrapper sqlExceptionWrapper = this.exceptionAdvice.adviseSqlException(sqlException, delegatedInstance.getDbObjectLogging());
         this.connectionCleanup.reviewException(sqlExceptionWrapper);
         return sqlExceptionWrapper;
     }
     public SQLClientInfoException handleSQLClientInfoExcpetion(SQLClientInfoException sqlClientInfoException, ConnectionMember_I delegatedInstance) {
-        SqlClientInfoExceptionWrapper sqlClientInfoExceptionWrapper = this.exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException, delegatedInstance.getOperationAccounting());
+        SqlClientInfoExceptionWrapper sqlClientInfoExceptionWrapper = this.exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException, delegatedInstance.getDbObjectLogging());
         this.connectionCleanup.reviewException(sqlClientInfoExceptionWrapper);
         return sqlClientInfoExceptionWrapper;
     }
     public IOException handleIoException(IOException ioException, ConnectionMember_I delegatedInstance) {
-        IoExceptionWrapper ioExceptionWrapper = this.exceptionAdvice.adviseIoException(ioException, delegatedInstance.getOperationAccounting());
+        IoExceptionWrapper ioExceptionWrapper = this.exceptionAdvice.adviseIoException(ioException, delegatedInstance.getDbObjectLogging());
         this.connectionCleanup.reviewException(ioExceptionWrapper);
         return  ioExceptionWrapper;
     }
     public Exception handleException(Exception exception, ConnectionMember_I delegatedInstance) {
-        ExceptionWrapper exceptionWrapper = this.exceptionAdvice.adviseException(exception, delegatedInstance.getOperationAccounting());
+        ExceptionWrapper exceptionWrapper = this.exceptionAdvice.adviseException(exception, delegatedInstance.getDbObjectLogging());
         this.connectionCleanup.reviewException(exceptionWrapper);
         return exceptionWrapper;
     }
@@ -75,8 +77,8 @@ public class ConnectionContainer<O extends Options,
     }
 
     public ConnectionMember_I wrap(Object delegate, Class clazz, ConnectionMember_I parent, String maybeSql) {
-        OperationAccounting operationAccounting = this.connectionAnalysis.createAccounting(clazz, this.connectionId, maybeSql);
-        ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, operationAccounting);
+        DbObjectLogging dbObjectLogging = this.connectionAnalysis.createAccounting(clazz, this.connectionId, maybeSql);
+        ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, dbObjectLogging);
         this.connectionCleanup.add(wrapped, delegate, parent);
         return wrapped;
     }

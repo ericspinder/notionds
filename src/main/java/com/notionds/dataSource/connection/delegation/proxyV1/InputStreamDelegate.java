@@ -2,7 +2,7 @@ package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,21 +11,21 @@ public class InputStreamDelegate extends InputStream implements ConnectionMember
 
     private final InputStream delegate;
     private final ConnectionContainer connectionContainer;
-    private final OperationAccounting operationAccounting;
+    private final DbObjectLogging dbObjectLogging;
 
 
-    public InputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, OperationAccounting operationAccounting) {
+    public InputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, DbObjectLogging dbObjectLogging) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
-        this.operationAccounting = operationAccounting;
+        this.dbObjectLogging = dbObjectLogging;
     }
 
     public ConnectionContainer getConnectionContainer() {
         return this.connectionContainer;
     }
 
-    public OperationAccounting getOperationAccounting() {
-        return this.operationAccounting;
+    public DbObjectLogging getDbObjectLogging() {
+        return this.dbObjectLogging;
     }
 
     @Override

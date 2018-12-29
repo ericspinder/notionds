@@ -2,30 +2,30 @@ package com.notionds.dataSource.connection.delegation;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
-public abstract class ConnectionMember<O extends OperationAccounting> implements ConnectionMember_I {
+public abstract class ConnectionMember<O extends DbObjectLogging> implements ConnectionMember_I {
 
     protected final Object delegate;
     protected final ConnectionContainer connectionContainer;
-    private final O operationAccounting;
+    private final O objectAccounting;
 
-    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate, O operationAccounting) {
+    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate, O objectAccounting) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
-        this.operationAccounting = operationAccounting;
+        this.objectAccounting = objectAccounting;
     }
 
     public ConnectionContainer getConnectionContainer() {
         return this.connectionContainer;
     }
 
-    public O getOperationAccounting() {
-        return this.operationAccounting;
+    public O getDbObjectLogging() {
+        return this.objectAccounting;
     }
 
     public void closeDelegate() throws Exception {

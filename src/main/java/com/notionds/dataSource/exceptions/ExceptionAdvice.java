@@ -1,7 +1,7 @@
 package com.notionds.dataSource.exceptions;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,21 +58,21 @@ public abstract class ExceptionAdvice<O extends Options> {
     protected abstract Recommendation parseIOException(IOException ioException);
     protected abstract Recommendation parseException(Exception exception);
 
-    public SqlExceptionWrapper adviseSqlException(SQLException sqlException, OperationAccounting operationAccounting) {
-        operationAccounting.setFinishTime(Instant.now()).setRecommendation(this.parseSQLException(sqlException));
-        return new SqlExceptionWrapper(operationAccounting, sqlException);
+    public SqlExceptionWrapper adviseSqlException(SQLException sqlException, DbObjectLogging dbObjectLogging) {
+        dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseSQLException(sqlException));
+        return new SqlExceptionWrapper(dbObjectLogging, sqlException);
     }
-    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, OperationAccounting operationAccounting) {
-        operationAccounting.setFinishTime(Instant.now()).setRecommendation(this.parseSQLClientInfoException(sqlClientInfoException));
-        return new SqlClientInfoExceptionWrapper(operationAccounting, sqlClientInfoException);
+    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, DbObjectLogging dbObjectLogging) {
+        dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseSQLClientInfoException(sqlClientInfoException));
+        return new SqlClientInfoExceptionWrapper(dbObjectLogging, sqlClientInfoException);
     }
-    public IoExceptionWrapper adviseIoException(IOException ioException, OperationAccounting operationAccounting) {
-        operationAccounting.setFinishTime(Instant.now()).setRecommendation(this.parseIOException(ioException));
-        return new IoExceptionWrapper(operationAccounting, ioException);
+    public IoExceptionWrapper adviseIoException(IOException ioException, DbObjectLogging dbObjectLogging) {
+        dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseIOException(ioException));
+        return new IoExceptionWrapper(dbObjectLogging, ioException);
     }
-    public ExceptionWrapper adviseException(Exception exception, OperationAccounting operationAccounting) {
-        operationAccounting.setFinishTime(Instant.now()).setRecommendation(this.parseException(exception));
-        return new ExceptionWrapper(operationAccounting, exception);
+    public ExceptionWrapper adviseException(Exception exception, DbObjectLogging dbObjectLogging) {
+        dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseException(exception));
+        return new ExceptionWrapper(dbObjectLogging, exception);
     }
 
     /**

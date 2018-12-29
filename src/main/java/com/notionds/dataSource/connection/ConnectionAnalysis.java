@@ -2,10 +2,10 @@ package com.notionds.dataSource.connection;
 
 import com.notionds.dataSource.DatabaseMain;
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.accounting.CallableStatementAccounting;
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
-import com.notionds.dataSource.connection.accounting.PreparedStatementAccounting;
-import com.notionds.dataSource.connection.accounting.StatementAccounting;
+import com.notionds.dataSource.connection.logging.CallableStatementLogging;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
+import com.notionds.dataSource.connection.logging.StatementLogging;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
@@ -19,34 +19,34 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class ConnectionAnalysis<O extends Options,
         DM extends DatabaseMain,
-        OA extends OperationAccounting,
-        SA extends StatementAccounting,
-        PA extends PreparedStatementAccounting,
-        CA extends CallableStatementAccounting> {
+        OA extends DbObjectLogging,
+        SA extends StatementLogging,
+        PA extends PreparedStatementLogging,
+        CA extends CallableStatementLogging> {
 
     private final O options;
 
     protected AtomicInteger exceptionCount;
     protected final DM databaseMain;
-    private final Constructor<OA> operationAccountingConstructor;
-    private final Constructor<SA> statementAccountingConstructor;
-    private final Constructor<PA> preparedStatementAccountingConstructor;
-    private final Constructor<CA> callableStatementAccountingConstructor;
+    private final Constructor<OA> dbObjectLoggingConstructor;
+    private final Constructor<SA> statementLoggingConstructor;
+    private final Constructor<PA> preparedStatementloggingConstructor;
+    private final Constructor<CA> callableStatementLoggingConstructor;
 
     public ConnectionAnalysis(O options, DM databaseMain) {
         this.options = options;
         this.databaseMain = databaseMain;
         try {
-            this.operationAccountingConstructor = ((Class<OA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(UUID.class);
-            this.statementAccountingConstructor = ((Class<SA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(UUID.class);
-            this.preparedStatementAccountingConstructor = ((Class<PA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(UUID.class, String.class);
-            this.callableStatementAccountingConstructor = ((Class<CA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(UUID.class, String.class);
+            this.dbObjectLoggingConstructor = ((Class<OA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(options.getClass(), UUID.class);
+            this.statementLoggingConstructor = ((Class<SA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(options.getClass(), UUID.class);
+            this.preparedStatementloggingConstructor = ((Class<PA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(options.getClass(), UUID.class, String.class);
+            this.callableStatementLoggingConstructor = ((Class<CA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor(options.getClass(), UUID.class, String.class);
         }
         catch (ReflectiveOperationException roe) {
             throw new RuntimeException("problem creating constructors for ConnectionAnalysis: " + roe.getMessage());
         }
     }
-    public OperationAccounting createAccounting(Class clazz, UUID connectionId, String maybeSql) {
+    public DbObjectLogging createAccounting(Class clazz, UUID connectionId, String maybeSql) {
         if (clazz.isAssignableFrom(Statement.class)) {
             if (clazz.isAssignableFrom(CallableStatement.class)) {
                 return this.createCallableStatement(connectionId, maybeSql);
@@ -61,43 +61,43 @@ public abstract class ConnectionAnalysis<O extends Options,
 
     protected OA createOperationAccounting(UUID connectionId) {
         try {
-            return this.addOperationAccounting((OA)this.operationAccountingConstructor.newInstance(connectionId));
+            return this.addOperationAccounting((OA)this.dbObjectLoggingConstructor.newInstance(connectionId));
         }
         catch (ReflectiveOperationException roe) {
-            throw new RuntimeException("problem creating instance of OperationAccounting: " + roe.getMessage());
+            throw new RuntimeException("problem creating instance of DbObjectLogging: " + roe.getMessage());
         }
     }
     protected abstract OA addOperationAccounting(OA operationAccounting);
     protected SA createStatementAccounting(UUID connectionId) {
         try {
-            return this.addStatementAccounting((SA)this.statementAccountingConstructor.newInstance(connectionId));
+            return this.addStatementAccounting((SA)this.statementLoggingConstructor.newInstance(connectionId));
         }
         catch (ReflectiveOperationException roe) {
-            throw new RuntimeException("problem creating instance of StatementAccounting: " + roe.getMessage());
+            throw new RuntimeException("problem creating instance of StatementLogging: " + roe.getMessage());
         }
     }
     protected abstract SA addStatementAccounting(SA statementAccounting);
     protected PA createPreparedStatement(UUID connectionId, String maybeSql) {
         try {
-            return this.addPreparedStatementAccounting((PA)this.preparedStatementAccountingConstructor.newInstance(connectionId, maybeSql));
+            return this.addPreparedStatementAccounting((PA)this.preparedStatementloggingConstructor.newInstance(connectionId, maybeSql));
         }
         catch (ReflectiveOperationException roe) {
-            throw new RuntimeException("problem creating instance of PreparedStatementAccounting: " + roe.getMessage());
+            throw new RuntimeException("problem creating instance of PreparedStatementLogging: " + roe.getMessage());
         }
     }
     protected abstract PA addPreparedStatementAccounting(PA preparedStatementAccounting);
     protected CA createCallableStatement(UUID connectionId, String maybeSql) {
         try {
-            return this.addCallableStatementAccounting((CA) this.callableStatementAccountingConstructor.newInstance(connectionId, maybeSql));
+            return this.addCallableStatementAccounting((CA) this.callableStatementLoggingConstructor.newInstance(connectionId, maybeSql));
         } catch (ReflectiveOperationException roe) {
-            throw new RuntimeException("problem creating instance of CallableStatementAccounting: " + roe.getMessage());
+            throw new RuntimeException("problem creating instance of CallableStatementLogging: " + roe.getMessage());
         }
     }
     protected abstract CA addCallableStatementAccounting(CA callableStatementAccounting);
 
 
     /**
-     * Adds an accounting of failures associated with the VendorConnection
+     * Adds an logging of failures associated with the VendorConnection
      * processes for number of previously added failures and updates the operationAccounting object to state intention
      * if needed
      *

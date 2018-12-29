@@ -2,7 +2,7 @@ package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.ConnectionMember_I;
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -12,16 +12,16 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
 
     private final ConnectionContainer connectionContainer;
     private final Reader delegate;
-    private final OperationAccounting operationAccounting;
+    private final DbObjectLogging dbObjectLogging;
 
-    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, OperationAccounting operationAccounting) {
+    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, DbObjectLogging dbObjectLogging) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
-        this.operationAccounting = operationAccounting;
+        this.dbObjectLogging = dbObjectLogging;
     }
 
-    public OperationAccounting getOperationAccounting() {
-        return this.operationAccounting;
+    public DbObjectLogging getDbObjectLogging() {
+        return this.dbObjectLogging;
     }
 
     public ConnectionContainer getConnectionContainer() {

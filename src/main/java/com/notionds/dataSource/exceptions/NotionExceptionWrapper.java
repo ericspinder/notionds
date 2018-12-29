@@ -1,9 +1,9 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 public interface NotionExceptionWrapper {
 
-    OperationAccounting getOperationAccounting();
+    DbObjectLogging getDbObjectLogging();
     Throwable getCause();
 }

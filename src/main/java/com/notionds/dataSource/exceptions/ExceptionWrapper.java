@@ -1,18 +1,18 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.accounting.OperationAccounting;
+import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 public class ExceptionWrapper extends Exception implements NotionExceptionWrapper {
 
-    private final OperationAccounting operationAccounting;
+    private final DbObjectLogging dbObjectLogging;
 
-    public ExceptionWrapper(OperationAccounting operationAccounting, Exception cause) {
-        super(operationAccounting.toString(), cause, false, false);
-        this.operationAccounting = operationAccounting;
+    public ExceptionWrapper(DbObjectLogging dbObjectLogging, Exception cause) {
+        super(dbObjectLogging.toString(), cause, false, false);
+        this.dbObjectLogging = dbObjectLogging;
     }
 
-    public OperationAccounting getOperationAccounting() {
-        return this.operationAccounting;
+    public DbObjectLogging getDbObjectLogging() {
+        return this.dbObjectLogging;
     }
 
 }

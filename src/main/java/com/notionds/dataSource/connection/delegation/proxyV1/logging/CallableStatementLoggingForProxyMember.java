@@ -14,7 +14,10 @@ public class CallableStatementLoggingForProxyMember<O extends Options> extends C
     }
 
     @Override
-    public void executeInvoke() {}
+    public void executeStart() {}
+
+    @Override
+    public void executeEnd() {}
 
     @Override
     public void startInvoke(Object proxy, Method m, Object[] args) {}

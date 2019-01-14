@@ -13,7 +13,10 @@ public class PreparedStatementLoggingForProxyMember<O extends Options> extends P
         super(options, connectionId, sql);
     }
     @Override
-    public void executeInvoke(Object proxy, Method m, Object[] args) {}
+    public void executeStart() {}
+
+    @Override
+    public void executeEnd() {}
 
     @Override
     public void startInvoke(Object proxy, Method m, Object[] args) {}

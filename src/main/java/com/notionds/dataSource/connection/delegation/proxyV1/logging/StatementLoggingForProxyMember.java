@@ -15,9 +15,6 @@ public class StatementLoggingForProxyMember<O extends Options> extends Statement
     }
 
     @Override
-    public void executeInvoke(Object proxy, Method m, Object[] args) {}
-
-    @Override
     public void startInvoke(Object proxy, Method m, Object[] args) {}
 
     @Override

@@ -14,12 +14,5 @@ public class StatementLoggingForProxyMember<O extends Options> extends Statement
         super(options, connectionId);
     }
 
-    @Override
-    public void startInvoke(Object proxy, Method m, Object[] args) {}
 
-    @Override
-    public void endInvoke() {}
-
-    @Override
-    public void exception(NotionExceptionWrapper notionExceptionWrapper) {}
 }

@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
@@ -29,8 +29,8 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
     }
 
 
-    public void closeDelegate() throws IOException {
-        this.connectionContainer.closeIoException(this);
+    public void closeDelegate() {
+        connectionContainer.getConnectionCleanup().close(this);
     }
     @Override
     public void close() throws IOException {

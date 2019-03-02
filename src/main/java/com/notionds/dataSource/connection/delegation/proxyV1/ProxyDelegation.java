@@ -2,7 +2,7 @@ package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.logging.CallableStatementLogging;
 import com.notionds.dataSource.connection.logging.DbObjectLogging;
 import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
@@ -58,7 +58,7 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
         ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
                 ProxyDelegation.class.getClassLoader(),
                 interfaces,
-                new PreparedMember(connectionContainer, delegate, preparedStatementLogging));
+                new PreparedStatementMember(connectionContainer, delegate, preparedStatementLogging));
         return connectionMember;
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, CallableStatement delegate, Class clazz, CallableStatementLogging callableStatementAccounting) {

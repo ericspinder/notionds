@@ -20,8 +20,7 @@ public abstract class StatementLogging<O extends Options> extends DbObjectLoggin
         return this.currentSql;
     }
 
-    public void executeStart(String sql) {
-        this.currentSql = sql;
-        if (options.get())
-    }
+    public abstract void executeStart(String sql);
+
+    public abstract void executeEnd();
 }

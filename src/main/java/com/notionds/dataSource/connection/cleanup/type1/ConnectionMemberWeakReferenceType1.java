@@ -1,6 +1,6 @@
 package com.notionds.dataSource.connection.cleanup.type1;
 
-import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.State;
 
 import java.lang.ref.ReferenceQueue;

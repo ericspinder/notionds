@@ -5,9 +5,9 @@ import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
 
 import java.lang.reflect.Method;
 
-public class PreparedMember extends ProxyMember<PreparedStatementLogging> {
+public class PreparedStatementMember extends ProxyMember<PreparedStatementLogging> {
 
-    public PreparedMember(ConnectionContainer connectionContainer, Object delegate, PreparedStatementLogging preparedStatementLogging) {
+    public PreparedStatementMember(ConnectionContainer connectionContainer, Object delegate, PreparedStatementLogging preparedStatementLogging) {
         super(connectionContainer, delegate, preparedStatementLogging);
     }
     @Override

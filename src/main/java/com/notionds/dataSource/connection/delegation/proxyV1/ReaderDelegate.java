@@ -1,14 +1,14 @@
 package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.ConnectionMember_I;
+import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
 
-public class ReaderDelegate extends Reader implements ConnectionMember_I {
+public class ReaderDelegate extends Reader implements ConnectionMember_I<DbObjectLogging> {
 
     private final ConnectionContainer connectionContainer;
     private final Reader delegate;
@@ -113,8 +113,8 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
         }
     }
 
-    public void closeDelegate() throws IOException {
-        this.connectionContainer.closeIoException(this);
+    public void closeDelegate() {
+        connectionContainer.getConnectionCleanup().close(this);
     }
 
     @Override

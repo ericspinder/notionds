@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection;
 
 import com.notionds.dataSource.Options;
+import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.logging.DbObjectLogging;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
 import com.notionds.dataSource.connection.cleanup.NotionCleanup;

@@ -1,20 +1,19 @@
 package com.notionds.dataSource.connection.delegation;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.ConnectionMember_I;
 import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
-public abstract class ConnectionMember<O extends DbObjectLogging> implements ConnectionMember_I {
+public abstract class ConnectionMember<L extends DbObjectLogging> implements ConnectionMember_I<L> {
 
     protected final Object delegate;
     protected final ConnectionContainer connectionContainer;
-    private final O objectAccounting;
+    private final L objectAccounting;
 
-    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate, O objectAccounting) {
+    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate, L objectAccounting) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
         this.objectAccounting = objectAccounting;
@@ -24,7 +23,7 @@ public abstract class ConnectionMember<O extends DbObjectLogging> implements Con
         return this.connectionContainer;
     }
 
-    public O getDbObjectLogging() {
+    public L getDbObjectLogging() {
         return this.objectAccounting;
     }
 

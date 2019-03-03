@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegation.proxyV1;
+package com.notionds.dataSource.connection.delegation.proxyV1.withLog;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
@@ -11,14 +11,21 @@ public class InputStreamDelegate extends InputStream implements ConnectionMember
 
     private final InputStream delegate;
     private final ConnectionContainer connectionContainer;
+    private final DbObjectLogging dbObjectLogging;
+
 
     public InputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, DbObjectLogging dbObjectLogging) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
+        this.dbObjectLogging = dbObjectLogging;
     }
 
     public ConnectionContainer getConnectionContainer() {
         return this.connectionContainer;
+    }
+
+    public DbObjectLogging getDbObjectLogging() {
+        return this.dbObjectLogging;
     }
 
     @Override

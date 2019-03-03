@@ -7,24 +7,18 @@ import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
-public abstract class ConnectionMember<L extends DbObjectLogging> implements ConnectionMember_I<L> {
+public abstract class ConnectionMember implements ConnectionMember_I {
 
     protected final Object delegate;
     protected final ConnectionContainer connectionContainer;
-    private final L objectAccounting;
 
-    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate, L objectAccounting) {
+    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
-        this.objectAccounting = objectAccounting;
     }
 
     public ConnectionContainer getConnectionContainer() {
         return this.connectionContainer;
-    }
-
-    public L getDbObjectLogging() {
-        return this.objectAccounting;
     }
 
     public void closeDelegate() throws Exception {

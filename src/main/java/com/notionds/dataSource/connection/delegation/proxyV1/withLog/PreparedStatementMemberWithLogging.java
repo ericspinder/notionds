@@ -1,13 +1,13 @@
-package com.notionds.dataSource.connection.delegation.proxyV1;
+package com.notionds.dataSource.connection.delegation.proxyV1.withLog;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
 
 import java.lang.reflect.Method;
 
-public class PreparedStatementMember extends ProxyMember<PreparedStatementLogging> {
+public class PreparedStatementMemberWithLogging extends ProxyMemberWithLogging<PreparedStatementLogging> {
 
-    public PreparedStatementMember(ConnectionContainer connectionContainer, Object delegate, PreparedStatementLogging preparedStatementLogging) {
+    public PreparedStatementMemberWithLogging(ConnectionContainer connectionContainer, Object delegate, PreparedStatementLogging preparedStatementLogging) {
         super(connectionContainer, delegate, preparedStatementLogging);
     }
     @Override

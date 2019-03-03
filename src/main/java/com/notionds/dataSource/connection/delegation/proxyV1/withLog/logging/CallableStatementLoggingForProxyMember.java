@@ -1,17 +1,18 @@
-package com.notionds.dataSource.connection.delegation.proxyV1.logging;
+package com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
+import com.notionds.dataSource.connection.logging.CallableStatementLogging;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-public class PreparedStatementLoggingForProxyMember<O extends Options> extends PreparedStatementLogging<O> {
+public class CallableStatementLoggingForProxyMember<O extends Options> extends CallableStatementLogging<O> {
 
-    public PreparedStatementLoggingForProxyMember(O options, UUID connectionId, String sql) {
+    public CallableStatementLoggingForProxyMember(O options, final UUID connectionId, String sql) {
         super(options, connectionId, sql);
     }
+
     @Override
     public void executeStart() {}
 

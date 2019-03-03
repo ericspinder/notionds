@@ -9,66 +9,58 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ProxyMember<L extends DbObjectLogging> extends ConnectionMember<L> implements InvocationHandler {
+public class ProxyMember extends ConnectionMember implements InvocationHandler {
 
-    public ProxyMember(ConnectionContainer connectionContainer, Object delegate, L operationAccounting) {
-        super(connectionContainer, delegate, operationAccounting);
+    public ProxyMember(ConnectionContainer connectionContainer, Object delegate) {
+        super(connectionContainer, delegate);
     }
 
     @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-        this.getDbObjectLogging().startInvoke(proxy, m, args);
-        try {
-            switch (m.getName()) {
-                case "close":
-                case "free":
-                    this.closeDelegate();
-                    return Void.TYPE;
-                case "isWrapperFor":
-                    return ((Class) args[0]).isInstance(delegate);
-                case "unwrap":
-                    if (((Class) args[0]).isInstance(delegate)) {
-                        return delegate;
-                    }
-                    return null;
-                case "getConnectionContainer":
-                    return getConnectionContainer();
-                case "getDbObjectLogging":
-                    return getDbObjectLogging();
-                case "getConnection":
-                    return connectionContainer.getNotionConnection();
-            }
-            if (m.getReturnType().equals(Void.TYPE)) {
-                try {
-                    m.invoke(delegate, args);
-                } catch (InvocationTargetException ite) {
-                    this.throwCause(ite.getCause());
-                    throw ite;
-                }
+        switch (m.getName()) {
+            case "close":
+            case "free":
+                this.closeDelegate();
                 return Void.TYPE;
-            }
-            if (m.getReturnType().isPrimitive()) {
-                try {
-                    return m.invoke(delegate, args);
-                } catch (InvocationTargetException ite) {
-                    this.throwCause(ite.getCause());
-                    throw ite;
+            case "isWrapperFor":
+                return ((Class) args[0]).isInstance(delegate);
+            case "unwrap":
+                if (((Class) args[0]).isInstance(delegate)) {
+                    return delegate;
                 }
-            }
+                return null;
+            case "getConnectionContainer":
+                return getConnectionContainer();
+            case "getConnection":
+                return connectionContainer.getNotionConnection();
+        }
+        if (m.getReturnType().equals(Void.TYPE)) {
             try {
-                Object object = m.invoke(delegate, args);
-                ConnectionMember_I connectionMember = connectionContainer.wrap(object, m.getReturnType(), this, (args != null && args[0] instanceof String) ? (String) args[0] : null);
-                if (connectionMember != null) {
-                    return connectionMember;
-                }
-                return object;
+                m.invoke(delegate, args);
+            } catch (InvocationTargetException ite) {
+                this.throwCause(ite.getCause());
+                throw ite;
+            }
+            return Void.TYPE;
+        }
+        if (m.getReturnType().isPrimitive()) {
+            try {
+                return m.invoke(delegate, args);
             } catch (InvocationTargetException ite) {
                 this.throwCause(ite.getCause());
                 throw ite;
             }
         }
-        finally {
-            this.getDbObjectLogging().endInvoke();
+        try {
+            Object object = m.invoke(delegate, args);
+            ConnectionMember_I connectionMember = connectionContainer.wrap(object, m.getReturnType(), this, (args != null && args[0] instanceof String) ? (String) args[0] : null);
+            if (connectionMember != null) {
+                return connectionMember;
+            }
+            return object;
+        } catch (InvocationTargetException ite) {
+            this.throwCause(ite.getCause());
+            throw ite;
         }
     }
 }

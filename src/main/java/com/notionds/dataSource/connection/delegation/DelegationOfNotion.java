@@ -13,6 +13,6 @@ public abstract class DelegationOfNotion<O extends Options> {
     }
 
 
-    public abstract ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, DbObjectLogging dbObjectLogging);
+    public abstract ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz, String maybesql);
 
 }

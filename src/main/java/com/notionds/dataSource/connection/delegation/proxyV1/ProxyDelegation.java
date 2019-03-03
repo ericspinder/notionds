@@ -29,60 +29,23 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
         super(options);
     }
 
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, DbObjectLogging dbObjectLogging) {
+    @Override
+    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz, String maybeSql) {
         logger.trace("getDelegate(...Object....");
         Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
         if (interfaces != null) {
             ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
                     ProxyDelegation.class.getClassLoader(),
                     interfaces,
-                    new ProxyMember(connectionContainer, delegate, dbObjectLogging));
+                    createProxyMember(connectionContainer, delegate));
             return connectionMember;
         }
         logger.error("No Interfaces");
         return null;
 
     }
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Statement delegate, StatementLogging statementLogging) {
-        logger.trace("getDelegate(...Statement....");
-        Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
-        ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
-                ProxyDelegation.class.getClassLoader(),
-                interfaces,
-                new StatementMember(connectionContainer, delegate, statementLogging));
-        return connectionMember;
-    }
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, PreparedStatement delegate, Class clazz, PreparedStatementLogging preparedStatementLogging) {
-        logger.trace("getDelegate(...PreparedStatement....");
-        Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
-        ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
-                ProxyDelegation.class.getClassLoader(),
-                interfaces,
-                new PreparedStatementMember(connectionContainer, delegate, preparedStatementLogging));
-        return connectionMember;
-    }
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, CallableStatement delegate, Class clazz, CallableStatementLogging callableStatementAccounting) {
-        logger.trace("getDelegate(...CallableStatement....");
-        Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
-        ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
-                ProxyDelegation.class.getClassLoader(),
-                interfaces,
-                new CallableMember(connectionContainer, delegate, callableStatementAccounting));
-        return connectionMember;
-    }
+    protected abstract ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate);
 
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, InputStream delegate, DbObjectLogging dbObjectLogging) {
-        logger.trace("getDelegate(...InputStream....");
-        return new InputStreamDelegate(connectionContainer, delegate, dbObjectLogging);
-    }
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Reader delegate, DbObjectLogging dbObjectLogging) {
-        logger.trace("getDelegate(...Reader....");
-        return new ReaderDelegate(connectionContainer, delegate, dbObjectLogging);
-    }
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, OutputStream delegate, DbObjectLogging dbObjectLogging) {
-        logger.trace("getDelegate(...OutputStream....");
-        return new OutputStreamDelegate(connectionContainer, delegate, dbObjectLogging);
-    }
     private Class[] getConnectionMemberInterfaces(Class clazz)  {
         if (interfacesCache.containsKey(clazz.getCanonicalName())) {
             return interfacesCache.get(clazz.getCanonicalName());

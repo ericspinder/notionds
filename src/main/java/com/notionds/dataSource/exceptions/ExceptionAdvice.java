@@ -58,9 +58,9 @@ public abstract class ExceptionAdvice<O extends Options> {
     protected abstract Recommendation parseIOException(IOException ioException);
     protected abstract Recommendation parseException(Exception exception);
 
-    public SqlExceptionWrapper adviseSqlException(SQLException sqlException, DbObjectLogging dbObjectLogging) {
+    public SqlExceptionWrapper adviseSqlException(SQLException sqlException) {
         dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseSQLException(sqlException));
-        return new SqlExceptionWrapper(dbObjectLogging, sqlException);
+        return new SqlExceptionWrapper( sqlException);
     }
     public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, DbObjectLogging dbObjectLogging) {
         dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseSQLClientInfoException(sqlClientInfoException));

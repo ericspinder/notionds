@@ -1,13 +1,13 @@
-package com.notionds.dataSource.connection.delegation.proxyV1;
+package com.notionds.dataSource.connection.delegation.proxyV1.withLog;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.logging.ResultsSetLogging;
 
 import java.lang.reflect.Method;
 
-public class ResultSetMember extends ProxyMember<ResultsSetLogging<?>> {
+public class ResultSetMemberWithLogging extends ProxyMemberWithLogging<ResultsSetLogging<?>> {
 
-    public ResultSetMember(ConnectionContainer connectionContainer, Object delegate, ResultsSetLogging resultsSetLogging) {
+    public ResultSetMemberWithLogging(ConnectionContainer connectionContainer, Object delegate, ResultsSetLogging resultsSetLogging) {
         super(connectionContainer, delegate, resultsSetLogging);
     }
 

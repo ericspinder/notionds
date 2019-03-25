@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.logging;
+package com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging;
 
 import com.notionds.dataSource.Options;
 

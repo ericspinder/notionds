@@ -3,10 +3,11 @@ package com.notionds.dataSource.connection.delegation.proxyV1.withLog;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
-import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
-import com.notionds.dataSource.connection.logging.CallableStatementLogging;
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
-import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.ProxyDelegation;
+import com.notionds.dataSource.connection.delegation.proxyV1.ProxyMember;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.CallableStatementLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.PreparedStatementLogging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ProxyDelegationWithLogging<O extends Options> extends DelegationOfNotion<O> {
+public class ProxyDelegationWithLogging<O extends Options> extends ProxyDelegation<O> {
 
     private Logger logger = LoggerFactory.getLogger(ProxyDelegationWithLogging.class);
 
@@ -28,28 +29,13 @@ public class ProxyDelegationWithLogging<O extends Options> extends DelegationOfN
         super(options);
     }
 
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate) {
-        logger.trace("getDelegate(...Object....");
-        Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
-        if (interfaces != null) {
-            ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
-                    ProxyDelegationWithLogging.class.getClassLoader(),
-                    interfaces,
-                    new ProxyMemberWithLogging(connectionContainer, delegate, dbObjectLogging));
-            return connectionMember;
-        }
-        logger.error("No Interfaces");
-        return null;
-
+    @Override
+    protected ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate) {
+        return new ProxyMember(connectionContainer, delegate);
     }
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Statement delegate) {
-        logger.trace("getDelegate(...Statement....");
-        Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
-        ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
-                ProxyDelegationWithLogging.class.getClassLoader(),
-                interfaces,
-                new StatementMemberWithLogging(connectionContainer, delegate));
-        return connectionMember;
+    @Override
+    protected ProxyMember createProxyMember(ConnectionContainer connectionContainer, Statement delegate) {
+        return new StatementMemberWithLogging(connectionContainer, delegate);
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, PreparedStatement delegate, Class clazz, PreparedStatementLogging preparedStatementLogging) {
         logger.trace("getDelegate(...PreparedStatement....");
@@ -72,7 +58,7 @@ public class ProxyDelegationWithLogging<O extends Options> extends DelegationOfN
 
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, InputStream delegate, DbObjectLogging dbObjectLogging) {
         logger.trace("getDelegate(...InputStream....");
-        return new InputStreamDelegate(connectionContainer, delegate, dbObjectLogging);
+        return new InputStreamDelegateWithLogging(connectionContainer, delegate, dbObjectLogging);
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Reader delegate, DbObjectLogging dbObjectLogging) {
         logger.trace("getDelegate(...Reader....");

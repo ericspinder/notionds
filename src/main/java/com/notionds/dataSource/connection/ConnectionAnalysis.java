@@ -2,10 +2,10 @@ package com.notionds.dataSource.connection;
 
 import com.notionds.dataSource.DatabaseMain;
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.logging.CallableStatementLogging;
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
-import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
-import com.notionds.dataSource.connection.logging.StatementLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.CallableStatementLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.PreparedStatementLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.StatementLogging;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 

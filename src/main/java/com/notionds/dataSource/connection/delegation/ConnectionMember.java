@@ -1,7 +1,6 @@
 package com.notionds.dataSource.connection.delegation;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.sql.SQLClientInfoException;

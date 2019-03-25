@@ -1,6 +1,6 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.DbObjectLogging;
 
 import java.sql.SQLClientInfoException;
 

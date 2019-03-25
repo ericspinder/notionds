@@ -2,26 +2,19 @@ package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
 
-public class ReaderDelegate extends Reader implements ConnectionMember_I<DbObjectLogging> {
+public class ReaderDelegate extends Reader implements ConnectionMember_I {
 
     private final ConnectionContainer connectionContainer;
     private final Reader delegate;
-    private final DbObjectLogging dbObjectLogging;
 
-    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, DbObjectLogging dbObjectLogging) {
+    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
-        this.dbObjectLogging = dbObjectLogging;
-    }
-
-    public DbObjectLogging getDbObjectLogging() {
-        return this.dbObjectLogging;
     }
 
     public ConnectionContainer getConnectionContainer() {

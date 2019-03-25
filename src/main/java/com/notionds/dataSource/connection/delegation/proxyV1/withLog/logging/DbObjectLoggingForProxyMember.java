@@ -1,7 +1,6 @@
 package com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Method;

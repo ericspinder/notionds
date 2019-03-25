@@ -2,7 +2,7 @@ package com.notionds.dataSource.connection.delegation.proxyV1.withLog;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.io.Reader;

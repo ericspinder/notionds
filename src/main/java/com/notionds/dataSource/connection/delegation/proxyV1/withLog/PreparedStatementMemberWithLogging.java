@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection.delegation.proxyV1.withLog;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.PreparedStatementLogging;
 
 import java.lang.reflect.Method;
 

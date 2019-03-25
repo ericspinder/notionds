@@ -1,16 +1,14 @@
 package com.notionds.dataSource.connection.delegation.proxyV1.withLog;
 
+import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.delegation.ConnectionMember;
-import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.delegation.proxyV1.ProxyMember;
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.DbObjectLogging;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ProxyMemberWithLogging<L extends DbObjectLogging> extends ProxyMember implements InvocationHandler {
+public class ProxyMemberWithLogging<O extends Options, L extends DbObjectLogging<O>> extends ProxyMember implements InvocationHandler {
 
     private final L dbLogging;
 

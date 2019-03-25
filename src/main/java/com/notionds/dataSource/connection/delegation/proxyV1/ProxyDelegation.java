@@ -3,21 +3,11 @@ package com.notionds.dataSource.connection.delegation.proxyV1;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
-import com.notionds.dataSource.connection.logging.CallableStatementLogging;
-import com.notionds.dataSource.connection.logging.DbObjectLogging;
-import com.notionds.dataSource.connection.logging.PreparedStatementLogging;
-import com.notionds.dataSource.connection.logging.StatementLogging;
 import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
 import java.lang.reflect.Proxy;
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,7 +34,10 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
         return null;
 
     }
-    protected abstract ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate);
+
+    protected ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate) {
+        return new ProxyMember(connectionContainer, delegate);
+    }
 
     private Class[] getConnectionMemberInterfaces(Class clazz)  {
         if (interfacesCache.containsKey(clazz.getCanonicalName())) {

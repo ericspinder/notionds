@@ -1,8 +1,7 @@
-package com.notionds.dataSource.connection.logging;
+package com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.State;
-import com.notionds.dataSource.exceptions.ExceptionAdvice;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Method;
@@ -15,7 +14,6 @@ public abstract class DbObjectLogging<O extends Options> {
     private final UUID connectionId;
     private final Instant startTime = Instant.now();
     private State state;
-    private ExceptionAdvice.Recommendation recommendation;
     private Duration duration;
     protected final O options;
 

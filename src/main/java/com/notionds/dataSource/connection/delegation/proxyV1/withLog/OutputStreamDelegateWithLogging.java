@@ -2,26 +2,20 @@ package com.notionds.dataSource.connection.delegation.proxyV1.withLog;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
+import com.notionds.dataSource.connection.delegation.proxyV1.OutputStreamDelegate;
 import com.notionds.dataSource.connection.delegation.proxyV1.withLog.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class OutputStreamDelegate extends OutputStream implements ConnectionMember_I {
+public class OutputStreamDelegateWithLogging extends OutputStreamDelegate {
 
-    private final OutputStream delegate;
-    private final ConnectionContainer connectionContainer;
     private final DbObjectLogging dbObjectLogging;
 
 
-    public OutputStreamDelegate(ConnectionContainer connectionContainer, OutputStream delegate, DbObjectLogging dbObjectLogging) {
-        this.connectionContainer = connectionContainer;
-        this.delegate = delegate;
+    public OutputStreamDelegateWithLogging(ConnectionContainer connectionContainer, OutputStream delegate, DbObjectLogging dbObjectLogging) {
+        super(connectionContainer, delegate);
         this.dbObjectLogging = dbObjectLogging;
-    }
-
-    public ConnectionContainer getConnectionContainer() {
-        return this.connectionContainer;
     }
 
     public DbObjectLogging getDbObjectLogging() {
@@ -32,6 +26,7 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
     public void closeDelegate() {
         connectionContainer.getConnectionCleanup().close(this);
     }
+
     @Override
     public void close() throws IOException {
         this.closeDelegate();
@@ -49,11 +44,7 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
 
     @Override
     public void flush() throws IOException {
-        try {
-            delegate.flush();
-        }
-        catch(IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
-        }
+        super.flush();
+
     }
 }

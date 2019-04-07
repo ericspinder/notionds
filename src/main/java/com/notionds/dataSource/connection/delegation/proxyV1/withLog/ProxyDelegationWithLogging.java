@@ -66,7 +66,7 @@ public class ProxyDelegationWithLogging<O extends Options> extends ProxyDelegati
     }
     public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, OutputStream delegate, DbObjectLogging dbObjectLogging) {
         logger.trace("getDelegate(...OutputStream....");
-        return new OutputStreamDelegate(connectionContainer, delegate, dbObjectLogging);
+        return new OutputStreamDelegateWithLogging(connectionContainer, delegate, dbObjectLogging);
     }
     private Map<String, Class[]> interfacesCache = new ConcurrentHashMap<>();
 }

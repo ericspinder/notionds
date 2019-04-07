@@ -8,8 +8,8 @@ import java.io.InputStream;
 
 public class InputStreamDelegate extends InputStream implements ConnectionMember_I {
 
-    private final InputStream delegate;
-    private final ConnectionContainer connectionContainer;
+    protected final InputStream delegate;
+    protected final ConnectionContainer connectionContainer;
 
     public InputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate) {
         this.connectionContainer = connectionContainer;

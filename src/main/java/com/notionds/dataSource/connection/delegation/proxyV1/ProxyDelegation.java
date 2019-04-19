@@ -39,7 +39,7 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
         return new ProxyMember(connectionContainer, delegate);
     }
 
-    private Class[] getConnectionMemberInterfaces(Class clazz)  {
+    protected Class[] getConnectionMemberInterfaces(Class clazz)  {
         if (interfacesCache.containsKey(clazz.getCanonicalName())) {
             return interfacesCache.get(clazz.getCanonicalName());
         }

@@ -2,6 +2,7 @@ package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
+import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.logging.DbObjectLogging;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -12,7 +13,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
     private final ConnectionContainer connectionContainer;
     private final Reader delegate;
 
-    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate) {
+    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, DbObjectLogging dbObjectLogging) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
     }

@@ -1,7 +1,7 @@
 package com.notionds.dataSource.exceptions;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.DbObjectLogging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,20 +59,16 @@ public abstract class ExceptionAdvice<O extends Options> {
     protected abstract Recommendation parseException(Exception exception);
 
     public SqlExceptionWrapper adviseSqlException(SQLException sqlException) {
-        dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseSQLException(sqlException));
-        return new SqlExceptionWrapper( sqlException);
+        return new SqlExceptionWrapper(this.parseSQLException(sqlException), sqlException);
     }
-    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, DbObjectLogging dbObjectLogging) {
-        dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseSQLClientInfoException(sqlClientInfoException));
-        return new SqlClientInfoExceptionWrapper(dbObjectLogging, sqlClientInfoException);
+    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
+        return new SqlClientInfoExceptionWrapper(this.parseSQLClientInfoException(sqlClientInfoException), sqlClientInfoException);
     }
-    public IoExceptionWrapper adviseIoException(IOException ioException, DbObjectLogging dbObjectLogging) {
-        dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseIOException(ioException));
-        return new IoExceptionWrapper(dbObjectLogging, ioException);
+    public IoExceptionWrapper adviseIoException(IOException ioException) {
+        return new IoExceptionWrapper(this.parseIOException(ioException), ioException);
     }
-    public ExceptionWrapper adviseException(Exception exception, DbObjectLogging dbObjectLogging) {
-        dbObjectLogging.setFinishTime(Instant.now()).setRecommendation(this.parseException(exception));
-        return new ExceptionWrapper(dbObjectLogging, exception);
+    public ExceptionWrapper adviseException(Exception exception) {
+        return new ExceptionWrapper(this.parseException(exception), exception);
     }
 
     /**

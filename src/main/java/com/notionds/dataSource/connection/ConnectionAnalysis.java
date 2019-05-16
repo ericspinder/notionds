@@ -3,7 +3,7 @@ package com.notionds.dataSource.connection;
 import com.notionds.dataSource.DatabaseMain;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.logging.CallableStatementLogging;
-import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.DbObjectLogging;
 import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.logging.PreparedStatementLogging;
 import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.logging.StatementLogging;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;

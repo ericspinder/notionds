@@ -2,7 +2,7 @@ package com.notionds.dataSource.connection.delegation.asm;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.DbObjectLogging;
 import com.notionds.dataSource.connection.delegation.ConnectionMember;
 import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 

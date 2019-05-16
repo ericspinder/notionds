@@ -20,19 +20,25 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
     }
 
     @Override
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz, String maybeSql) {
+    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassReturned, String maybeSql) {
         logger.trace("getDelegate(...Object....");
-        Class[] interfaces = this.getConnectionMemberInterfaces(delegate.getClass());
-        if (interfaces != null) {
-            ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
-                    ProxyDelegation.class.getClassLoader(),
-                    interfaces,
-                    createProxyMember(connectionContainer, delegate));
-            return connectionMember;
+        if (delegateClassReturned.isInterface()) {
+            Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassReturned);
+            if (interfaces != null) {
+                return this.getProxyMember(interfaces, connectionContainer, delegate);
+            }
+            logger.error("No Interfaces");
         }
-        logger.error("No Interfaces");
         return null;
 
+    }
+
+    protected ConnectionMember_I getProxyMember(Class[] interfaces, ConnectionContainer connectionContainer, Object delegate) {
+        ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
+                ProxyDelegation.class.getClassLoader(),
+                interfaces,
+                createProxyMember(connectionContainer, delegate));
+        return connectionMember;
     }
 
     protected ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate) {

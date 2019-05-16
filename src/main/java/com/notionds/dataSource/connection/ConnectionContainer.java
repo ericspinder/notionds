@@ -70,12 +70,12 @@ public class ConnectionContainer<O extends Options,
         return this.connectionCleanup;
     }
 
-    public ConnectionMember_I wrap(Object delegate, Class clazz, ConnectionMember_I parent) {
+    public ConnectionMember_I wrap(Object delegate, Class delegateClassReturned, ConnectionMember_I parent) {
         return this.wrap(delegate, clazz, parent, null);
     }
 
-    public ConnectionMember_I wrap(Object delegate, Class clazz, ConnectionMember_I parent, String maybeSql) {
-        ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, clazz, maybeSql);
+    public ConnectionMember_I wrap(Object delegate, Class delegateClassReturned, ConnectionMember_I parent, String maybeSql) {
+        ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, delegateClassReturned, maybeSql);
         this.connectionCleanup.add(wrapped, delegate, parent);
         return wrapped;
     }

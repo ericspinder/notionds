@@ -1,17 +1,16 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.logging.DbObjectLogging;
+import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.DbObjectLogging;
 
 import java.sql.SQLException;
 
 public class SqlExceptionWrapper extends SQLException implements NotionExceptionWrapper {
 
+    private final ExceptionAdvice.Recommendation recommendation;
 
-    private final DbObjectLogging dbObjectLogging;
-
-    public SqlExceptionWrapper(DbObjectLogging dbObjectLogging, SQLException cause) {
-        super(dbObjectLogging.toString(), cause);
-        this.dbObjectLogging = dbObjectLogging;
+    public SqlExceptionWrapper(ExceptionAdvice.Recommendation recommendation, SQLException cause) {
+        super(recommendation.getDescription(), cause);
+        this.recommendation = recommendation;
     }
 
     @Override
@@ -19,7 +18,9 @@ public class SqlExceptionWrapper extends SQLException implements NotionException
         return this;
     }
 
-    public DbObjectLogging getDbObjectLogging() {
-        return this.dbObjectLogging;
+    @Override
+    public ExceptionAdvice.Recommendation getRecommendation() {
+        return this.recommendation;
     }
+
 }

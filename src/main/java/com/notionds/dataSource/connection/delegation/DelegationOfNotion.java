@@ -12,6 +12,14 @@ public abstract class DelegationOfNotion<O extends Options> {
     }
 
 
-    public abstract ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class clazz, String maybesql);
+    /**
+     *
+     * @param connectionContainer
+     * @param delegate
+     * @param delegateClassReturned this is the class object which the containing, if it is an interface the delegate may be 'safely' wrapped in a proxy, may be moot for some delegate implementations
+     * @param maybesql
+     * @return
+     */
+    public abstract ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassReturned, String maybesql);
 
 }

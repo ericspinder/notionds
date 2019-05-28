@@ -1,14 +1,14 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.DbObjectLogging;
+import com.notionds.dataSource.Recommendation;
 
 import java.io.IOException;
 
 public class IoExceptionWrapper extends IOException implements NotionExceptionWrapper {
 
-    private final ExceptionAdvice.Recommendation recommendation;
+    private final Recommendation recommendation;
 
-    public IoExceptionWrapper(ExceptionAdvice.Recommendation recommendation, IOException cause) {
+    public IoExceptionWrapper(Recommendation recommendation, IOException cause) {
         super(recommendation.getDescription(), cause);
         this.recommendation = recommendation;
     }
@@ -19,7 +19,7 @@ public class IoExceptionWrapper extends IOException implements NotionExceptionWr
     }
 
     @Override
-    public ExceptionAdvice.Recommendation getRecommendation() {
+    public Recommendation getRecommendation() {
         return this.recommendation;
     }
 

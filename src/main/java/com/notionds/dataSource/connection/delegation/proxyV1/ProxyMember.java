@@ -19,6 +19,7 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
         switch (m.getName()) {
             case "close":
             case "free":
+                this.handleClose();
                 this.closeDelegate();
                 return Void.TYPE;
             case "isWrapperFor":
@@ -52,7 +53,8 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
         }
         try {
             Object object = m.invoke(delegate, args);
-            ConnectionMember_I connectionMember = connectionContainer.wrap(object, m.getReturnType(), this, (args != null && args[0] instanceof String) ? (String) args[0] : null);
+            String maybeSql = (args != null && args[0] instanceof String) ? (String) args[0] : null;
+            ConnectionMember_I connectionMember = connectionContainer.wrap(object, m.getReturnType(), this, args);
             if (connectionMember != null) {
                 return connectionMember;
             }
@@ -62,4 +64,9 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
             throw ite;
         }
     }
+
+    /**
+     * For extending classes to have a callback on close
+     */
+    protected void handleClose() { }
 }

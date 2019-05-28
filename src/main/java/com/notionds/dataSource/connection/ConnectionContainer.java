@@ -17,7 +17,6 @@ import java.util.UUID;
 
 public class ConnectionContainer<O extends Options,
         EA extends ExceptionAdvice,
-        CA extends ConnectionAnalysis,
         D extends DelegationOfNotion,
         CC extends ConnectionCleanup<O, NC, VC>,
         NC extends NotionCleanup<O, CC, VC>,
@@ -43,22 +42,22 @@ public class ConnectionContainer<O extends Options,
 
     public SQLException handleSQLException(SQLException sqlException, ConnectionMember_I delegatedInstance) {
         SqlExceptionWrapper sqlExceptionWrapper = this.exceptionAdvice.adviseSqlException(sqlException);
-        this.connectionCleanup.reviewException(sqlExceptionWrapper);
+        this.connectionCleanup.reviewException(delegatedInstance, sqlExceptionWrapper);
         return sqlExceptionWrapper;
     }
     public SQLClientInfoException handleSQLClientInfoExcpetion(SQLClientInfoException sqlClientInfoException, ConnectionMember_I delegatedInstance) {
         SqlClientInfoExceptionWrapper sqlClientInfoExceptionWrapper = this.exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException);
-        this.connectionCleanup.reviewException(sqlClientInfoExceptionWrapper);
+        this.connectionCleanup.reviewException(delegatedInstance, sqlClientInfoExceptionWrapper);
         return sqlClientInfoExceptionWrapper;
     }
     public IOException handleIoException(IOException ioException, ConnectionMember_I delegatedInstance) {
         IoExceptionWrapper ioExceptionWrapper = this.exceptionAdvice.adviseIoException(ioException);
-        this.connectionCleanup.reviewException(ioExceptionWrapper);
+        this.connectionCleanup.reviewException(delegatedInstance, ioExceptionWrapper);
         return  ioExceptionWrapper;
     }
     public Exception handleException(Exception exception, ConnectionMember_I delegatedInstance) {
         ExceptionWrapper exceptionWrapper = this.exceptionAdvice.adviseException(exception);
-        this.connectionCleanup.reviewException(exceptionWrapper);
+        this.connectionCleanup.reviewException(delegatedInstance, exceptionWrapper);
         return exceptionWrapper;
     }
 
@@ -70,12 +69,8 @@ public class ConnectionContainer<O extends Options,
         return this.connectionCleanup;
     }
 
-    public ConnectionMember_I wrap(Object delegate, Class delegateClassReturned, ConnectionMember_I parent) {
-        return this.wrap(delegate, clazz, parent, null);
-    }
-
-    public ConnectionMember_I wrap(Object delegate, Class delegateClassReturned, ConnectionMember_I parent, String maybeSql) {
-        ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, delegateClassReturned, maybeSql);
+    public ConnectionMember_I wrap(Object delegate, Class delegateClassReturned, ConnectionMember_I parent, Object[] args) {
+        ConnectionMember_I wrapped = delegation.getDelegate(this, delegate, delegateClassReturned, args);
         this.connectionCleanup.add(wrapped, delegate, parent);
         return wrapped;
     }

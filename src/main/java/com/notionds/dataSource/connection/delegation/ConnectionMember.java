@@ -20,14 +20,12 @@ public abstract class ConnectionMember implements ConnectionMember_I {
         return this.connectionContainer;
     }
 
-    public void closeDelegate() throws Exception {
-        connectionContainer.getConnectionCleanup().close(this);
+    public void closeDelegate() {
+        connectionContainer.getConnectionCleanup().cleanup(this);
     }
 
-
-
     /**
-     * Handles the exception, if parameter is null then return and throw the 'real' exception
+     * Handles the exception, then rethrows the 'real' exception
      * @param cause
      * @throws Throwable
      */

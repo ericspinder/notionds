@@ -30,6 +30,7 @@ public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup,
         super(options, notionCleanup, vendorConnection);
         this.referenceQueue = referenceQueue;
     }
+    @Override
     public Connection getConnection(ConnectionContainer connectionContainer) {
         if (this.connectionWeakReference != null) {
             return (Connection) this.connectionWeakReference.get();
@@ -39,13 +40,7 @@ public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup,
         }
     }
 
-
-    public void closeAll() {
-        if (this.connectionWeakReference != null ) {
-            Map<ConnectionMemberWeakReferenceType1, Object> children = this.connectionWeakReference.getChildren();
-        }
-    }
-
+    @Override
     public ConnectionMember_I add(ConnectionMember_I connectionMember, Object delegate, ConnectionMember_I parent) {
         ConnectionMemberWeakReferenceType1 weakReference = new ConnectionMemberWeakReferenceType1(connectionMember, delegate, this.referenceQueue);
         if (this.connectionWeakReference == null && parent == null && connectionMember instanceof Connection) {
@@ -58,13 +53,9 @@ public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup,
         return connectionMember;
     }
 
-    public void close(Connection connection, boolean closeConnectionDelegate) {
+    @Override
+    public void cleanup(boolean closeConnectionDelegate) {
         try {
-            ConnectionMember_I connectionMember = (ConnectionMember_I) connection;
-            if (this.connectionWeakReference.get() != connection) {
-                throw new RuntimeException("Connection object wasn't the one in this isntance (must be a ConnectionMember_I object from this instance");
-            }
-
             Map<ConnectionMemberWeakReferenceType1, Object> children = this.connectionWeakReference.getChildren();
             this.closeAllChildren(children);
 
@@ -80,16 +71,19 @@ public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup,
             throw new RuntimeException("Connection object wasn't the one in this isntance (must be a ConnectionMember_I object from this instance");
         }
     }
-    public void close(Connection connection) {
-        this.close(connection, false);
+    @Override
+    public void cleanup() {
+        this.cleanup(false);
     }
-    public void close(ConnectionMember_I connectionMember) {
+
+    @Override
+    public void cleanup(ConnectionMember_I connectionMember) {
         ConnectionMemberWeakReferenceType1 weakReference = this.allWeakReferences.get(connectionMember);
         if (weakReference != null) {
-            this.close(weakReference);
+            this.cleanup(weakReference);
         }
     }
-    private void close(ConnectionMemberWeakReferenceType1 weakReference) {
+    private void cleanup(ConnectionMemberWeakReferenceType1 weakReference) {
         Map<ConnectionMemberWeakReferenceType1, Object> children = weakReference.getChildren();
         if (!children.isEmpty()) {
             this.closeAllChildren(children);
@@ -104,7 +98,7 @@ public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup,
             if (!children.isEmpty()) {
                 this.closeAllChildren(weakReferenceChildren);
             }
-            this.close(weakReferenceChild);
+            this.cleanup(weakReferenceChild);
         }
     }
 

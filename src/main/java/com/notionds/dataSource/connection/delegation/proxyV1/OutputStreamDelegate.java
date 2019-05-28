@@ -22,7 +22,7 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
     }
 
     public void closeDelegate() {
-        connectionContainer.getConnectionCleanup().close(this);
+        connectionContainer.getConnectionCleanup().cleanup(this);
     }
     @Override
     public void close() throws IOException {

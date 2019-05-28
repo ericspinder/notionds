@@ -13,7 +13,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
     private final ConnectionContainer connectionContainer;
     private final Reader delegate;
 
-    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, DbObjectLogging dbObjectLogging) {
+    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
     }
@@ -108,7 +108,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
     }
 
     public void closeDelegate() {
-        connectionContainer.getConnectionCleanup().close(this);
+        connectionContainer.getConnectionCleanup().cleanup(this);
     }
 
     @Override

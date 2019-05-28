@@ -1,8 +1,10 @@
 package com.notionds.dataSource.exceptions;
 
 
+import com.notionds.dataSource.Recommendation;
+
 public interface NotionExceptionWrapper {
 
-    ExceptionAdvice.Recommendation getRecommendation();
+    Recommendation getRecommendation();
     Throwable getCause();
 }

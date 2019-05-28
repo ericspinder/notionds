@@ -1,44 +1,36 @@
- package com.notionds.dataSource.connection;
+package com.notionds.dataSource.connection;
 
- import com.notionds.dataSource.DatabaseMain;
- import com.notionds.dataSource.Options;
+import com.notionds.dataSource.DatabaseMain;
+import com.notionds.dataSource.Options;
+import com.notionds.dataSource.Recommendation;
 
- import java.lang.reflect.ParameterizedType;
- import java.sql.Connection;
+import java.sql.Connection;
 
-public abstract class VendorConnection<O extends Options, CA extends ConnectionAnalysis> {
+public abstract class VendorConnection<O extends Options> {
 
     private final O options;
     private final DatabaseMain databaseMain;
     private final Connection delegate;
-    private final CA connectionAnalysis;
+
 
     @SuppressWarnings("unchecked")
     public VendorConnection(O options, DatabaseMain databaseMain, Connection delegate) {
         this.options = options;
         this.databaseMain = databaseMain;
         this.delegate = delegate;
-        try {
-            this.connectionAnalysis = ((Class<CA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).getDeclaredConstructor().newInstance();
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Problem getting connectionAnalysis instance " + e.getMessage());
-        }
+
 
     }
-    public DatabaseMain getDatabaseMain() {
+    protected DatabaseMain getDatabaseMain() {
         return this.databaseMain;
-    }
-
-    public CA getConnectionAnalysis() {
-        return this.connectionAnalysis;
     }
 
     public Connection getDelegate() {
         return this.delegate;
     }
 
-    public void release() {
+    public void release(Recommendation recommendation) {
+        this.databaseMain.release(this, recommendation);
 
     }
 

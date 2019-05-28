@@ -1,47 +1,46 @@
 package com.notionds.dataSource.exceptions;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.DbObjectLogging;
+import com.notionds.dataSource.Recommendation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
-import java.time.Instant;
 
 public abstract class ExceptionAdvice<O extends Options> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
 
-    public static class DefaultKillConnection<O extends Options> extends ExceptionAdvice<O> {
+    public static class KillExceptionOnException<O extends Options> extends ExceptionAdvice<O> {
 
-        private Logger logger = LoggerFactory.getLogger(DefaultKillConnection.class);
+        private Logger logger = LoggerFactory.getLogger(KillExceptionOnException.class);
 
-        public DefaultKillConnection(O options) {
+        public KillExceptionOnException(O options) {
             super(options);
         }
 
         @Override
-        public Recommendation parseSQLException(SQLException sqlException) {
+        protected Recommendation parseSQLException(SQLException sqlException) {
             logger.error(sqlException.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
 
         @Override
-        public Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
+        protected Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
             logger.error(sqlClientInfoException.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
 
         @Override
-        public Recommendation parseIOException(IOException ioException) {
+        protected Recommendation parseIOException(IOException ioException) {
             logger.error(ioException.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
 
         @Override
-        public Recommendation parseException(Exception exception) {
+        protected Recommendation parseException(Exception exception) {
             logger.error(exception.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
@@ -71,24 +70,4 @@ public abstract class ExceptionAdvice<O extends Options> {
         return new ExceptionWrapper(this.parseException(exception), exception);
     }
 
-    /**
-     * https://en.wikipedia.org/wiki/SQLSTATE
-     */
-    public enum Recommendation {
-
-        CloseConnectionInstance_Now("Close Connection, Now!"),
-        CloseConnectionInstance_When_Finished("Close Connection, when finished"),
-        FailoverDatabase_Now("Failover Database, Now!"),
-        FailoverDatabase_When_Finished("Failover Database, when finished"),
-        NoAction("No additional action")
-        ;
-        private String description;
-        private String sqlState;
-        Recommendation(String description) {
-            this.description = description;
-        }
-        public String getDescription() {
-            return this.description;
-        }
-    }
 }

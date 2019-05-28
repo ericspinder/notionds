@@ -31,7 +31,7 @@ public class InputStreamDelegate extends InputStream implements ConnectionMember
     }
 
     public void closeDelegate() {
-        connectionContainer.getConnectionCleanup().close(this);
+        connectionContainer.getConnectionCleanup().cleanup(this);
     }
 
     @Override

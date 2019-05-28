@@ -1,14 +1,14 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.delegation.proxyV1.log.withLog.DbObjectLogging;
+import com.notionds.dataSource.Recommendation;
 
 import java.sql.SQLClientInfoException;
 
 public class SqlClientInfoExceptionWrapper extends SQLClientInfoException implements NotionExceptionWrapper {
 
-    private final ExceptionAdvice.Recommendation recommendation;
+    private final Recommendation recommendation;
 
-    public SqlClientInfoExceptionWrapper(ExceptionAdvice.Recommendation recommendation, SQLClientInfoException cause) {
+    public SqlClientInfoExceptionWrapper(Recommendation recommendation, SQLClientInfoException cause) {
         super(recommendation.getDescription(), cause.getFailedProperties(), cause);
         this.recommendation = recommendation;
     }
@@ -19,7 +19,7 @@ public class SqlClientInfoExceptionWrapper extends SQLClientInfoException implem
     }
 
     @Override
-    public ExceptionAdvice.Recommendation getRecommendation() {
+    public Recommendation getRecommendation() {
         return this.recommendation;
     }
 

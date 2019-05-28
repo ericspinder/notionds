@@ -7,6 +7,9 @@ import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,17 +23,27 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
     }
 
     @Override
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassReturned, String maybeSql) {
+    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassReturned, Object[] args) {
         logger.trace("getDelegate(...Object....");
         if (delegateClassReturned.isInterface()) {
             Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassReturned);
             if (interfaces != null) {
                 return this.getProxyMember(interfaces, connectionContainer, delegate);
             }
-            logger.error("No Interfaces");
+            logger.error("No Interfaces, very odd as it's an interface: " + delegateClassReturned.getCanonicalName());
+            throw new RuntimeException("No Interfaces, very odd as it's an interface: " + delegateClassReturned.getCanonicalName());
         }
-        return null;
-
+        else if ( delegate instanceof InputStream) {
+            return new InputStreamDelegate(connectionContainer, (InputStream) delegate);
+        }
+        else if (delegate instanceof OutputStream) {
+            return new OutputStreamDelegate(connectionContainer, (OutputStream) delegate);
+        }
+        else if (delegate instanceof Reader) {
+            return new ReaderDelegate(connectionContainer, (Reader) delegate);
+        }
+        logger.error("ProxyDelegation is unable to create: " + delegateClassReturned.getCanonicalName());
+        throw new RuntimeException("ProxyDelegation is unable to create: " + delegateClassReturned.getCanonicalName());
     }
 
     protected ConnectionMember_I getProxyMember(Class[] interfaces, ConnectionContainer connectionContainer, Object delegate) {
@@ -59,5 +72,5 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
         interfacesCache.put(clazz.getCanonicalName(), newArray);
         return newArray;
     }
-    private Map<String, Class[]> interfacesCache = new ConcurrentHashMap<>();
+    protected Map<String, Class[]> interfacesCache = new ConcurrentHashMap<>();
 }

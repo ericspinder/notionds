@@ -44,6 +44,11 @@ public abstract class ExceptionAdvice<O extends Options> {
             logger.error(exception.getMessage());
             return Recommendation.CloseConnectionInstance_When_Finished;
         }
+
+        @Override
+        protected String descriptionOfExceptionAdvice() {
+            return "Default Close Connection on all Exceptions";
+        }
     }
 
     protected final O options;
@@ -52,22 +57,30 @@ public abstract class ExceptionAdvice<O extends Options> {
         this.options = options;
     }
 
+    protected abstract String descriptionOfExceptionAdvice();
     protected abstract Recommendation parseSQLException(SQLException sqlException);
     protected abstract Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException);
     protected abstract Recommendation parseIOException(IOException ioException);
     protected abstract Recommendation parseException(Exception exception);
 
     public SqlExceptionWrapper adviseSqlException(SQLException sqlException) {
-        return new SqlExceptionWrapper(this.parseSQLException(sqlException), sqlException);
+        Recommendation recommendation = this.parseSQLException(sqlException);
+        logger.error("Recommended={} for SQLException={}, using ExceptionAdvice={}", recommendation.getDescription(), sqlException.getMessage(), this.descriptionOfExceptionAdvice());
+        return new SqlExceptionWrapper(recommendation, sqlException);
     }
     public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
-        return new SqlClientInfoExceptionWrapper(this.parseSQLClientInfoException(sqlClientInfoException), sqlClientInfoException);
+        Recommendation recommendation = this.parseSQLClientInfoException(sqlClientInfoException);
+        logger.error("Recommended={} for SQLClientInfoException={}, using ExceptionAdvice={}", recommendation.getDescription(), sqlClientInfoException.getMessage(), this.descriptionOfExceptionAdvice());
+        return new SqlClientInfoExceptionWrapper(recommendation, sqlClientInfoException);
     }
     public IoExceptionWrapper adviseIoException(IOException ioException) {
-        return new IoExceptionWrapper(this.parseIOException(ioException), ioException);
+        Recommendation recommendation = this.parseIOException(ioException);
+        logger.error("Recommended={} for IOException={}, using ExceptionAdvice={}", recommendation.getDescription(), ioException.getMessage(), this.descriptionOfExceptionAdvice());
+        return new IoExceptionWrapper(recommendation, ioException);
     }
     public ExceptionWrapper adviseException(Exception exception) {
-        return new ExceptionWrapper(this.parseException(exception), exception);
+        Recommendation recommendation = this.parseException(exception);
+        logger.error("Recommended={} for Exception={}, using ExceptionAdvice={}", recommendation.getDescription(), exception.getMessage(), this.descriptionOfExceptionAdvice());
+        return new ExceptionWrapper(recommendation, exception);
     }
-
 }

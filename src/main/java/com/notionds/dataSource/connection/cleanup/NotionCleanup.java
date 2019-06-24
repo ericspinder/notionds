@@ -1,7 +1,6 @@
 package com.notionds.dataSource.connection.cleanup;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.VendorConnection;
 
 import java.lang.reflect.Constructor;

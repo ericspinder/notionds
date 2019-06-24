@@ -3,8 +3,8 @@ package com.notionds.dataSource.connection.cleanup;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.Recommendation;
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.VendorConnection;
+import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.sql.Connection;

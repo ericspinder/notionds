@@ -2,14 +2,6 @@ package com.notionds.dataSource.connection.delegation;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.delegation.proxyV1.InputStreamDelegate;
-import com.notionds.dataSource.connection.delegation.proxyV1.OutputStreamDelegate;
-import com.notionds.dataSource.connection.delegation.proxyV1.ReaderDelegate;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 
 public abstract class DelegationOfNotion<O extends Options> {
 

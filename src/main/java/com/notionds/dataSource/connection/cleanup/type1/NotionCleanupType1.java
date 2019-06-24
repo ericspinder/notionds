@@ -1,7 +1,6 @@
 package com.notionds.dataSource.connection.cleanup.type1;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.VendorConnection;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
 import com.notionds.dataSource.connection.cleanup.NotionCleanup;

@@ -11,6 +11,10 @@ public class ExceptionWrapper extends Exception implements NotionExceptionWrappe
         this.recommendation = recommendation;
     }
 
+    /**
+     * This prevents a stack trace from being registered both for speed and because this wrapper
+     * @return
+     */
     @Override
     public synchronized Throwable fillInStackTrace() {
         return this;

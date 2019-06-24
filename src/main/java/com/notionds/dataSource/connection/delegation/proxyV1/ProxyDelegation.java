@@ -23,38 +23,50 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
     }
 
     @Override
-    public ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassReturned, Object[] args) {
+    public final ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassReturned, Object[] args) {
         logger.trace("getDelegate(...Object....");
         if (delegateClassReturned.isInterface()) {
             Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassReturned);
             if (interfaces != null) {
-                return this.getProxyMember(interfaces, connectionContainer, delegate);
+                return this.getProxyMember(interfaces, connectionContainer, delegate, args);
             }
             logger.error("No Interfaces, very odd as it's an interface: " + delegateClassReturned.getCanonicalName());
             throw new RuntimeException("No Interfaces, very odd as it's an interface: " + delegateClassReturned.getCanonicalName());
         }
         else if ( delegate instanceof InputStream) {
-            return new InputStreamDelegate(connectionContainer, (InputStream) delegate);
+            return this.createInputStreamDelegate(connectionContainer, (InputStream) delegate, args);
         }
         else if (delegate instanceof OutputStream) {
-            return new OutputStreamDelegate(connectionContainer, (OutputStream) delegate);
+            return this.createOutputStreamDelegate(connectionContainer, (OutputStream) delegate, args);
         }
         else if (delegate instanceof Reader) {
-            return new ReaderDelegate(connectionContainer, (Reader) delegate);
+            return this.createReaderDelegate(connectionContainer, (Reader) delegate, args);
         }
         logger.error("ProxyDelegation is unable to create: " + delegateClassReturned.getCanonicalName());
         throw new RuntimeException("ProxyDelegation is unable to create: " + delegateClassReturned.getCanonicalName());
     }
 
-    protected ConnectionMember_I getProxyMember(Class[] interfaces, ConnectionContainer connectionContainer, Object delegate) {
+    protected ConnectionMember_I getProxyMember(Class[] interfaces, ConnectionContainer connectionContainer, Object delegate, Object[] args) {
         ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
                 ProxyDelegation.class.getClassLoader(),
                 interfaces,
-                createProxyMember(connectionContainer, delegate));
+                createProxyMember(connectionContainer, delegate, args));
         return connectionMember;
     }
 
-    protected ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate) {
+    protected ConnectionMember_I createInputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, Object[] args) {
+        return new InputStreamDelegate(connectionContainer, delegate);
+    }
+
+    protected ConnectionMember_I createOutputStreamDelegate(ConnectionContainer connectionContainer, OutputStream delegate, Object[] args) {
+        return new OutputStreamDelegate(connectionContainer, delegate);
+    }
+
+    protected ConnectionMember_I createReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, Object[] args) {
+        return new ReaderDelegate(connectionContainer, delegate);
+    }
+
+    protected ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate, Object[] args) {
         return new ProxyMember(connectionContainer, delegate);
     }
 

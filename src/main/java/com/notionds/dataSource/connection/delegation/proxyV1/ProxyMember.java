@@ -1,8 +1,8 @@
 package com.notionds.dataSource.connection.delegation.proxyV1;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.delegation.ConnectionMember;
+import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

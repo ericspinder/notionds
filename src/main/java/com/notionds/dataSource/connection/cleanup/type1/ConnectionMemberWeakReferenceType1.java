@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection.cleanup.type1;
 
-import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.State;
+import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;

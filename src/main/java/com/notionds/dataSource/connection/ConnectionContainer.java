@@ -2,7 +2,7 @@ package com.notionds.dataSource.connection;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
-import com.notionds.dataSource.connection.cleanup.NotionCleanup;
+import com.notionds.dataSource.connection.cleanup.GlobalCleanup;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 import com.notionds.dataSource.exceptions.*;
@@ -19,7 +19,7 @@ public class ConnectionContainer<O extends Options,
         EA extends ExceptionAdvice,
         D extends DelegationOfNotion,
         CC extends ConnectionCleanup<O, NC, VC>,
-        NC extends NotionCleanup<O, CC, VC>,
+        NC extends GlobalCleanup<O, CC, VC>,
         VC extends VendorConnection> {
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionContainer.class);

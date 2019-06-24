@@ -6,18 +6,18 @@ import com.notionds.dataSource.connection.VendorConnection;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 
-public abstract class NotionCleanup<O extends Options, CC extends ConnectionCleanup, VC extends VendorConnection> {
+public abstract class GlobalCleanup<O extends Options, CC extends ConnectionCleanup, VC extends VendorConnection> {
 
     protected final O options;
     protected final Class<CC> connectionCleanupClass;
     protected final Constructor<CC> connectionCleanupConstructor;
 
     @SuppressWarnings("unchecked")
-    public NotionCleanup(O options) {
+    public GlobalCleanup(O options) {
         this.options = options;
         try {
             this.connectionCleanupClass = (Class<CC>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
-            this.connectionCleanupConstructor = connectionCleanupClass.getDeclaredConstructor(Options.class, NotionCleanup.class, VendorConnection.class);
+            this.connectionCleanupConstructor = connectionCleanupClass.getDeclaredConstructor(Options.class, GlobalCleanup.class, VendorConnection.class);
         }
         catch (ReflectiveOperationException e) {
             throw new RuntimeException("problem creating ConnectionCleanup class", e);

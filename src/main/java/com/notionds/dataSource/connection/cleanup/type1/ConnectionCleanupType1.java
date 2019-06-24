@@ -4,7 +4,7 @@ import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.VendorConnection;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
-import com.notionds.dataSource.connection.cleanup.NotionCleanup;
+import com.notionds.dataSource.connection.cleanup.GlobalCleanup;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import java.sql.Connection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class ConnectionCleanupType1<O extends Options, NC extends NotionCleanup, VC extends VendorConnection> extends ConnectionCleanup<O, NC, VC> {
+public class ConnectionCleanupType1<O extends Options, NC extends GlobalCleanup, VC extends VendorConnection> extends ConnectionCleanup<O, NC, VC> {
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionCleanupType1.class);
 

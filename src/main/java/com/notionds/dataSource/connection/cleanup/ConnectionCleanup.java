@@ -9,18 +9,18 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.sql.Connection;
 
-public abstract class ConnectionCleanup<O extends Options, NC extends NotionCleanup, VC extends VendorConnection> {
+public abstract class ConnectionCleanup<O extends Options, NC extends GlobalCleanup, VC extends VendorConnection> {
 
     protected final O options;
     protected final NC notionCleanup;
     protected final VC vendorConnection;
-    protected boolean stable;
+    protected boolean needsAttention;
 
     public ConnectionCleanup(O options, NC notionCleanup, VC vendorConnection) {
         this.options = options;
         this.notionCleanup = notionCleanup;
         this.vendorConnection = vendorConnection;
-        this.stable = true;
+        this.needsAttention = false;
     }
 
     public abstract Connection getConnection(ConnectionContainer connectionContainer);
@@ -34,7 +34,7 @@ public abstract class ConnectionCleanup<O extends Options, NC extends NotionClea
     public abstract ConnectionMember_I add(ConnectionMember_I connectionMember, Object delegate, ConnectionMember_I parent);
 
     public void reviewException(ConnectionMember_I connectionMember, NotionExceptionWrapper exceptionWrapper) {
-        this.vendorConnection.
+        this.vendorConnection.release(exceptionWrapper.getRecommendation());
         if (exceptionWrapper.getRecommendation().equals(Recommendation.CloseConnectionInstance_Now)) {
             this.vendorConnection.
         }

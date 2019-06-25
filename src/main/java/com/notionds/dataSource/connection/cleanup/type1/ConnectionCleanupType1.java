@@ -18,17 +18,16 @@ import java.sql.Connection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class ConnectionCleanupType1<O extends Options, NC extends GlobalCleanup, VC extends VendorConnection> extends ConnectionCleanup<O, NC, VC> {
+public class ConnectionCleanupType1<O extends Options, VC extends VendorConnection> extends ConnectionCleanup<O, VC> {
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionCleanupType1.class);
 
     private ConnectionMemberWeakReferenceType1 connectionWeakReference = null;
     private Map<ConnectionMember_I, ConnectionMemberWeakReferenceType1> allWeakReferences = new WeakHashMap<>();
-    private final ReferenceQueue<ConnectionMember_I> referenceQueue;
+    private final ReferenceQueue<ConnectionMember_I> referenceQueue = new ReferenceQueue<>();
 
-    public ConnectionCleanupType1(O options, NC notionCleanup, VC vendorConnection, ReferenceQueue<ConnectionMember_I> referenceQueue) {
-        super(options, notionCleanup, vendorConnection);
-        this.referenceQueue = referenceQueue;
+    public ConnectionCleanupType1(O options, VC vendorConnection) {
+        super(options, vendorConnection);
     }
     @Override
     public Connection getConnection(ConnectionContainer connectionContainer) {
@@ -36,7 +35,7 @@ public class ConnectionCleanupType1<O extends Options, NC extends GlobalCleanup,
             return (Connection) this.connectionWeakReference.get();
         }
         else {
-            return (Connection) connectionContainer.wrap(this.vendorConnection, Connection.class, null, null);
+            return (Connection) connectionContainer.wrap(this.vendorConnection.getDelegate(), Connection.class, null, null);
         }
     }
 

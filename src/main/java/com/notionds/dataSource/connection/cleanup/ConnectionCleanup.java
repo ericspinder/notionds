@@ -9,16 +9,14 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.sql.Connection;
 
-public abstract class ConnectionCleanup<O extends Options, NC extends GlobalCleanup, VC extends VendorConnection> {
+public abstract class ConnectionCleanup<O extends Options, VC extends VendorConnection> {
 
     protected final O options;
-    protected final NC notionCleanup;
     protected final VC vendorConnection;
     protected boolean needsAttention;
 
-    public ConnectionCleanup(O options, NC notionCleanup, VC vendorConnection) {
+    public ConnectionCleanup(O options, VC vendorConnection) {
         this.options = options;
-        this.notionCleanup = notionCleanup;
         this.vendorConnection = vendorConnection;
         this.needsAttention = false;
     }

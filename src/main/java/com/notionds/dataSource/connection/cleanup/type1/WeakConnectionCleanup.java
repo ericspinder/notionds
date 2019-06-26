@@ -5,11 +5,11 @@ import com.notionds.dataSource.connection.VendorConnection;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 
-public class CCWeakReferenceType1<VC extends VendorConnection> extends WeakReference<ConnectionCleanupType1> {
+public class WeakConnectionCleanup<VC extends VendorConnection> extends WeakReference<ConnectionCleanupT1> {
 
     private final VC vendorConnection;
-    private final
-    public CCWeakReferenceType1(ConnectionCleanupType1 connectionCleanup, VC vendorConnection, ReferenceQueue referenceQueue) {
+
+    public WeakConnectionCleanup(ConnectionCleanupT1 connectionCleanup, VC vendorConnection, ReferenceQueue referenceQueue) {
         super(connectionCleanup, referenceQueue);
         this.vendorConnection = vendorConnection;
     }

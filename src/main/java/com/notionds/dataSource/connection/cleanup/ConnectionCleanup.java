@@ -13,19 +13,16 @@ public abstract class ConnectionCleanup<O extends Options, VC extends VendorConn
 
     protected final O options;
     protected final VC vendorConnection;
-    protected boolean needsAttention;
+    protected boolean isOpen = true;
 
     public ConnectionCleanup(O options, VC vendorConnection) {
         this.options = options;
         this.vendorConnection = vendorConnection;
-        this.needsAttention = false;
     }
 
     public abstract Connection getConnection(ConnectionContainer connectionContainer);
 
     public abstract void cleanup(boolean closeConnectionDelegate);
-
-    public abstract void cleanup();
 
     public abstract void cleanup(ConnectionMember_I connectionMember);
 
@@ -33,9 +30,10 @@ public abstract class ConnectionCleanup<O extends Options, VC extends VendorConn
 
     public void reviewException(ConnectionMember_I connectionMember, NotionExceptionWrapper exceptionWrapper) {
         this.vendorConnection.release(exceptionWrapper.getRecommendation());
-        if (exceptionWrapper.getRecommendation().equals(Recommendation.CloseConnectionInstance_Now)) {
-            this.vendorConnection.
+        if (!exceptionWrapper.getRecommendation().equals(Recommendation.NoAction)) {
+            this.isOpen = false;
         }
+
     }
 
 }

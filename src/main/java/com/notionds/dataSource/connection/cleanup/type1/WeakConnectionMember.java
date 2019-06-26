@@ -8,12 +8,12 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConnectionMemberWeakReferenceType1 extends WeakReference<ConnectionMember_I> {
+public class WeakConnectionMember extends WeakReference<ConnectionMember_I> {
 
     private final Object delegate;
-    private final Map<ConnectionMemberWeakReferenceType1, Object> children = new ConcurrentHashMap<>();
+    private final Map<WeakConnectionMember, Object> children = new ConcurrentHashMap<>();
 
-    public ConnectionMemberWeakReferenceType1(ConnectionMember_I connectionMember, Object delegate, ReferenceQueue referenceQueue) {
+    public WeakConnectionMember(ConnectionMember_I connectionMember, Object delegate, ReferenceQueue referenceQueue) {
         super(connectionMember, referenceQueue);
         this.delegate = delegate;
     }
@@ -22,11 +22,11 @@ public class ConnectionMemberWeakReferenceType1 extends WeakReference<Connection
         return delegate;
     }
 
-    public void addChild(ConnectionMemberWeakReferenceType1 child) {
+    public void addChild(WeakConnectionMember child) {
         this.children.put(child, State.Open);
     }
 
-    public Map<ConnectionMemberWeakReferenceType1, Object> getChildren() {
+    public Map<WeakConnectionMember, Object> getChildren() {
         return this.children;
     }
 

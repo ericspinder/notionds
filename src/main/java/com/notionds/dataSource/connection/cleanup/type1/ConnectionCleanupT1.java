@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -22,12 +23,13 @@ public class ConnectionCleanupT1<O extends Options, VC extends VendorConnection>
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionCleanupT1.class);
 
-    private WeakConnectionMember connectionWeakReference = null;
-    private Map<ConnectionMember_I, WeakConnectionMember> allConnectionMemberWR = Collections.synchronizedMap(new WeakHashMap<>());
-    private final ReferenceQueue<ConnectionMember_I> referenceQueue;
+    private WeakReference<ConnectionMember_I> connectionWeakReference = null;
+    private Map<ConnectionMember_I, WeakReference<ConnectionMember_I>> allConnectionMemberWR = Collections.synchronizedMap(new WeakHashMap<>());
+    private final ReferenceQueue<ConnectionMember_I> connectionMemberRQ;
 
-    public ConnectionCleanupT1(O options, VC vendorConnection) {
+    public ConnectionCleanupT1(O options, VC vendorConnection, ReferenceQueue<ConnectionMember_I> connectionMemberRQ) {
         super(options, vendorConnection);
+        this.connectionMemberRQ = connectionMemberRQ;
     }
     @Override
     public Connection getConnection(ConnectionContainer connectionContainer) {
@@ -41,91 +43,21 @@ public class ConnectionCleanupT1<O extends Options, VC extends VendorConnection>
 
     @Override
     public ConnectionMember_I add(ConnectionMember_I connectionMember, Object delegate, ConnectionMember_I parent) {
-        WeakConnectionMember weakReference = new WeakConnectionMember(connectionMember, delegate, this.referenceQueue);
+        WeakReference<ConnectionMember_I> weakReference = new WeakReference<>(connectionMember, this.connectionMemberRQ);
         if (this.connectionWeakReference == null && parent == null && connectionMember instanceof Connection) {
             this.connectionWeakReference = weakReference;
-        }
-        else {
-            this.allConnectionMemberWR.get(parent).addChild(weakReference);
         }
         this.allConnectionMemberWR.put(connectionMember, weakReference);
         return connectionMember;
     }
 
-    @Override
-    public void cleanup(boolean closeConnectionDelegate) {
-        try {
-            Map<WeakConnectionMember, Object> children = this.connectionWeakReference.getChildren();
-            this.closeAllChildren(children);
-
-            if (!this.options.get(Options.NotionDefaultBooleans.ConnectionPool_Use) || closeConnectionDelegate) {
-                this.closeAndClear(this.connectionWeakReference);
-            }
-            else {
-                this.connectionWeakReference.clear();
-
-            }
-        }
-        catch (ClassCastException cce) {
-            throw new RuntimeException("Connection object wasn't the one in this isntance (must be a ConnectionMember_I object from this instance");
-        }
-    }
 
     @Override
-    public void cleanup(ConnectionMember_I connectionMember) {
-        WeakConnectionMember weakReference = this.allConnectionMemberWR.get(connectionMember);
+    public void clear(ConnectionMember_I connectionMember) {
+        WeakReference<ConnectionMember_I> weakReference = this.allConnectionMemberWR.get(connectionMember);
         if (weakReference != null) {
-            this.cleanup(weakReference);
-        }
-    }
-    private void cleanup(WeakConnectionMember weakReference) {
-        Map<WeakConnectionMember, Object> children = weakReference.getChildren();
-        if (!children.isEmpty()) {
-            this.closeAllChildren(children);
-        }
-        this.closeAndClear(weakReference);
-        this.allConnectionMemberWR.remove(weakReference.get());
-
-    }
-    private void closeAllChildren(Map<WeakConnectionMember, Object> children) {
-        for (WeakConnectionMember weakReferenceChild: children.keySet()) {
-            Map<WeakConnectionMember, Object> weakReferenceChildren = weakReferenceChild.getChildren();
-            if (!children.isEmpty()) {
-                this.closeAllChildren(weakReferenceChildren);
-            }
-            this.cleanup(weakReferenceChild);
+            weakReference.clear();
         }
     }
 
-    private void closeAndClear(WeakConnectionMember notionReference) {
-        try {
-            Object delegate = notionReference.getDelegate();
-            if (delegate instanceof AutoCloseable) {
-                ((AutoCloseable)delegate).close();
-            }
-            else if (delegate instanceof Clob) {
-                ((Clob)delegate).free();
-            }
-            else if (delegate instanceof Blob) {
-                ((Blob)delegate).free();
-            }
-            else if (delegate instanceof Array) {
-                ((Array)delegate).free();
-            }
-        }
-        catch (Exception e) {
-            printCause(e);
-        }
-        finally {
-            ((Reference) notionReference).clear();
-        }
-    }
-
-    private final Throwable printCause(Throwable t) {
-        logger.info("Expection trying to clean up Reference was ignorned: " + t.getMessage());
-        if (t.getCause() != null) {
-            printCause(t.getCause());
-        }
-        return null;
-    }
 }

@@ -18,7 +18,7 @@ import java.util.UUID;
 public class ConnectionContainer<O extends Options,
         EA extends ExceptionAdvice,
         D extends DelegationOfNotion,
-        CC extends ConnectionCleanup<O, NC, VC>,
+        CC extends ConnectionCleanup<O, VC>,
         NC extends GlobalCleanup<O, CC, VC>,
         VC extends VendorConnection> {
 

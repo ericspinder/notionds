@@ -10,6 +10,7 @@ public abstract class ConnectionMember implements ConnectionMember_I {
 
     protected final Object delegate;
     protected final ConnectionContainer connectionContainer;
+    protected boolean isClosed = false;
 
     public ConnectionMember(ConnectionContainer connectionContainer, Object delegate) {
         this.connectionContainer = connectionContainer;
@@ -21,6 +22,7 @@ public abstract class ConnectionMember implements ConnectionMember_I {
     }
 
     public void closeDelegate() {
+        this.isClosed = true;
         connectionContainer.getConnectionCleanup().cleanup(this);
     }
 
@@ -43,4 +45,9 @@ public abstract class ConnectionMember implements ConnectionMember_I {
             throw cause;
         }
     }
+
+    public boolean isClosed() {
+        return this.isClosed;
+    }
+
 }

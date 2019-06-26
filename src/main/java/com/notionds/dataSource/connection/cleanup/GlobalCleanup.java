@@ -27,10 +27,9 @@ public abstract class GlobalCleanup<O extends Options, CC extends ConnectionClea
     public CC register(VC vendorConnection) {
         try {
             return this.connectionCleanupConstructor.newInstance(this.options, this, vendorConnection);
-        }67
+        }
         catch (ReflectiveOperationException roe) {
             throw new RuntimeException("Problem creating ConnectionCleanup instance (" + connectionCleanupClass.getCanonicalName() + ") ", roe);
         }
     }
-
 }

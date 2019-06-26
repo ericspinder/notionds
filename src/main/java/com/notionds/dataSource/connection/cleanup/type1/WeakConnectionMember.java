@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WeakConnectionMember extends WeakReference<ConnectionMember_I> {
 
     private final Object delegate;
-    private final Map<WeakConnectionMember, Object> children = new ConcurrentHashMap<>();
+    private final Map<WeakConnectionMember, Object> children = new ConcurrentHashMap<>
 
     public WeakConnectionMember(ConnectionMember_I connectionMember, Object delegate, ReferenceQueue referenceQueue) {
         super(connectionMember, referenceQueue);

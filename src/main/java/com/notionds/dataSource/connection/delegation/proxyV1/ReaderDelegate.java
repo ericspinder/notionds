@@ -11,6 +11,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
 
     private final ConnectionContainer connectionContainer;
     private final Reader delegate;
+    private boolean isClosed = false;
 
     public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate) {
         this.connectionContainer = connectionContainer;
@@ -106,12 +107,18 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
         }
     }
 
-    public void closeDelegate() {
-        connectionContainer.getConnectionCleanup().cleanup(this);
+    public void closeDelegate() throws IOException {
+        this.isClosed = true;
+        this.connectionContainer.getConnectionCleanup().cleanup(this);
     }
 
     @Override
     public void close() throws IOException {
         this.closeDelegate();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return this.isClosed;
     }
 }

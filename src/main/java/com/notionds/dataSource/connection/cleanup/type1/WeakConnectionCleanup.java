@@ -9,8 +9,8 @@ public class WeakConnectionCleanup<VC extends VendorConnection> extends WeakRefe
 
     private final VC vendorConnection;
 
-    public WeakConnectionCleanup(ConnectionCleanupT1 connectionCleanup, VC vendorConnection, ReferenceQueue referenceQueue) {
-        super(connectionCleanup, referenceQueue);
+    public WeakConnectionCleanup(ConnectionCleanupT1 connectionCleanup, VC vendorConnection, ReferenceQueue<ConnectionCleanupT1> connectionCleanupRQ) {
+        super(connectionCleanup, connectionCleanupRQ);
         this.vendorConnection = vendorConnection;
     }
 

@@ -10,6 +10,7 @@ public class InputStreamDelegate extends InputStream implements ConnectionMember
 
     protected final InputStream delegate;
     protected final ConnectionContainer connectionContainer;
+    protected boolean isClosed = false;
 
     public InputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate) {
         this.connectionContainer = connectionContainer;
@@ -31,12 +32,18 @@ public class InputStreamDelegate extends InputStream implements ConnectionMember
     }
 
     public void closeDelegate() {
+        this.isClosed = true;
         connectionContainer.getConnectionCleanup().cleanup(this);
     }
 
     @Override
     public void close() throws IOException {
         this.closeDelegate();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return isClosed;
     }
 
 }

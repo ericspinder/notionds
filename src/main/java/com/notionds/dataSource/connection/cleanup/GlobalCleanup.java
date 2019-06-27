@@ -6,11 +6,12 @@ import com.notionds.dataSource.connection.VendorConnection;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 
-public abstract class GlobalCleanup<O extends Options, CC extends ConnectionCleanup, VC extends VendorConnection> {
+public abstract class GlobalCleanup<O extends Options, CC extends ConnectionCleanup, VC extends VendorConnection> implements Runnable {
 
     protected final O options;
     protected final Class<CC> connectionCleanupClass;
     protected final Constructor<CC> connectionCleanupConstructor;
+    protected boolean doCleanup = true;
 
     @SuppressWarnings("unchecked")
     public GlobalCleanup(O options) {
@@ -30,6 +31,18 @@ public abstract class GlobalCleanup<O extends Options, CC extends ConnectionClea
         }
         catch (ReflectiveOperationException roe) {
             throw new RuntimeException("Problem creating ConnectionCleanup instance (" + connectionCleanupClass.getCanonicalName() + ") ", roe);
+        }
+    }
+    protected abstract void cleanup() throws InterruptedException ;
+
+    public void run() {
+        try {
+            while (doCleanup) {
+                this.cleanup();
+            }
+        }
+        catch (InterruptedException ie) {
+
         }
     }
 }

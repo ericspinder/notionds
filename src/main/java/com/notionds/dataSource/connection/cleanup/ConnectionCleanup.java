@@ -4,20 +4,17 @@ import com.notionds.dataSource.Options;
 import com.notionds.dataSource.Recommendation;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.VendorConnection;
-import com.notionds.dataSource.connection.cleanup.type1.WeakConnectionMember;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.ref.Reference;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 
-public abstract class ConnectionCleanup<O extends Options, VC extends VendorConnection> {
+public abstract class ConnectionCleanup<O extends Options, VC extends VendorConnection>  {
 
     protected static final Logger logger = LoggerFactory.getLogger(ConnectionCleanup.class);
 
@@ -31,8 +28,6 @@ public abstract class ConnectionCleanup<O extends Options, VC extends VendorConn
     }
 
     public abstract Connection getConnection(ConnectionContainer connectionContainer);
-
-    public abstract void cleanup(boolean closeConnectionDelegate);
 
     public void cleanup(ConnectionMember_I connectionMember, Object delegate) {
         if (!(connectionMember instanceof Connection) && !this.keepOpen) {

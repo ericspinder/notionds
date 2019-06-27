@@ -23,7 +23,7 @@ public abstract class ConnectionMember implements ConnectionMember_I {
 
     public void closeDelegate() {
         this.isClosed = true;
-        connectionContainer.getConnectionCleanup().cleanup(this);
+        connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
     }
 
     /**

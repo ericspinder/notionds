@@ -4,6 +4,7 @@ import com.notionds.dataSource.Options;
 import com.notionds.dataSource.Recommendation;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.VendorConnection;
+import com.notionds.dataSource.connection.delegation.ConnectionMember;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ public abstract class ConnectionCleanup<O extends Options, VC extends VendorConn
 
     protected final O options;
     protected final VC vendorConnection;
-    protected boolean keepOpen = true;
 
     public ConnectionCleanup(O options, VC vendorConnection) {
         this.options = options;
@@ -29,25 +29,32 @@ public abstract class ConnectionCleanup<O extends Options, VC extends VendorConn
 
     public abstract Connection getConnection(ConnectionContainer connectionContainer);
 
+    public void cleanup(ConnectionMember_I connectionMember, Connection connection) {
+        this.vendorConnection.release(Recommendation.ReturnToPool);
+        this.clear((Connection) connectionMember);
+    }
     public void cleanup(ConnectionMember_I connectionMember, Object delegate) {
-        if (!(connectionMember instanceof Connection) && !this.keepOpen) {
-            this.doDelegateClose(delegate);
+        if (!(connectionMember instanceof Connection)) {
+            DoDelegateClose(delegate);
+        }
+        else {
+
         }
         this.clear(connectionMember);
     }
+    protected abstract void clear(Connection connection);
     protected abstract void clear(ConnectionMember_I connectionMember);
 
 
     public abstract ConnectionMember_I add(ConnectionMember_I connectionMember, Object delegate, ConnectionMember_I parent);
 
     public void reviewException(ConnectionMember_I connectionMember, NotionExceptionWrapper exceptionWrapper) {
-        this.vendorConnection.release(exceptionWrapper.getRecommendation());
         if (!exceptionWrapper.getRecommendation().equals(Recommendation.NoAction)) {
-            this.keepOpen = false;
+            this.vendorConnection.release(exceptionWrapper.getRecommendation());
         }
 
     }
-    private void doDelegateClose(Object delegate) {
+    public static void DoDelegateClose(Object delegate) {
         try {
             if (delegate instanceof AutoCloseable) {
                 ((AutoCloseable)delegate).close();
@@ -65,16 +72,16 @@ public abstract class ConnectionCleanup<O extends Options, VC extends VendorConn
         catch (Exception e) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Exception trying to clean up Reference was ignored: ");
-            printCause(e, stringBuilder);
+            PrintCause(e, stringBuilder);
             logger.error(stringBuilder.toString());
         }
     }
 
-    protected void printCause(Throwable t, StringBuilder stringBuilder) {
+    protected static void PrintCause(Throwable t, StringBuilder stringBuilder) {
         stringBuilder.append(t.getMessage());
         if (t.getCause() != null) {
             stringBuilder.append("\n caused by: ");
-            printCause(t.getCause(), stringBuilder);
+            PrintCause(t.getCause(), stringBuilder);
         }
     }
 

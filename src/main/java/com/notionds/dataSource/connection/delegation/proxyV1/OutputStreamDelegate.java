@@ -24,7 +24,7 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
 
     public void closeDelegate() {
         this.isClosed = true;
-        connectionContainer.getConnectionCleanup().cleanup(this);
+        connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
     }
     @Override
     public void close() throws IOException {

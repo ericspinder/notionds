@@ -23,14 +23,19 @@ public class ConnectionCleanupT1<O extends Options, VC extends VendorConnection>
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionCleanupT1.class);
 
-    private WeakReference<ConnectionMember_I> connectionWeakReference = null;
-    private Map<ConnectionMember_I, WeakReference<ConnectionMember_I>> allConnectionMemberWR = Collections.synchronizedMap(new WeakHashMap<>());
+    private ConnectionWR connectionWeakReference = null;
+    private final Map<ConnectionMember_I, ConnectionMemberWR> allConnectionMemberWR = Collections.synchronizedMap(new WeakHashMap<>());
     private final ReferenceQueue<ConnectionMember_I> connectionMemberRQ;
 
     public ConnectionCleanupT1(O options, VC vendorConnection, ReferenceQueue<ConnectionMember_I> connectionMemberRQ) {
         super(options, vendorConnection);
         this.connectionMemberRQ = connectionMemberRQ;
     }
+
+    public ConnectionWR getConnectionWeakReference() {
+        return this.connectionWeakReference;
+    }
+
     @Override
     public Connection getConnection(ConnectionContainer connectionContainer) {
         if (this.connectionWeakReference != null) {
@@ -43,21 +48,26 @@ public class ConnectionCleanupT1<O extends Options, VC extends VendorConnection>
 
     @Override
     public ConnectionMember_I add(ConnectionMember_I connectionMember, Object delegate, ConnectionMember_I parent) {
-        WeakReference<ConnectionMember_I> weakReference = new WeakReference<>(connectionMember, this.connectionMemberRQ);
         if (this.connectionWeakReference == null && parent == null && connectionMember instanceof Connection) {
-            this.connectionWeakReference = weakReference;
+            this.connectionWeakReference = new ConnectionWR(connectionMember, connectionMemberRQ, (Connection) delegate, this.allConnectionMemberWR);
         }
-        this.allConnectionMemberWR.put(connectionMember, weakReference);
+        else {
+            ConnectionMemberWR weakReference = new ConnectionMemberWR(connectionMember, this.connectionMemberRQ, delegate);
+            this.allConnectionMemberWR.put(connectionMember, weakReference);
+        }
         return connectionMember;
     }
 
-
     @Override
     public void clear(ConnectionMember_I connectionMember) {
-        WeakReference<ConnectionMember_I> weakReference = this.allConnectionMemberWR.get(connectionMember);
-        if (weakReference != null) {
-            weakReference.clear();
+        if (connectionMember instanceof Connection) {
+            this.connectionWeakReference.clear();
+        }
+        else {
+            WeakReference<ConnectionMember_I> weakReference = this.allConnectionMemberWR.get(connectionMember);
+            if (weakReference != null) {
+                weakReference.clear();
+            }
         }
     }
-
 }

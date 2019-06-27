@@ -109,7 +109,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
 
     public void closeDelegate() throws IOException {
         this.isClosed = true;
-        this.connectionContainer.getConnectionCleanup().cleanup(this);
+        this.connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
     }
 
     @Override

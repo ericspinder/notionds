@@ -59,15 +59,15 @@ public class ConnectionCleanupT1<O extends Options, VC extends VendorConnection>
     }
 
     @Override
+    public void clear(Connection connection) {
+        this.connectionWeakReference.clear();
+    }
+
+    @Override
     public void clear(ConnectionMember_I connectionMember) {
-        if (connectionMember instanceof Connection) {
-            this.connectionWeakReference.clear();
-        }
-        else {
-            WeakReference<ConnectionMember_I> weakReference = this.allConnectionMemberWR.get(connectionMember);
-            if (weakReference != null) {
-                weakReference.clear();
-            }
+        WeakReference<ConnectionMember_I> weakReference = this.allConnectionMemberWR.get(connectionMember);
+        if (weakReference != null) {
+            weakReference.clear();
         }
     }
 }

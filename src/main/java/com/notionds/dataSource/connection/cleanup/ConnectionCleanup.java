@@ -3,6 +3,7 @@ package com.notionds.dataSource.connection.cleanup;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.Recommendation;
 import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.Timer;
 import com.notionds.dataSource.connection.VendorConnection;
 import com.notionds.dataSource.connection.delegation.ConnectionMember;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
@@ -21,10 +22,15 @@ public abstract class ConnectionCleanup<O extends Options, VC extends VendorConn
 
     protected final O options;
     protected final VC vendorConnection;
+    protected final Timer timer = new Timer();
 
     public ConnectionCleanup(O options, VC vendorConnection) {
         this.options = options;
         this.vendorConnection = vendorConnection;
+    }
+
+    public Timer getTimer() {
+        return this.timer;
     }
 
     public abstract Connection getConnection(ConnectionContainer connectionContainer);

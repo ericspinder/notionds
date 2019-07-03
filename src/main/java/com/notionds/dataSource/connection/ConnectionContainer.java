@@ -19,7 +19,7 @@ public class ConnectionContainer<O extends Options,
         EA extends ExceptionAdvice,
         D extends DelegationOfNotion,
         CC extends ConnectionCleanup<O, VC>,
-        NC extends GlobalCleanup<O, CC, VC>,
+        GC extends GlobalCleanup<O, CC, VC>,
         VC extends VendorConnection> {
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionContainer.class);
@@ -30,11 +30,11 @@ public class ConnectionContainer<O extends Options,
     private final D delegation;
     private final CC connectionCleanup;
 
-    public ConnectionContainer(O options, EA exceptionAdvice, D delegation, NC notionCleanup, VC vendorConnection) {
+    public ConnectionContainer(O options, EA exceptionAdvice, D delegation, CC connectionCleanup) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.delegation = delegation;
-        this.connectionCleanup = notionCleanup.register(vendorConnection);
+        this.connectionCleanup = connectionCleanup;
     }
     public Connection getNotionConnection() {
         return this.connectionCleanup.getConnection(this);

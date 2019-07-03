@@ -15,13 +15,16 @@ public class Timer {
     public Timer(Instant startTime) {
         this.startTime = startTime;
     }
-    public Duration getTime(Instant endTime) {
+    public Duration getTotalTime(Instant endTime) {
         this.endTime = endTime;
         return Duration.between(startTime, endTime);
     }
     public Duration getDuration() {
-        this.endTime = Instant.now();
-        return Duration.between(startTime, endTime);
+        if (this.endTime != null) {
+            return Duration.between(startTime, endTime);
+        }
+        else {
+            return Duration.between(startTime, Instant.now());
+        }
     }
-
 }

@@ -5,6 +5,7 @@ import com.notionds.dataSource.connection.VendorConnection;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
+import java.util.Map;
 
 public abstract class GlobalCleanup<O extends Options, CC extends ConnectionCleanup, VC extends VendorConnection> implements Runnable {
 
@@ -27,12 +28,15 @@ public abstract class GlobalCleanup<O extends Options, CC extends ConnectionClea
 
     public CC register(VC vendorConnection) {
         try {
-            return this.connectionCleanupConstructor.newInstance(this.options, this, vendorConnection);
+            return this.saveRegistration(this.connectionCleanupConstructor.newInstance(this.options, this, vendorConnection));
         }
         catch (ReflectiveOperationException roe) {
             throw new RuntimeException("Problem creating ConnectionCleanup instance (" + connectionCleanupClass.getCanonicalName() + ") ", roe);
         }
     }
+
+    protected abstract CC saveRegistration(CC connectionCleanup);
+
     protected abstract void cleanup() throws InterruptedException ;
 
     public void run() {

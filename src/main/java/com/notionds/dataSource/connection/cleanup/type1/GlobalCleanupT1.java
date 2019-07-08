@@ -33,15 +33,24 @@ public class GlobalCleanupT1<O extends Options, VC extends VendorConnection> ext
     }
 
     @Override
-    protected void cleanup() throws InterruptedException {
+    protected void globalCleanup() throws InterruptedException {
         ConnectionMemberWR gcConnectionMember = (ConnectionWR) connectionMemberRQ.remove();
-        gcConnectionMember.closeDelegate();
+        if (gcConnectionMember.closeDelegate()) {
+
+        }
+        for (Map.Entry<ConnectionCleanupT1, Instant> connectionCleanupEntry: connectionCleanupMap.entrySet()) {
+            Instant expireTime = connectionCleanupEntry.getValue();
+            if (expireTime != null && expireTime.isAfter(Instant.now())) {
+                ConnectionCleanupT1 connectionCleanupT1 = connectionCleanupEntry.getKey();
+                connectionCleanupT1.get;
+            }
+        }
 
     }
 
     @Override
-    protected  ConnectionCleanupT1 saveRegistration(ConnectionCleanupT1 connectionCleanup) {
-        this.connectionCleanupMap.put(connectionCleanup, Instant.now());
+    protected  ConnectionCleanupT1 saveRegistration(ConnectionCleanupT1 connectionCleanup, Instant expireInstant) {
+        this.connectionCleanupMap.put(connectionCleanup, expireInstant);
         return connectionCleanup;
     }
 }

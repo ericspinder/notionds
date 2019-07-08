@@ -1,6 +1,6 @@
-package com.notionds.dataSource.connection.delegation.proxyV1;
+package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionMain;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 
 import java.io.IOException;
@@ -9,22 +9,22 @@ import java.io.OutputStream;
 public class OutputStreamDelegate extends OutputStream implements ConnectionMember_I {
 
     protected final OutputStream delegate;
-    protected final ConnectionContainer connectionContainer;
+    protected final ConnectionMain connectionMain;
     protected boolean isClosed = false;
 
 
-    public OutputStreamDelegate(ConnectionContainer connectionContainer, OutputStream delegate) {
-        this.connectionContainer = connectionContainer;
+    public OutputStreamDelegate(ConnectionMain connectionMain, OutputStream delegate) {
+        this.connectionMain = connectionMain;
         this.delegate = delegate;
     }
 
-    public ConnectionContainer getConnectionContainer() {
-        return this.connectionContainer;
+    public ConnectionMain getConnectionMain() {
+        return this.connectionMain;
     }
 
     public void closeDelegate() {
         this.isClosed = true;
-        connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
+        connectionMain.getConnectionCleanup().cleanup(this, this.delegate);
     }
     @Override
     public void close() throws IOException {
@@ -37,7 +37,7 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
             delegate.write(b);
         }
         catch(IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
@@ -47,7 +47,7 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
             delegate.flush();
         }
         catch(IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 

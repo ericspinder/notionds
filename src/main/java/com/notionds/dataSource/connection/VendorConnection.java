@@ -1,6 +1,6 @@
 package com.notionds.dataSource.connection;
 
-import com.notionds.dataSource.DatabaseMain;
+import com.notionds.dataSource.VendorMain;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.Recommendation;
 import org.slf4j.Logger;
@@ -13,20 +13,19 @@ public abstract class VendorConnection<O extends Options> {
 
     private static final Logger logger = LoggerFactory.getLogger(VendorConnection.class);
     private final O options;
-    private final DatabaseMain databaseMain;
+    private final VendorMain vendorMain;
     private final Connection delegate;
     private boolean isOpen = true;
 
 
-    @SuppressWarnings("unchecked")
-    public VendorConnection(O options, DatabaseMain databaseMain, Connection delegate) {
+    public VendorConnection(O options, VendorMain vendorMain, Connection delegate) {
         this.options = options;
-        this.databaseMain = databaseMain;
+        this.vendorMain = vendorMain;
         this.delegate = delegate;
 
     }
-    protected DatabaseMain getDatabaseMain() {
-        return this.databaseMain;
+    protected VendorMain getVendorMain() {
+        return this.vendorMain;
     }
 
     public Connection getDelegate() {
@@ -34,6 +33,7 @@ public abstract class VendorConnection<O extends Options> {
     }
 
     public void release(Recommendation recommendation) {
+        recommendation = this.vendorMain.release(this, recommendation);
         if (recommendation.isCloseVendorConnection()) {
             try {
                 if (this.delegate != null && !this.delegate.isClosed())
@@ -43,7 +43,7 @@ public abstract class VendorConnection<O extends Options> {
                 logger.info("Error on connection close (no action needed?)" + sqle.getMessage());
             }
         }
-        this.databaseMain.release(this, recommendation);
+
 
     }
 

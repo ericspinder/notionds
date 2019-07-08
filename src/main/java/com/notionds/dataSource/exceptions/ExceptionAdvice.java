@@ -24,25 +24,25 @@ public abstract class ExceptionAdvice<O extends Options> {
         @Override
         protected Recommendation parseSQLException(SQLException sqlException) {
             logger.error(sqlException.getMessage());
-            return Recommendation.CloseConnectionInstance_When_Finished;
+            return Recommendation.CloseConnectionInstance;
         }
 
         @Override
         protected Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
             logger.error(sqlClientInfoException.getMessage());
-            return Recommendation.CloseConnectionInstance_When_Finished;
+            return Recommendation.CloseConnectionInstance;
         }
 
         @Override
         protected Recommendation parseIOException(IOException ioException) {
             logger.error(ioException.getMessage());
-            return Recommendation.CloseConnectionInstance_When_Finished;
+            return Recommendation.CloseConnectionInstance;
         }
 
         @Override
         protected Recommendation parseException(Exception exception) {
             logger.error(exception.getMessage());
-            return Recommendation.CloseConnectionInstance_When_Finished;
+            return Recommendation.CloseConnectionInstance;
         }
 
         @Override

@@ -15,14 +15,13 @@ import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class ConnectionContainer<O extends Options,
+public class ConnectionMain<O extends Options,
         EA extends ExceptionAdvice,
         D extends DelegationOfNotion,
         CC extends ConnectionCleanup<O, VC>,
-        GC extends GlobalCleanup<O, CC, VC>,
         VC extends VendorConnection> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConnectionContainer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionMain.class);
 
     private final O options;
     private final UUID connectionId = UUID.randomUUID();
@@ -30,7 +29,7 @@ public class ConnectionContainer<O extends Options,
     private final D delegation;
     private final CC connectionCleanup;
 
-    public ConnectionContainer(O options, EA exceptionAdvice, D delegation, CC connectionCleanup) {
+    public ConnectionMain(O options, EA exceptionAdvice, D delegation, CC connectionCleanup) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.delegation = delegation;

@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegation.proxyV1.logging;
+package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import com.notionds.dataSource.Options;
 import org.slf4j.Logger;

@@ -2,10 +2,9 @@ package com.notionds.dataSource.connection.cleanup;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.Recommendation;
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionMain;
 import com.notionds.dataSource.connection.Timer;
 import com.notionds.dataSource.connection.VendorConnection;
-import com.notionds.dataSource.connection.delegation.ConnectionMember;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import org.slf4j.Logger;
@@ -33,18 +32,16 @@ public abstract class ConnectionCleanup<O extends Options, VC extends VendorConn
         return this.timer;
     }
 
-    public abstract Connection getConnection(ConnectionContainer connectionContainer);
+    public abstract Connection getConnection(ConnectionMain connectionMain);
 
-    public void cleanup(ConnectionMember_I connectionMember, Connection connection) {
-        this.vendorConnection.release(Recommendation.ReturnToPool);
-        this.clear((Connection) connectionMember);
-    }
+    public abstract void cleanupAll();
+
     public void cleanup(ConnectionMember_I connectionMember, Object delegate) {
-        if (!(connectionMember instanceof Connection)) {
-            DoDelegateClose(delegate);
+        if (connectionMember instanceof Connection) {
+            this.vendorConnection.release(Recommendation.ReturnToPool);
         }
         else {
-
+            DoDelegateClose(delegate);
         }
         this.clear(connectionMember);
     }

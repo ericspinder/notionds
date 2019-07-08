@@ -1,4 +1,4 @@
-package com.notionds.dataSource.connection.delegation.proxyV1.logging;
+package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import java.time.Duration;
 import java.time.Instant;

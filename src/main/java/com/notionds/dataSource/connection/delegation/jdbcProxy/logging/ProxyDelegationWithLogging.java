@@ -1,9 +1,9 @@
-package com.notionds.dataSource.connection.delegation.proxyV1.logging;
+package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.delegation.proxyV1.ProxyDelegation;
-import com.notionds.dataSource.connection.delegation.proxyV1.ProxyMember;
+import com.notionds.dataSource.connection.ConnectionMain;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.ProxyDelegation;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.ProxyMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,38 +47,38 @@ public class ProxyDelegationWithLogging<O extends Options, IA extends InvokeAcco
 
 
     @Override
-    public ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate, Object[] args) {
+    public ProxyMember createProxyMember(ConnectionMain connectionMain, Object delegate, Object[] args) {
         logger.trace("createProxyMember(...Object....");
         if (this.options.get(Options.NotionDefaultBooleans.LogNonExecuteProxyMembers)) {
             try {
-                DL dbObjectLogging = this.dbObjectLoggingConstructor.newInstance(this.options, connectionContainer.getConnectionId(), this.invokeLibrary);
-                return new ProxyMemberWithLogging<>(connectionContainer, delegate, dbObjectLogging);
+                DL dbObjectLogging = this.dbObjectLoggingConstructor.newInstance(this.options, connectionMain.getConnectionId(), this.invokeLibrary);
+                return new ProxyMemberWithLogging<>(connectionMain, delegate, dbObjectLogging);
             }
             catch (ReflectiveOperationException roe) {
                 throw new RuntimeException(roe);
             }
         }
         else {
-            return super.createProxyMember(connectionContainer, delegate, args);
+            return super.createProxyMember(connectionMain, delegate, args);
         }
     }
-    public ProxyMember createProxyMember(ConnectionContainer connectionContainer, Statement delegate, Object[] args) {
+    public ProxyMember createProxyMember(ConnectionMain connectionMain, Statement delegate, Object[] args) {
         logger.trace("createProxyMember(...Statement...)");
         try {
-            SL loggingForStatement = this.statementLoggingConstructor.newInstance(this.options, connectionContainer.getConnectionId(), this.invokeLibrary);
-            return new ProxyMemberWithLogging<>(connectionContainer, delegate, loggingForStatement);
+            SL loggingForStatement = this.statementLoggingConstructor.newInstance(this.options, connectionMain.getConnectionId(), this.invokeLibrary);
+            return new ProxyMemberWithLogging<>(connectionMain, delegate, loggingForStatement);
         }
         catch (ReflectiveOperationException roe) {
             throw new RuntimeException(roe);
         }
     }
 
-    public ProxyMember createProxyMember(ConnectionContainer connectionContainer, PreparedStatement delegate, Object[] args) {
+    public ProxyMember createProxyMember(ConnectionMain connectionMain, PreparedStatement delegate, Object[] args) {
         logger.trace("createProxyMember(...PreparedStatement....");
         if (args != null && args[0] instanceof String) {
             try {
-                PL preparedStatementLogging = this.preparedStatementLoggingConstructor.newInstance(this.options, connectionContainer.getConnectionId(), this.invokeLibrary, (String) args[0]);
-                return new ProxyMemberWithLogging<>(connectionContainer, delegate,preparedStatementLogging);
+                PL preparedStatementLogging = this.preparedStatementLoggingConstructor.newInstance(this.options, connectionMain.getConnectionId(), this.invokeLibrary, (String) args[0]);
+                return new ProxyMemberWithLogging<>(connectionMain, delegate,preparedStatementLogging);
             }
             catch (ReflectiveOperationException roe) {
                 throw new RuntimeException(roe);
@@ -86,7 +86,7 @@ public class ProxyDelegationWithLogging<O extends Options, IA extends InvokeAcco
         }
         else {
             logger.error("prepared statement created without a sql");
-            return super.createProxyMember(connectionContainer, delegate, args);
+            return super.createProxyMember(connectionMain, delegate, args);
         }
     }
 }

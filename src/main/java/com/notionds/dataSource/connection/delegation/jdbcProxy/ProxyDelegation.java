@@ -1,7 +1,7 @@
-package com.notionds.dataSource.connection.delegation.proxyV1;
+package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionMain;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 import org.slf4j.Logger;
@@ -23,51 +23,51 @@ public class ProxyDelegation<O extends Options> extends DelegationOfNotion<O> {
     }
 
     @Override
-    public final ConnectionMember_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassReturned, Object[] args) {
+    public final ConnectionMember_I getDelegate(ConnectionMain connectionMain, Object delegate, Class delegateClassReturned, Object[] args) {
         logger.trace("getDelegate(...Object....");
         if (delegateClassReturned.isInterface()) {
             Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassReturned);
             if (interfaces != null) {
-                return this.getProxyMember(interfaces, connectionContainer, delegate, args);
+                return this.getProxyMember(interfaces, connectionMain, delegate, args);
             }
             logger.error("No Interfaces, very odd as it's an interface: " + delegateClassReturned.getCanonicalName());
             throw new RuntimeException("No Interfaces, very odd as it's an interface: " + delegateClassReturned.getCanonicalName());
         }
         else if ( delegate instanceof InputStream) {
-            return this.createInputStreamDelegate(connectionContainer, (InputStream) delegate, args);
+            return this.createInputStreamDelegate(connectionMain, (InputStream) delegate, args);
         }
         else if (delegate instanceof OutputStream) {
-            return this.createOutputStreamDelegate(connectionContainer, (OutputStream) delegate, args);
+            return this.createOutputStreamDelegate(connectionMain, (OutputStream) delegate, args);
         }
         else if (delegate instanceof Reader) {
-            return this.createReaderDelegate(connectionContainer, (Reader) delegate, args);
+            return this.createReaderDelegate(connectionMain, (Reader) delegate, args);
         }
         logger.error("ProxyDelegation is unable to create: " + delegateClassReturned.getCanonicalName());
         throw new RuntimeException("ProxyDelegation is unable to create: " + delegateClassReturned.getCanonicalName());
     }
 
-    protected ConnectionMember_I getProxyMember(Class[] interfaces, ConnectionContainer connectionContainer, Object delegate, Object[] args) {
+    protected ConnectionMember_I getProxyMember(Class[] interfaces, ConnectionMain connectionMain, Object delegate, Object[] args) {
         ConnectionMember_I connectionMember = (ConnectionMember_I) Proxy.newProxyInstance(
                 ProxyDelegation.class.getClassLoader(),
                 interfaces,
-                createProxyMember(connectionContainer, delegate, args));
+                createProxyMember(connectionMain, delegate, args));
         return connectionMember;
     }
 
-    protected ConnectionMember_I createInputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, Object[] args) {
-        return new InputStreamDelegate(connectionContainer, delegate);
+    protected ConnectionMember_I createInputStreamDelegate(ConnectionMain connectionMain, InputStream delegate, Object[] args) {
+        return new InputStreamDelegate(connectionMain, delegate);
     }
 
-    protected ConnectionMember_I createOutputStreamDelegate(ConnectionContainer connectionContainer, OutputStream delegate, Object[] args) {
-        return new OutputStreamDelegate(connectionContainer, delegate);
+    protected ConnectionMember_I createOutputStreamDelegate(ConnectionMain connectionMain, OutputStream delegate, Object[] args) {
+        return new OutputStreamDelegate(connectionMain, delegate);
     }
 
-    protected ConnectionMember_I createReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, Object[] args) {
-        return new ReaderDelegate(connectionContainer, delegate);
+    protected ConnectionMember_I createReaderDelegate(ConnectionMain connectionMain, Reader delegate, Object[] args) {
+        return new ReaderDelegate(connectionMain, delegate);
     }
 
-    protected ProxyMember createProxyMember(ConnectionContainer connectionContainer, Object delegate, Object[] args) {
-        return new ProxyMember(connectionContainer, delegate);
+    protected ProxyMember createProxyMember(ConnectionMain connectionMain, Object delegate, Object[] args) {
+        return new ProxyMember(connectionMain, delegate);
     }
 
     protected Class[] getConnectionMemberInterfaces(Class clazz)  {

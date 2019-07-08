@@ -7,7 +7,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-public class TestDatabaseMain {
+public class TestVendorMain {
 
 	@Test
 	public void test() {

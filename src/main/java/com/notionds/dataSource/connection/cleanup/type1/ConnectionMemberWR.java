@@ -5,6 +5,7 @@ import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.sql.Connection;
 
 public class ConnectionMemberWR extends WeakReference<ConnectionMember_I> {
 
@@ -14,8 +15,14 @@ public class ConnectionMemberWR extends WeakReference<ConnectionMember_I> {
         super(connectionMember, referenceQueue);
         this.delegate = delegate;
     }
-    public void closeDelegate() {
-        ConnectionCleanup.DoDelegateClose(this.delegate);
-        this.clear();
+    public boolean closeDelegate() {
+        if (this.delegate instanceof Connection) {
+            return false;
+        }
+        else {
+            ConnectionCleanup.DoDelegateClose(this.delegate);
+            return true;
+        }
+
     }
 }

@@ -16,12 +16,12 @@ public class ConnectionWR extends ConnectionMemberWR {
     }
 
     @Override
-    public void closeDelegate() {
+    public boolean closeDelegate() {
         for (ConnectionMemberWR connectionMemberWR: allConnectionMemberWR.values())  {
             if (connectionMemberWR != null) {
                 connectionMemberWR.closeDelegate();
             }
         }
-        super.closeDelegate();
+        return false;
     }
 }

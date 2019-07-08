@@ -1,6 +1,6 @@
-package com.notionds.dataSource.connection.delegation.proxyV1;
+package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionMain;
 import com.notionds.dataSource.connection.delegation.ConnectionMember;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 
@@ -10,8 +10,8 @@ import java.lang.reflect.Method;
 
 public class ProxyMember extends ConnectionMember implements InvocationHandler {
 
-    public ProxyMember(ConnectionContainer connectionContainer, Object delegate) {
-        super(connectionContainer, delegate);
+    public ProxyMember(ConnectionMain connectionMain, Object delegate) {
+        super(connectionMain, delegate);
     }
 
     @Override
@@ -29,10 +29,10 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
                     return delegate;
                 }
                 return null;
-            case "getConnectionContainer":
-                return getConnectionContainer();
+            case "getConnectionMain":
+                return getConnectionMain();
             case "getConnection":
-                return connectionContainer.getNotionConnection();
+                return connectionMain.getNotionConnection();
         }
         if (m.getReturnType().equals(Void.TYPE)) {
             try {
@@ -54,7 +54,7 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
         try {
             Object object = m.invoke(delegate, args);
             String maybeSql = (args != null && args[0] instanceof String) ? (String) args[0] : null;
-            ConnectionMember_I connectionMember = connectionContainer.wrap(object, m.getReturnType(), this, args);
+            ConnectionMember_I connectionMember = connectionMain.wrap(object, m.getReturnType(), this, args);
             if (connectionMember != null) {
                 return connectionMember;
             }

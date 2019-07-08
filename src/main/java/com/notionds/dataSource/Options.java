@@ -57,10 +57,10 @@ public abstract class Options {
         }
     }
     public enum NotionDefaultBooleans implements BooleanOption  {
-        ConnectionContainer_Check_ResultSet("com.notion.connectionContainer.checkResultSet", "Order a check of all ResultSets before closing when cleanupAfterGC() had not been called, until the connection had been closed", true),
+        ConnectionContainer_Check_ResultSet("com.notion.connectionMain.checkResultSet", "Order a check of all ResultSets before closing when cleanupAfterGC() had not been called, until the connection had been closed", true),
         ConnectionPool_Use("com.notion.pool.usePool", "Should pool connections", true),
-        Logging("com.notion.connection.delegation.proxyV1.logging.UseLogging", "Use ProxyV1 logging", false),
-        LogNonExecuteProxyMembers("com.notion.connection.delegation.proxyV1.logging.LogNonExecuteProxyMembers", "Use a proxy wrapper for even non-execute proxy member classes, when logging is turned on", false),
+        Logging("com.notion.connection.delegation.jdbcProxy.logging.UseLogging", "Use ProxyV1 logging", false),
+        LogNonExecuteProxyMembers("com.notion.connection.delegation.jdbcProxy.logging.LogNonExecuteProxyMembers", "Use a proxy wrapper for even non-execute proxy member classes, when logging is turned on", false),
         ;
         private final String key;
         private final String description;

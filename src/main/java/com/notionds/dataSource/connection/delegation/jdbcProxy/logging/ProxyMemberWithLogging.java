@@ -1,7 +1,7 @@
-package com.notionds.dataSource.connection.delegation.proxyV1.logging;
+package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.delegation.proxyV1.ProxyMember;
+import com.notionds.dataSource.connection.ConnectionMain;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.ProxyMember;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.InvocationHandler;
@@ -11,8 +11,8 @@ public class ProxyMemberWithLogging<L extends Logging_forDbObject> extends Proxy
 
     private final L dbLogging;
 
-    public ProxyMemberWithLogging(ConnectionContainer connectionContainer, Object delegate, L dbLogging) {
-        super(connectionContainer, delegate);
+    public ProxyMemberWithLogging(ConnectionMain connectionMain, Object delegate, L dbLogging) {
+        super(connectionMain, delegate);
         this.dbLogging = dbLogging;
     }
 

@@ -1,6 +1,6 @@
-package com.notionds.dataSource.connection.delegation.proxyV1;
+package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionMain;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 
 import java.io.IOException;
@@ -9,16 +9,16 @@ import java.io.InputStream;
 public class InputStreamDelegate extends InputStream implements ConnectionMember_I {
 
     protected final InputStream delegate;
-    protected final ConnectionContainer connectionContainer;
+    protected final ConnectionMain connectionMain;
     protected boolean isClosed = false;
 
-    public InputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate) {
-        this.connectionContainer = connectionContainer;
+    public InputStreamDelegate(ConnectionMain connectionMain, InputStream delegate) {
+        this.connectionMain = connectionMain;
         this.delegate = delegate;
     }
 
-    public ConnectionContainer getConnectionContainer() {
-        return this.connectionContainer;
+    public ConnectionMain getConnectionMain() {
+        return this.connectionMain;
     }
 
     @Override
@@ -27,13 +27,13 @@ public class InputStreamDelegate extends InputStream implements ConnectionMember
             return delegate.read();
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
     public void closeDelegate() {
         this.isClosed = true;
-        connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
+        connectionMain.getConnectionCleanup().cleanup(this, this.delegate);
     }
 
     @Override

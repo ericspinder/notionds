@@ -1,6 +1,6 @@
 package com.notionds.dataSource.connection.delegation;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionMain;
 
 import java.io.IOException;
 import java.sql.SQLClientInfoException;
@@ -9,21 +9,21 @@ import java.sql.SQLException;
 public abstract class ConnectionMember implements ConnectionMember_I {
 
     protected final Object delegate;
-    protected final ConnectionContainer connectionContainer;
+    protected final ConnectionMain connectionMain;
     protected boolean isClosed = false;
 
-    public ConnectionMember(ConnectionContainer connectionContainer, Object delegate) {
-        this.connectionContainer = connectionContainer;
+    public ConnectionMember(ConnectionMain connectionMain, Object delegate) {
+        this.connectionMain = connectionMain;
         this.delegate = delegate;
     }
 
-    public ConnectionContainer getConnectionContainer() {
-        return this.connectionContainer;
+    public ConnectionMain getConnectionMain() {
+        return this.connectionMain;
     }
 
     public void closeDelegate() {
         this.isClosed = true;
-        connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
+        connectionMain.getConnectionCleanup().cleanup(this, this.delegate);
     }
 
     /**
@@ -34,13 +34,13 @@ public abstract class ConnectionMember implements ConnectionMember_I {
     protected void throwCause(Throwable cause) throws Throwable {
         if (cause != null) {
             if (cause instanceof SQLClientInfoException) {
-                connectionContainer.handleSQLClientInfoExcpetion((SQLClientInfoException) cause, this);
+                connectionMain.handleSQLClientInfoExcpetion((SQLClientInfoException) cause, this);
             } else if (cause instanceof SQLException) {
-                connectionContainer.handleSQLException((SQLException) cause, this);
+                connectionMain.handleSQLException((SQLException) cause, this);
             } else if (cause instanceof IOException) {
-                connectionContainer.handleIoException((IOException) cause, this);
+                connectionMain.handleIoException((IOException) cause, this);
             } else if (cause instanceof Exception) {
-                connectionContainer.handleException((Exception) cause, this);
+                connectionMain.handleException((Exception) cause, this);
             }
             throw cause;
         }

@@ -1,19 +1,15 @@
 package com.notionds.dataSource.connection.cleanup.type1;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionMain;
 import com.notionds.dataSource.connection.VendorConnection;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.sql.Array;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.Map;
@@ -32,17 +28,22 @@ public class ConnectionCleanupT1<O extends Options, VC extends VendorConnection>
         this.connectionMemberRQ = connectionMemberRQ;
     }
 
+    @Override
+    public void cleanupAll() {
+        this.connectionWeakReference.closeDelegate();
+    }
+
     public ConnectionWR getConnectionWeakReference() {
         return this.connectionWeakReference;
     }
 
     @Override
-    public Connection getConnection(ConnectionContainer connectionContainer) {
+    public Connection getConnection(ConnectionMain connectionMain) {
         if (this.connectionWeakReference != null) {
             return (Connection) this.connectionWeakReference.get();
         }
         else {
-            return (Connection) connectionContainer.wrap(this.vendorConnection.getDelegate(), Connection.class, null, null);
+            return (Connection) connectionMain.wrap(this.vendorConnection.getDelegate(), Connection.class, null, null);
         }
     }
 

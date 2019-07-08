@@ -1,6 +1,6 @@
-package com.notionds.dataSource.connection.delegation.proxyV1;
+package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.ConnectionMain;
 import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
 
 import java.io.IOException;
@@ -9,17 +9,17 @@ import java.nio.CharBuffer;
 
 public class ReaderDelegate extends Reader implements ConnectionMember_I {
 
-    private final ConnectionContainer connectionContainer;
+    private final ConnectionMain connectionMain;
     private final Reader delegate;
     private boolean isClosed = false;
 
-    public ReaderDelegate(ConnectionContainer connectionContainer, Reader delegate) {
-        this.connectionContainer = connectionContainer;
+    public ReaderDelegate(ConnectionMain connectionMain, Reader delegate) {
+        this.connectionMain = connectionMain;
         this.delegate = delegate;
     }
 
-    public ConnectionContainer getConnectionContainer() {
-        return this.connectionContainer;
+    public ConnectionMain getConnectionMain() {
+        return this.connectionMain;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.read(target);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
@@ -38,7 +38,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.read();
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
@@ -48,7 +48,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.read(cbuf);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
@@ -63,7 +63,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.read(cbuf, off, len);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
@@ -73,7 +73,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.skip(n);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
@@ -83,7 +83,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.ready();
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
@@ -93,7 +93,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             delegate.mark(readAheadLimit);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
@@ -103,13 +103,13 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             delegate.reset();
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw connectionMain.handleIoException(ioe, this);
         }
     }
 
     public void closeDelegate() throws IOException {
         this.isClosed = true;
-        this.connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
+        this.connectionMain.getConnectionCleanup().cleanup(this, this.delegate);
     }
 
     @Override

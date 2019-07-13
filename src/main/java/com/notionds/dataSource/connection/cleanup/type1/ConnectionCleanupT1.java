@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection.cleanup.type1;
 
 import com.notionds.dataSource.Options;
+import com.notionds.dataSource.Recommendation;
 import com.notionds.dataSource.connection.ConnectionMain;
 import com.notionds.dataSource.connection.VendorConnection;
 import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
@@ -31,6 +32,7 @@ public class ConnectionCleanupT1<O extends Options, VC extends VendorConnection>
     @Override
     public void cleanupAll() {
         this.connectionWeakReference.closeDelegate();
+        this.vendorConnection.release(Recommendation.ReturnToPool);
     }
 
     public ConnectionWR getConnectionWeakReference() {

@@ -38,8 +38,8 @@ public abstract class VendorMain<O extends Options, EA extends ExceptionAdvice, 
         catch (Exception e) {
             throw new RuntimeException("Problem getting vendor connection constructor " + e.getMessage());
         }
-
     }
+
     protected abstract VC createVendorConnection();
 
     protected Connection createConnection(VC vendorConnection, Instant expireInstant) {

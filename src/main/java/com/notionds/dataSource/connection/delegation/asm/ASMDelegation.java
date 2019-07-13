@@ -9,6 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.StampedLock;
 
+/**
+ * This class is a starter for ASM Java Bytecode manipulation to create delegation
+ * https://www.baeldung.com/java-asm
+ *
+ */
 public class ASMDelegation<O extends Options> extends DelegationOfNotion<O> {
 
     private Map<Class, Class<ConnectionMember>> cache = new HashMap<>();

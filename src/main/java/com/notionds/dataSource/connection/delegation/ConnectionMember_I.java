@@ -8,6 +8,4 @@ public interface ConnectionMember_I {
 
     void closeDelegate() throws Exception;
 
-    boolean isClosed();
-
 }

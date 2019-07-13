@@ -21,16 +21,6 @@ public class GlobalCleanupT1<O extends Options, VC extends VendorConnection> ext
         super(options);
     }
 
-    @Override
-    public ConnectionCleanupT1 register(VC vendorConnection) {
-        try {
-            ConnectionCleanupT1 connectionCleanup = new ConnectionCleanupT1(this.options, vendorConnection, this.connectionMemberRQ);
-            return connectionCleanup;
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Problem creating ConnectionCleanup instance " + e.getMessage(), e);
-        }
-    }
 
     @Override
     protected void globalCleanup() throws InterruptedException {
@@ -42,7 +32,7 @@ public class GlobalCleanupT1<O extends Options, VC extends VendorConnection> ext
             Instant expireTime = connectionCleanupEntry.getValue();
             if (expireTime != null && expireTime.isAfter(Instant.now())) {
                 ConnectionCleanupT1 connectionCleanupT1 = connectionCleanupEntry.getKey();
-                connectionCleanupT1.get;
+                connectionCleanupT1.cleanupAll();
             }
         }
 

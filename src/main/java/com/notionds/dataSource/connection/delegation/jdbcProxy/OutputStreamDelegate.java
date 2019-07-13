@@ -10,8 +10,6 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
 
     protected final OutputStream delegate;
     protected final ConnectionMain connectionMain;
-    protected boolean isClosed = false;
-
 
     public OutputStreamDelegate(ConnectionMain connectionMain, OutputStream delegate) {
         this.connectionMain = connectionMain;
@@ -23,7 +21,6 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
     }
 
     public void closeDelegate() {
-        this.isClosed = true;
         connectionMain.getConnectionCleanup().cleanup(this, this.delegate);
     }
     @Override
@@ -51,8 +48,4 @@ public class OutputStreamDelegate extends OutputStream implements ConnectionMemb
         }
     }
 
-    @Override
-    public boolean isClosed() {
-        return this.isClosed;
-    }
 }

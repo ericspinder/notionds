@@ -6,10 +6,12 @@ import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
 import com.notionds.dataSource.connection.cleanup.GlobalCleanup;
 import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
 import com.notionds.dataSource.exceptions.ExceptionAdvice;
+import com.notionds.dataSource.exceptions.SqlExceptionWrapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.concurrent.locks.StampedLock;
 
@@ -33,16 +35,29 @@ public abstract class VendorMain<O extends Options, EA extends ExceptionAdvice, 
         this.exceptionAdvice = exceptionAdvice;
         this.globalCleanup = globalCleanup;
         try {
-            this.vcConstructor = this.vendorConnectionClass.getDeclaredConstructor(options.getClass());
+            this.vcConstructor = this.vendorConnectionClass.getDeclaredConstructor(options.getClass(), this.getClass(), Connection.class);
         }
         catch (Exception e) {
             throw new RuntimeException("Problem getting vendor connection constructor " + e.getMessage());
         }
     }
+    protected abstract Connection buildConnection() throws SQLException;
 
-    protected abstract VC createVendorConnection();
+    protected VC createConnection() throws SqlExceptionWrapper {
+        try {
+            Connection connection = this.buildConnection();
+            return this.vcConstructor.newInstance(this.options, this, connection);
+        }
+        catch (SQLException sqle) {
+            throw this.exceptionAdvice.adviseSqlException(sqle);
+        }
+        catch(ReflectiveOperationException roe) {
+            throw new RuntimeException("Problem creating VendorConnection Instance", roe);
+        }
 
-    protected Connection createConnection(VC vendorConnection, Instant expireInstant) {
+    }
+
+    protected Connection createConnectionInstance(VC vendorConnection, Instant expireInstant) {
         CC connectionCleanup = this.globalCleanup.register(vendorConnection, expireInstant);
         ConnectionMain connectionMain = new ConnectionMain(this.options, this.exceptionAdvice, this.delegation, connectionCleanup);
         return connectionCleanup.getConnection(connectionMain);

@@ -6,9 +6,9 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-public abstract class Logging_forPreparedStatement<O extends Options, IA extends InvokeAccounting, IG extends InvokeAggerator<O, IA>, IL extends InvokeLibrary<O, IA, IG>> extends Logging_forDbObject<O, IA, IG, IL> {
+public abstract class Logging_forPreparedStatement<O extends Options, IA extends InvokeAccounting, IG extends InvokeAggregator<O, IA>, IL extends InvokeLibrary<O, IA, IG>> extends Logging_forDbObject<O, IA, IG, IL> {
 
-    public static class Default<O extends Options, IA extends InvokeAccounting, IG extends InvokeAggerator<O, IA>, IL extends InvokeLibrary<O, IA, IG>> extends  Logging_forPreparedStatement<O, IA, IG, IL> {
+    public static class Default<O extends Options, IA extends InvokeAccounting, IG extends InvokeAggregator<O, IA>, IL extends InvokeLibrary<O, IA, IG>> extends  Logging_forPreparedStatement<O, IA, IG, IL> {
 
         public Default(O options, UUID connectionId, IL invokeLibrary, String sql) {
             super(options, connectionId, invokeLibrary, sql);

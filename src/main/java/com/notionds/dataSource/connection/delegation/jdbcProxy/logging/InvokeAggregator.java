@@ -1,16 +1,16 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import com.notionds.dataSource.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class InvokeAggerator<O extends Options, IA extends InvokeAccounting> {
+public abstract class InvokeAggregator<O extends Options, IA extends InvokeAccounting> {
 
-    public static class Default<O extends Options, IA extends InvokeAccounting> extends InvokeAggerator<O, IA> {
+    public static class Default<O extends Options, IA extends InvokeAccounting> extends InvokeAggregator<O, IA> {
 
-        private static final Logger logger = LoggerFactory.getLogger(Default.class);
+        private static final Logger logger = LogManager.getLogger(InvokeAggregator.class);
 
         private boolean showCount = false;
         public Default(O options, String description) {
@@ -36,7 +36,7 @@ public abstract class InvokeAggerator<O extends Options, IA extends InvokeAccoun
     protected O options;
     protected final String description;
 
-    public InvokeAggerator(O options, String description) {
+    public InvokeAggregator(O options, String description) {
         this.description = description;
     }
 

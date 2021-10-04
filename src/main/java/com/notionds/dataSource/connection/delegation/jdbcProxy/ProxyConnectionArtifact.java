@@ -1,19 +1,31 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.ConnectionMain;
-import com.notionds.dataSource.connection.delegation.ConnectionMember;
-import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
+import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
 
-public class ProxyMember extends ConnectionMember implements InvocationHandler {
+public class ProxyConnectionArtifact implements InvocationHandler, ConnectionArtifact_I {
 
-    public ProxyMember(ConnectionMain connectionMain, Object delegate) {
-        super(connectionMain, delegate);
+    protected final Object delegate;
+    protected final ConnectionContainer connectionContainer;
+
+    public ProxyConnectionArtifact(ConnectionContainer connectionContainer, Object delegate) {
+        this.connectionContainer = connectionContainer;
+        this.delegate = delegate;
+    }
+    public ConnectionContainer getConnectionMain() {
+        return this.connectionContainer;
     }
 
+    public void closeDelegate() {
+        connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
+    }
     @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
         switch (m.getName()) {
@@ -32,7 +44,7 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
             case "getConnectionMain":
                 return getConnectionMain();
             case "getConnection":
-                return connectionMain.getNotionConnection();
+                return connectionContainer.getConnection();
         }
         if (m.getReturnType().equals(Void.TYPE)) {
             try {
@@ -54,7 +66,8 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
         try {
             Object object = m.invoke(delegate, args);
             String maybeSql = (args != null && args[0] instanceof String) ? (String) args[0] : null;
-            ConnectionMember_I connectionMember = connectionMain.wrap(object, m.getReturnType(), this, args);
+            ConnectionArtifact_I connectionMember = connectionContainer.wrap(object, m.getReturnType(), args);
+            connectionContainer.
             if (connectionMember != null) {
                 return connectionMember;
             }
@@ -69,4 +82,24 @@ public class ProxyMember extends ConnectionMember implements InvocationHandler {
      * For extending classes to have a callback on close
      */
     protected void handleClose() { }
+
+    /**
+     * Handles the exception, then rethrows the 'real' exception
+     * @param cause
+     * @throws Throwable
+     */
+    protected void throwCause(Throwable cause) throws Throwable {
+        if (cause != null) {
+            if (cause instanceof SQLClientInfoException) {
+                connectionContainer.handleSQLClientInfoException((SQLClientInfoException) cause, this);
+            } else if (cause instanceof SQLException) {
+                connectionContainer.handleSQLException((SQLException) cause, this);
+            } else if (cause instanceof IOException) {
+                connectionContainer.handleIoException((IOException) cause, this);
+            } else if (cause instanceof Exception) {
+                connectionContainer.handleException((Exception) cause, this);
+            }
+            throw cause;
+        }
+    }
 }

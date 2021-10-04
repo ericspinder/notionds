@@ -1,28 +1,23 @@
-allprojects {
-    apply plugin: 'java'
-    apply plugin: 'idea'
-    group = 'com.notionds'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        compile group: 'junit', name: 'junit', version: '4.+'
-        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
-        compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.+'
-	    compile group: 'com.h2database', name: 'h2', version: '1.4.197'
-        //compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.8.2'\
-        compile 'org.ow2.asm:asm:6.2'
-        compile 'org.ow2.asm:asm-util:6.2'
-    }
-    sourceCompatibility = "1.9"
-    targetCompatibility = "1.9"
+plugins {
+    id 'java-library'
+}
+version = '1.2.1'
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
 
-    tasks.withType(JavaCompile) {
-        //enable compilation in a separate daemon process
-        options.fork = true
+dependencies {
+    api group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+    api group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+    testImplementation group: 'com.h2database', name: 'h2', version: '1.4.199'
+    testImplementation(platform('org.junit:junit-bom:5.8.1'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+}
 
-        options.compilerArgs += ["-XDignore.symbol.file", "-Xdoclint:none", "-Xlint:unchecked", "-nowarn"]
-        options.forkOptions.executable = 'javac'
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
     }
-
 }

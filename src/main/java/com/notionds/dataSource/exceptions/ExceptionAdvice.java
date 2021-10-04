@@ -2,8 +2,8 @@ package com.notionds.dataSource.exceptions;
 
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.Recommendation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.SQLClientInfoException;
@@ -11,11 +11,11 @@ import java.sql.SQLException;
 
 public abstract class ExceptionAdvice<O extends Options> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
+    private static final Logger logger = LogManager.getLogger(ExceptionAdvice.class);
 
     public static class KillExceptionOnException<O extends Options> extends ExceptionAdvice<O> {
 
-        private Logger logger = LoggerFactory.getLogger(KillExceptionOnException.class);
+        private Logger logger = LogManager.getLogger(KillExceptionOnException.class);
 
         public KillExceptionOnException(O options) {
             super(options);
@@ -24,25 +24,25 @@ public abstract class ExceptionAdvice<O extends Options> {
         @Override
         protected Recommendation parseSQLException(SQLException sqlException) {
             logger.error(sqlException.getMessage());
-            return Recommendation.CloseConnectionInstance;
+            return Recommendation.Close;
         }
 
         @Override
         protected Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
             logger.error(sqlClientInfoException.getMessage());
-            return Recommendation.CloseConnectionInstance;
+            return Recommendation.Close;
         }
 
         @Override
         protected Recommendation parseIOException(IOException ioException) {
             logger.error(ioException.getMessage());
-            return Recommendation.CloseConnectionInstance;
+            return Recommendation.Close;
         }
 
         @Override
         protected Recommendation parseException(Exception exception) {
             logger.error(exception.getMessage());
-            return Recommendation.CloseConnectionInstance;
+            return Recommendation.Close;
         }
 
         @Override

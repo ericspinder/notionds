@@ -1,9 +1,9 @@
 package com.notionds.dataSource.connection.delegation.asm;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ConnectionMain;
-import com.notionds.dataSource.connection.delegation.ConnectionMember;
-import com.notionds.dataSource.connection.delegation.DelegationOfNotion;
+import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
+import com.notionds.dataSource.connection.delegation.AbstractConnectionWrapperFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,18 +14,18 @@ import java.util.concurrent.locks.StampedLock;
  * https://www.baeldung.com/java-asm
  *
  */
-public class ASMDelegation<O extends Options> extends DelegationOfNotion<O> {
+public class ASMDelegationWrapper<O extends Options> extends AbstractConnectionWrapperFactory<O> {
 
-    private Map<Class, Class<ConnectionMember>> cache = new HashMap<>();
+    private Map<Class, Class<ConnectionArtifact_I>> cache = new HashMap<>();
     private StampedLock creationGate = new StampedLock();
 
-    public ASMDelegation(O options) {
+    public ASMDelegationWrapper(O options) {
         super(options);
     }
 
     @Override
-    public ConnectionMember getDelegate(ConnectionMain connectionMain, Object delegate, Class clazz, Object[] args) {
-        Class<ConnectionMember> delegateClass = cache.get(clazz);
+    public ConnectionArtifact_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassCreated, Object[] args) {
+        Class<ConnectionArtifact_I> delegateClass = cache.get(delegateClassCreated);
         if (delegateClass == null) {
             // The autostart should have captured all of the classes needed
         }

@@ -1,43 +1,52 @@
 package com.notionds.dataSource.connection.cleanup;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.VendorConnection;
+import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 
-public abstract class GlobalCleanup<O extends Options, CC extends ConnectionCleanup, VC extends VendorConnection> implements Runnable {
+public abstract class GlobalCleanup<O extends Options> implements Runnable {
+
+    private static final Logger log = LogManager.getLogger(GlobalCleanup.class);
 
     protected final O options;
-    protected final Class<CC> connectionCleanupClass;
-    protected final Constructor<CC> connectionCleanupConstructor;
     protected boolean doCleanup = true;
+    public final ReferenceQueue<ConnectionArtifact_I> globalReferenceQueue = new ReferenceQueue<>();
+    public final Map<ConnectionContainer, Instant> timeoutCleanup = Collections.synchronizedMap(new WeakHashMap<>());
 
     @SuppressWarnings("unchecked")
     public GlobalCleanup(O options) {
         this.options = options;
-        try {
-            this.connectionCleanupClass = (Class<CC>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
-            this.connectionCleanupConstructor = connectionCleanupClass.getDeclaredConstructor(Options.class, GlobalCleanup.class, VendorConnection.class);
+    }
+    /**
+     *
+     * @throws InterruptedException
+     */
+    protected void globalCleanup() throws InterruptedException  {
+        // First check if any 'top level' Connection instances have been found in garbage collection
+        Reference reference = globalReferenceQueue.remove();
+        if (reference) {
+            log.info(gcConnectionMember.toString() + "was closed");
         }
-        catch (ReflectiveOperationException e) {
-            throw new RuntimeException("problem creating ConnectionCleanup class", e);
+
+        for (Map.Entry<ConnectionContainer, Instant> containerInstantEntry: timeoutCleanup.entrySet()) {
+            Instant expireTime = containerInstantEntry.getValue();
+            if (expireTime != null && expireTime.isAfter(Instant.now())) {
+                ConnectionContainer container = containerInstantEntry.getKey();
+                container.closeChildren();
+                container.
+            }
         }
     }
-
-    public CC register(VC vendorConnection, Instant expireInstant) {
-        try {
-            return this.saveRegistration(this.connectionCleanupConstructor.newInstance(this.options, this, vendorConnection), expireInstant);
-        }
-        catch (ReflectiveOperationException roe) {
-            throw new RuntimeException("Problem creating ConnectionCleanup instance (" + connectionCleanupClass.getCanonicalName() + ") ", roe);
-        }
-    }
-
-    protected abstract CC saveRegistration(CC connectionCleanup, Instant expireInstant);
-
-    protected abstract void globalCleanup() throws InterruptedException ;
 
     public void run() {
         try {
@@ -46,7 +55,7 @@ public abstract class GlobalCleanup<O extends Options, CC extends ConnectionClea
             }
         }
         catch (InterruptedException ie) {
-
+            return;
         }
     }
 }

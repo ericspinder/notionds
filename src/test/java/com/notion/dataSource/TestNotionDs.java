@@ -1,16 +1,19 @@
 package com.notion.dataSource;
 
-import org.junit.Test;
+import com.notionds.dataSource.DatabasePool;
+import com.notionds.dataSource.Options;
+import com.notionds.dataSource.NotionDs;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.ConnectionWrapperFactory;
+import com.notionds.dataSource.exceptions.ExceptionAdvice;
+import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
-public class TestVendorMain {
+public class TestNotionDs {
 
 	@Test
 	public void test() {
+
 		Connection conn = null;
 		Statement stmt = null;
 
@@ -28,6 +31,14 @@ public class TestVendorMain {
 				System.out.println("id " + rs.getInt("id") + " name " + rs.getString("name"));
 			}
 			stmt.close();
+			Options options = new Options.Defaults()
+			NotionDs vendorMain = new NotionDs(options, "test", new ConnectionWrapperFactory(options), new DatabasePool.Default(options), new ExceptionAdvice.KillExceptionOnException(options), null) {
+				@Override
+				protected Connection buildConnection() throws SQLException {
+					return DriverManager.getConnection("jdbc:h2:~/test", "", "");
+				}
+			};
+			vendorMain.c
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

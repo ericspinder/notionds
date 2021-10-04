@@ -1,24 +1,24 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.ConnectionMain;
-import com.notionds.dataSource.connection.delegation.ConnectionMember_I;
+import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
 
-public class ReaderDelegate extends Reader implements ConnectionMember_I {
+public class ReaderConnectionArtifact extends Reader implements ConnectionArtifact_I {
 
-    private final ConnectionMain connectionMain;
+    private final ConnectionContainer connectionContainer;
     private final Reader delegate;
 
-    public ReaderDelegate(ConnectionMain connectionMain, Reader delegate) {
-        this.connectionMain = connectionMain;
+    public ReaderConnectionArtifact(ConnectionContainer connectionContainer, Reader delegate) {
+        this.connectionContainer = connectionContainer;
         this.delegate = delegate;
     }
 
-    public ConnectionMain getConnectionMain() {
-        return this.connectionMain;
+    public ConnectionContainer getConnectionMain() {
+        return this.connectionContainer;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.read(target);
         }
         catch (IOException ioe) {
-            throw connectionMain.handleIoException(ioe, this);
+            throw connectionContainer.handleIoException(ioe, this);
         }
     }
 
@@ -37,7 +37,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.read();
         }
         catch (IOException ioe) {
-            throw connectionMain.handleIoException(ioe, this);
+            throw connectionContainer.handleIoException(ioe, this);
         }
     }
 
@@ -47,7 +47,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.read(cbuf);
         }
         catch (IOException ioe) {
-            throw connectionMain.handleIoException(ioe, this);
+            throw connectionContainer.handleIoException(ioe, this);
         }
     }
 
@@ -62,7 +62,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.read(cbuf, off, len);
         }
         catch (IOException ioe) {
-            throw connectionMain.handleIoException(ioe, this);
+            throw connectionContainer.handleIoException(ioe, this);
         }
     }
 
@@ -72,7 +72,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.skip(n);
         }
         catch (IOException ioe) {
-            throw connectionMain.handleIoException(ioe, this);
+            throw connectionContainer.handleIoException(ioe, this);
         }
     }
 
@@ -82,7 +82,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             return delegate.ready();
         }
         catch (IOException ioe) {
-            throw connectionMain.handleIoException(ioe, this);
+            throw connectionContainer.handleIoException(ioe, this);
         }
     }
 
@@ -92,7 +92,7 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             delegate.mark(readAheadLimit);
         }
         catch (IOException ioe) {
-            throw connectionMain.handleIoException(ioe, this);
+            throw connectionContainer.handleIoException(ioe, this);
         }
     }
 
@@ -102,12 +102,12 @@ public class ReaderDelegate extends Reader implements ConnectionMember_I {
             delegate.reset();
         }
         catch (IOException ioe) {
-            throw connectionMain.handleIoException(ioe, this);
+            throw connectionContainer.handleIoException(ioe, this);
         }
     }
 
     public void closeDelegate() throws IOException {
-        this.connectionMain.getConnectionCleanup().cleanup(this, this.delegate);
+        this.connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
     }
 
     @Override

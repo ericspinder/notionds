@@ -6,9 +6,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.util.UUID;
 
-public abstract class InvokeLibrary<O extends Options, IA extends InvokeAccounting, IG extends InvokeAggerator<O, IA>> {
+public abstract class InvokeLibrary<O extends Options, IA extends InvokeAccounting, IG extends InvokeAggregator<O, IA>> {
 
-    public static class Default<O extends Options, IA extends InvokeAccounting, IG extends InvokeAggerator<O, IA>> extends InvokeLibrary<O, IA, IG> {
+    public static class Default<O extends Options, IA extends InvokeAccounting, IG extends InvokeAggregator<O, IA>> extends InvokeLibrary<O, IA, IG> {
 
         public Default(O options) {
             super(options);

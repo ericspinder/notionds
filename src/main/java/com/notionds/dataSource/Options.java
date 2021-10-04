@@ -10,7 +10,7 @@ import java.util.concurrent.locks.StampedLock;
 
 public abstract class Options {
 
-    public final class Defaults extends Options {}
+    public static final class Defaults extends Options {}
     public enum NotionDefaultStrings implements StringOption  {
 
         ;

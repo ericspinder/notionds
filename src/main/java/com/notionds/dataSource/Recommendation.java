@@ -5,25 +5,25 @@ package com.notionds.dataSource;
  */
 public enum Recommendation {
 
-    CloseConnectionInstance("Close Connection", true),
+    CloseCloseable("Close Closeable", true),
     FailoverDatabase_Now("Failover Database, Now!", true),
     FailoverDatabase_When_Finished("Failover Database, when finished", true),
     NoAction("No additional action", false),
     ReturnToPool("Return to Pool (if it exists)", false)
     ;
     private final String description;
-    private final boolean closeVendorConnection;
+    private final boolean shouldClose;
 
-    Recommendation(String description, boolean closeVendorConnection) {
+    Recommendation(String description, boolean shouldClose) {
         this.description = description;
-        this.closeVendorConnection = closeVendorConnection;
+        this.shouldClose = shouldClose;
     }
 
     public String getDescription() {
         return this.description;
     }
 
-    public boolean isCloseVendorConnection() {
-        return this.closeVendorConnection;
+    public boolean shouldClose() {
+        return this.shouldClose;
     }
 }

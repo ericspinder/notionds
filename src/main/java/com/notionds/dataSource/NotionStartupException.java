@@ -3,7 +3,7 @@ package com.notionds.dataSource;
 public class NotionStartupException extends RuntimeException {
 
     public enum Type {
-        RefelectiveOperationFailed("A reflective operation failed to instantiate class"),
+        ReflectiveOperationFailed("A reflective operation failed to instantiate class"),
         NullPointerOnGeneric("A null pointer exception happed when trying to create generic");
         private final String description;
         private Type(String description) {

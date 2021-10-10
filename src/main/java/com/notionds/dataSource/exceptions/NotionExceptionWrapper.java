@@ -1,10 +1,10 @@
 package com.notionds.dataSource.exceptions;
 
 
-import com.notionds.dataSource.Recommendation;
+import com.notionds.dataSource.ConnectionAction;
 
 public interface NotionExceptionWrapper {
 
-    Recommendation getRecommendation();
+    ConnectionAction getRecommendation();
     Throwable getCause();
 }

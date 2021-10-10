@@ -6,18 +6,24 @@ import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
+import java.util.UUID;
 
 public class ReaderConnectionArtifact extends Reader implements ConnectionArtifact_I {
 
+    private UUID uuid = UUID.randomUUID();
     private final ConnectionContainer connectionContainer;
     private final Reader delegate;
 
-    public ReaderConnectionArtifact(ConnectionContainer connectionContainer, Reader delegate) {
+    public ReaderConnectionArtifact(ConnectionContainer<?,?,?,?> connectionContainer, Reader delegate) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
     }
-
-    public ConnectionContainer getConnectionMain() {
+    @Override
+    public UUID getUuid() {
+        return this.uuid;
+    }
+    @Override
+    public ConnectionContainer<?,?,?,?> getConnectionMain() {
         return this.connectionContainer;
     }
 
@@ -106,12 +112,36 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
         }
     }
 
-    public void closeDelegate() throws IOException {
-        this.connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
+    public void closeDelegate() {
+        try {
+            this.delegate.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void close() throws IOException {
-        this.closeDelegate();
+        this.connectionContainer.closeChild(this);
+    }
+    @Override
+    public final boolean equals(final Object that) {
+        if (this == that) {
+            return true;
+        }
+        if (that == null) {
+            return false;
+        }
+        if (!(that instanceof ConnectionArtifact_I other)) {
+            return false;
+        }
+        if (this.getUuid() == null) {
+            if (other.getUuid() != null) {
+                return false;
+            }
+        } else if (!this.getUuid().equals(other.getUuid())) {
+            return false;
+        }
+        return true;
     }
 }

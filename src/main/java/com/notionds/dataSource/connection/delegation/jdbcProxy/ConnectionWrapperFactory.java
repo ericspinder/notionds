@@ -11,21 +11,34 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionWrapperFactory<O extends Options> extends AbstractConnectionWrapperFactory<O> {
 
-    private Logger logger = LogManager.getLogger(ConnectionWrapperFactory.class);
+    private static Logger logger = LogManager.getLogger(ConnectionWrapperFactory.class);
+
+    public static final ConnectionWrapperFactory<Options.Default> DEFAULT_INSTANCE = new ConnectionWrapperFactory<>(Options.DEFAULT_INSTANCE);
 
     public ConnectionWrapperFactory(O options) {
         super(options);
     }
 
     @Override
-    public final ConnectionArtifact_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassCreated, Object[] args) {
+    public final <D> ConnectionArtifact_I getDelegate(ConnectionContainer<?,?,?,?> connectionContainer, D delegate, Class<D> delegateClassCreated, Object[] args) {
         logger.trace("getDelegate(...Object....");
-        if (delegate instanceof InputStream) {
+        if (delegateClassCreated.isInterface()) {
+            Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassCreated);
+            if (interfaces != null) {
+                return this.getProxyMember(interfaces, connectionContainer, delegate, args);
+            }
+            logger.error("No Interfaces, very odd as it's an interface: " + delegateClassCreated.getCanonicalName());
+            throw new RuntimeException("No Interfaces, very odd as it's an interface: " + delegateClassCreated.getCanonicalName());
+        }
+        else if (delegate instanceof InputStream) {
             return this.createInputStreamDelegate(connectionContainer, (InputStream) delegate, args);
         }
         else if (delegate instanceof OutputStream) {
@@ -34,55 +47,44 @@ public class ConnectionWrapperFactory<O extends Options> extends AbstractConnect
         else if (delegate instanceof Reader) {
             return this.createReaderDelegate(connectionContainer, (Reader) delegate, args);
         }
-        else if (delegateClassCreated.isInterface()) {
-            Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassCreated);
-            if (interfaces != null) {
-                return this.getProxyMember(interfaces, connectionContainer, delegate, args);
-            }
-            logger.error("No Interfaces, very odd as it's an interface: " + delegateClassCreated.getCanonicalName());
-            throw new RuntimeException("No Interfaces, very odd as it's an interface: " + delegateClassCreated.getCanonicalName());
-        }
         logger.error("ProxyDelegation is unable to create: " + delegateClassCreated.getCanonicalName());
         throw new RuntimeException("ProxyDelegation is unable to create: " + delegateClassCreated.getCanonicalName());
     }
 
-    protected ConnectionArtifact_I getProxyMember(Class[] interfaces, ConnectionContainer connectionContainer, Object delegate, Object[] args) {
-        ConnectionArtifact_I connectionMember = (ConnectionArtifact_I) Proxy.newProxyInstance(
+    protected <D> ConnectionArtifact_I getProxyMember(Class<?>[] interfaces, ConnectionContainer<?,?,?,?> connectionContainer, D delegate, Object[] args) {
+        return (ConnectionArtifact_I) Proxy.newProxyInstance(
                 ConnectionWrapperFactory.class.getClassLoader(),
                 interfaces,
-                createProxyMember(connectionContainer, delegate, args));
-        return connectionMember;
+                createProxyMember(connectionContainer, delegate, null));
     }
 
-    protected ConnectionArtifact_I createInputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, Object[] args) {
+    protected ConnectionArtifact_I createInputStreamDelegate(ConnectionContainer<?,?,?,?> connectionContainer, InputStream delegate, Object[] args) {
         return new InputStreamConnectionArtifact(connectionContainer, delegate);
     }
 
-    protected ConnectionArtifact_I createOutputStreamDelegate(ConnectionContainer connectionContainer, OutputStream delegate, Object[] args) {
+    protected ConnectionArtifact_I createOutputStreamDelegate(ConnectionContainer<?,?,?,?> connectionContainer, OutputStream delegate, Object[] args) {
         return new OutputStreamConnectionArtifact(connectionContainer, delegate);
     }
 
-    protected ConnectionArtifact_I createReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, Object[] args) {
+    protected ConnectionArtifact_I createReaderDelegate(ConnectionContainer<?,?,?,?> connectionContainer, Reader delegate, Object[] args) {
         return new ReaderConnectionArtifact(connectionContainer, delegate);
     }
 
-    protected ProxyConnectionArtifact createProxyMember(ConnectionContainer connectionContainer, Object delegate, Object[] args) {
-        return new ProxyConnectionArtifact(connectionContainer, delegate);
+    protected <D> ProxyConnectionArtifact<D> createProxyMember(ConnectionContainer<?,?,?,?> connectionContainer, D delegate, Object[] args) {
+        return new ProxyConnectionArtifact<D>(connectionContainer, delegate);
     }
 
-    protected Class[] getConnectionMemberInterfaces(Class clazz)  {
+    protected Class<?>[] getConnectionMemberInterfaces(Class<?> clazz)  {
         if (interfacesCache.containsKey(clazz.getCanonicalName())) {
             return interfacesCache.get(clazz.getCanonicalName());
         }
-        Class[] oldArray = clazz.getInterfaces();
-        if (oldArray.length == 0) {
-            return null;
-        }
-        Class[] newArray = new Class[oldArray.length + 1];
-        System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
-        newArray[oldArray.length] = ConnectionArtifact_I.class;
-        interfacesCache.put(clazz.getCanonicalName(), newArray);
-        return newArray;
+        List<Class<?>> classes = new ArrayList<>();
+        classes.add(clazz);
+        classes.addAll(Arrays.stream(clazz.getInterfaces()).toList());
+        classes.add(ConnectionArtifact_I.class);
+        Class<?>[] classArray = classes.toArray( new Class[classes.size()]);
+        interfacesCache.put(clazz.getCanonicalName(), classArray);
+        return classArray;
     }
-    protected Map<String, Class[]> interfacesCache = new ConcurrentHashMap<>();
+    protected Map<String, Class<?>[]> interfacesCache = new ConcurrentHashMap<>();
 }

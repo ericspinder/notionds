@@ -1,16 +1,16 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.Recommendation;
+import com.notionds.dataSource.ConnectionAction;
 
 import java.sql.SQLException;
 
 public class SqlExceptionWrapper extends SQLException implements NotionExceptionWrapper {
 
-    private final Recommendation recommendation;
+    private final ConnectionAction connectionAction;
 
-    public SqlExceptionWrapper(Recommendation recommendation, SQLException cause) {
-        super(recommendation.getDescription(), cause);
-        this.recommendation = recommendation;
+    public SqlExceptionWrapper(ConnectionAction connectionAction, SQLException cause) {
+        super(connectionAction.getDescription(), cause);
+        this.connectionAction = connectionAction;
     }
 
     @Override
@@ -19,8 +19,8 @@ public class SqlExceptionWrapper extends SQLException implements NotionException
     }
 
     @Override
-    public Recommendation getRecommendation() {
-        return this.recommendation;
+    public ConnectionAction getRecommendation() {
+        return this.connectionAction;
     }
 
 }

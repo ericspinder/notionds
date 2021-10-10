@@ -25,6 +25,7 @@ public abstract class InvokeLibrary<O extends Options, IA extends InvokeAccounti
     protected final Constructor<IA> invokeAccountingConstructor;
     protected final Constructor<IG> invokeAggregatorConstructor;
 
+    @SuppressWarnings("unchecked")
     public InvokeLibrary(O options) {
         this.options = options;
         this.invokeAccountingClass = (Class<IA>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];

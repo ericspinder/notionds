@@ -1,16 +1,16 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.Recommendation;
+import com.notionds.dataSource.ConnectionAction;
 
 import java.io.IOException;
 
 public class IoExceptionWrapper extends IOException implements NotionExceptionWrapper {
 
-    private final Recommendation recommendation;
+    private final ConnectionAction connectionAction;
 
-    public IoExceptionWrapper(Recommendation recommendation, IOException cause) {
-        super(recommendation.getDescription(), cause);
-        this.recommendation = recommendation;
+    public IoExceptionWrapper(ConnectionAction connectionAction, IOException cause) {
+        super(connectionAction.getDescription(), cause);
+        this.connectionAction = connectionAction;
     }
 
     @Override
@@ -19,8 +19,8 @@ public class IoExceptionWrapper extends IOException implements NotionExceptionWr
     }
 
     @Override
-    public Recommendation getRecommendation() {
-        return this.recommendation;
+    public ConnectionAction getRecommendation() {
+        return this.connectionAction;
     }
 
 }

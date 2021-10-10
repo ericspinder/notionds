@@ -1,8 +1,7 @@
 package com.notionds.dataSource.connection;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.Recommendation;
-import com.notionds.dataSource.connection.cleanup.GlobalCleanup;
+import com.notionds.dataSource.ConnectionAction;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.AbstractConnectionWrapperFactory;
 import com.notionds.dataSource.exceptions.*;
@@ -10,37 +9,69 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.sql.Connection;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
 public class ConnectionContainer<O extends Options,
-        EA extends ExceptionAdvice,
+        A extends Advice,
         W extends AbstractConnectionWrapperFactory,
-        GC extends GlobalCleanup> implements Comparable<ConnectionContainer> {
+        C extends Cleanup> implements Comparable<ConnectionContainer> {
 
     private static final Logger logger = LogManager.getLogger(ConnectionContainer.class);
 
     private final O options;
-    private final UUID connectionId = UUID.randomUUID();
-    private final Instant createInstant = Instant.now();
-    private final EA exceptionAdvice;
+    public final UUID connectionId = UUID.randomUUID();
+    public final Instant createInstant = Instant.now();
+    private Instant lastCheck;
+    private final A exceptionAdvice;
     private final W connectionWrapper;
-    private final GC globalCleanup;
+    private final C cleanup;
     public volatile State currentState;
-    private WeakReference<ConnectionArtifact_I> connectionWeakReference;
-    private WeakHashMap<WeakReference<ConnectionArtifact_I>, Instant> connectionChildren;
+    private SoftReference<ConnectionArtifact_I> connectionSoftReference;
+    private Map<SoftReference<ConnectionArtifact_I>, Instant> connectionChildren = new HashMap<>();
 
-    public ConnectionContainer(O options, EA exceptionAdvice, W connectionWrapper, GC globalCleanup) {
+    public ConnectionContainer(O options, A exceptionAdvice, W connectionWrapper, C cleanup) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.connectionWrapper = connectionWrapper;
-        this.globalCleanup = globalCleanup;
-        this.currentState = State.New;
+        this.cleanup = cleanup;
+        this.currentState = State.New_Needs_Connection;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Connection checkoutFromPool(Duration connectionTimeout) {
+        if (connectionTimeout != null && !connectionTimeout.isNegative() && !connectionTimeout.isZero()) {
+            this.cleanup.timeoutCleanup.put(this, Instant.now().plus(connectionTimeout) );
+        }
+        this.currentState = State.Open;
+        this.lastCheck = Instant.now();
+        return (Connection) this.connectionSoftReference.get();
+    }
+    public boolean reuse(ConnectionArtifact_I artifact) {
+        if (this.currentState.equals(State.Open) && artifact.equals(this.connectionSoftReference.get())) {
+            if (this.connectionChildren.isEmpty()) {
+                this.lastCheck = Instant.now();
+                this.closeChildren();
+                this.cleanup.timeoutCleanup.remove(this);
+                return true;
+            } else {
+                logger.error("ConnectionChildren WeakHashMap size=" + this.connectionChildren.size());
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    public C getCleanup() {
+        return this.cleanup;
     }
 
     public SQLException handleSQLException(SQLException sqlException, ConnectionArtifact_I delegatedInstance) {
@@ -67,36 +98,52 @@ public class ConnectionContainer<O extends Options,
         return exceptionWrapper;
     }
 
-    public final UUID getConnectionId() {
-        return this.connectionId;
-    }
-
     public ConnectionArtifact_I getConnection() {
-        return this.connectionWeakReference.get();
-    }
-
-    public void updateConnectionExpire(Instant expireInstant) {
-        if (expireInstant == null) {
-            this.globalCleanup.timeoutCleanup.remove(this);
-        } else {
-            this.globalCleanup.timeoutCleanup.put(this, expireInstant);
-        }
+        return this.connectionSoftReference.get();
     }
 
     public void closeChildren() {
-        for (ConnectionArtifact_I connectionArtifact: this.connectionChildren.keySet()) {
-            this.close(connectionArtifact);
+        for (SoftReference<ConnectionArtifact_I> softReference: this.connectionChildren.keySet()) {
+            ConnectionArtifact_I connectionArtifact = softReference.get();
+            if (connectionArtifact != null) {
+                connectionArtifact.closeDelegate();
+            }
+            softReference.clear();
+        }
+        this.connectionChildren.clear();
+    }
+    public void closeChild(ConnectionArtifact_I connectionArtifact) {
+        System.out.println(connectionArtifact.getUuid() + " class=" + connectionArtifact.getClass().getCanonicalName());
+        for (SoftReference<ConnectionArtifact_I> softReference: this.connectionChildren.keySet()) {
+            ConnectionArtifact_I suspectConnectionArtifact = softReference.get();
+            if (suspectConnectionArtifact != null) {
+                System.out.println(suspectConnectionArtifact.getUuid() + " class=" + suspectConnectionArtifact.getClass().getCanonicalName());
+                if (suspectConnectionArtifact.equals(connectionArtifact)) {
+                    connectionArtifact.closeDelegate();
+                    softReference.clear();
+                    System.out.println("cleared");
+                }
+                else {
+                    System.out.println("not cleared");
+                }
+            }
         }
     }
 
+    @SuppressWarnings("unchecked")
     public ConnectionArtifact_I wrap(Object delegate, Class delegateClassReturned, Object[] args) {
         ConnectionArtifact_I wrapped = connectionWrapper.getDelegate(this, delegate, delegateClassReturned, args);
-        WeakReference<ConnectionArtifact_I> weakReference = new WeakReference<>(wrapped, globalCleanup.globalReferenceQueue);
-        if (this.connectionWeakReference == null && wrapped instanceof Connection) {
-            this.connectionWeakReference = weakReference;
+        SoftReference<ConnectionArtifact_I> softReference = new SoftReference<>(wrapped, cleanup.globalReferenceQueue);
+        if (this.connectionSoftReference == null && delegate instanceof Connection) {
+            this.connectionSoftReference = softReference;
             this.currentState = State.Open;
+            //System.out.println("added connection to container UUID=" + wrapped.getUuid());
         }
-        return weakReference.get();
+        else {
+            //System.out.println("Adding a child UUID=" + wrapped.getUuid());
+            this.connectionChildren.put(softReference,Instant.now());
+        }
+        return wrapped;
     }
 
     @Override
@@ -110,21 +157,9 @@ public class ConnectionContainer<O extends Options,
         }
     }
 
-    public void reviewException(ConnectionArtifact_I connectionArtifact, Recommendation recommendation) {
-        if (recommendation.shouldClose()) {
-            this.close(connectionArtifact);
-        }
-        else {
-
-        }
-    }
-    protected void close(ConnectionArtifact_I connectionArtifact) {
-        try {
+    public void reviewException(ConnectionArtifact_I connectionArtifact, ConnectionAction connectionAction) {
+        if (connectionAction.shouldClose()) {
             connectionArtifact.closeDelegate();
-        } catch (Exception e) {
-            logger.error("Error closing delegate" + e);
-        } finally {
-            this.currentState = State.Empty;
         }
     }
 }

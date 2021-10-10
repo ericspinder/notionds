@@ -7,15 +7,16 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class ProxyWithLoggingConnectionArtifact<L extends Logging_forDbObject> extends ProxyConnectionArtifact implements InvocationHandler {
+public class ProxyWithLoggingConnectionArtifact<D, L extends Logging_forDbObject> extends ProxyConnectionArtifact<D> implements InvocationHandler {
 
     private final L dbLogging;
 
-    public ProxyWithLoggingConnectionArtifact(ConnectionContainer connectionContainer, Object delegate, L dbLogging) {
+    public ProxyWithLoggingConnectionArtifact(ConnectionContainer<?,?,?,?> connectionContainer, D delegate, L dbLogging) {
         super(connectionContainer, delegate);
         this.dbLogging = dbLogging;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
         InvokeAccounting invokeAccounting = this.getDbLogging().startInvoke(m, args);

@@ -21,3 +21,7 @@ test {
         events "passed", "skipped", "failed"
     }
 }
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-Xlint:unchecked'
+    options.deprecation = true
+}

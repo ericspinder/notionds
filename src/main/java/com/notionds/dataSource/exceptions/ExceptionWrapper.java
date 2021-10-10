@@ -1,14 +1,14 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.Recommendation;
+import com.notionds.dataSource.ConnectionAction;
 
 public class ExceptionWrapper extends Exception implements NotionExceptionWrapper {
 
-    private final Recommendation recommendation;
+    private final ConnectionAction connectionAction;
 
-    public ExceptionWrapper(Recommendation recommendation, Exception cause) {
-        super(recommendation.getDescription(), cause, false, false);
-        this.recommendation = recommendation;
+    public ExceptionWrapper(ConnectionAction connectionAction, Exception cause) {
+        super(connectionAction.getDescription(), cause, false, false);
+        this.connectionAction = connectionAction;
     }
 
     /**
@@ -21,8 +21,8 @@ public class ExceptionWrapper extends Exception implements NotionExceptionWrappe
     }
 
     @Override
-    public Recommendation getRecommendation() {
-        return this.recommendation;
+    public ConnectionAction getRecommendation() {
+        return this.connectionAction;
     }
 
 

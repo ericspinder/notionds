@@ -19,7 +19,7 @@ public abstract class AbstractConnectionWrapperFactory<O extends Options> {
      * @param delegateClassCreated this is the class object which the containing may be moot for some delegate implementations
      * @return
      */
-    public abstract ConnectionArtifact_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassCreated, Object[] args);
+    public abstract <D> ConnectionArtifact_I getDelegate(ConnectionContainer<?,?,?,?> connectionContainer, D delegate, Class<D> delegateClassCreated, Object[] args);
 
 
 }

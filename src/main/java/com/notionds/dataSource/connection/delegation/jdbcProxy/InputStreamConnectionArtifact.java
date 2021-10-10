@@ -1,22 +1,30 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
+import com.notionds.dataSource.connection.Cleanup;
 import com.notionds.dataSource.connection.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 public class InputStreamConnectionArtifact extends InputStream implements ConnectionArtifact_I {
 
+    private final UUID uuid = UUID.randomUUID();
     protected final InputStream delegate;
-    protected final ConnectionContainer connectionContainer;
+    protected final ConnectionContainer<?,?,?,?> connectionContainer;
 
-    public InputStreamConnectionArtifact(ConnectionContainer connectionContainer, InputStream delegate) {
+    public InputStreamConnectionArtifact(ConnectionContainer<?,?,?,?> connectionContainer, InputStream delegate) {
         this.connectionContainer = connectionContainer;
         this.delegate = delegate;
     }
 
-    public ConnectionContainer getConnectionMain() {
+    @Override
+    public UUID getUuid() {
+        return this.uuid;
+    }
+    @Override
+    public ConnectionContainer<?,?,?,?> getConnectionMain() {
         return this.connectionContainer;
     }
 
@@ -31,11 +39,31 @@ public class InputStreamConnectionArtifact extends InputStream implements Connec
     }
 
     public void closeDelegate() {
-        connectionContainer.getConnectionCleanup().cleanup(this, this.delegate);
+        Cleanup.DoDelegateClose(this.delegate);
     }
 
     @Override
     public void close() throws IOException {
-        this.closeDelegate();
+        this.connectionContainer.closeChild(this);
+    }
+    @Override
+    public final boolean equals(final Object that) {
+        if (this == that) {
+            return true;
+        }
+        if (that == null) {
+            return false;
+        }
+        if (!(that instanceof ConnectionArtifact_I other)) {
+            return false;
+        }
+        if (this.getUuid() == null) {
+            if (other.getUuid() != null) {
+                return false;
+            }
+        } else if (!this.getUuid().equals(other.getUuid())) {
+            return false;
+        }
+        return true;
     }
 }

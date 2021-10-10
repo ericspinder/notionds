@@ -1,17 +1,26 @@
 package com.notionds.dataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.locks.StampedLock;
 
 public abstract class Options {
 
-    public static final class Defaults extends Options {}
-    public enum NotionDefaultStrings implements StringOption  {
+    private static final Logger logger = LogManager.getLogger(Options.class);
+    public static final Options.Default DEFAULT_INSTANCE = new Default();
+
+
+    public interface Option<O> {
+        String getKey();
+        O getValue();
+        String getDescription();
+    }
+    public enum NotionDefaultStrings implements Option<String>  {
 
         ;
         private final String key;
@@ -28,15 +37,16 @@ public abstract class Options {
         public String getDescription() {
             return this.description;
         }
-        public String getDefaultValue() {
+        public String getValue() {
             return this.defaultValue;
         }
     }
-    public enum NotionDefaultIntegers implements IntegerOption  {
+    public enum NotionDefaultIntegers implements Option<Integer>  {
         ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5),
         ConnectionAnalysis_Max_Normal_Seconds("com.notion.connectionAnalysis.maxNormalSeconds", "The maximum time of an operation before it's reported as abnormal", 10),
-
-
+        Connection_Max_Wait_On_Create("com.notion.connection.max_weight_on_create", "The maximum amount of time in milliseconds until a RuntimeException is thrown to end", 1000),
+        Connection_Max_Queue_Size("com.notion.connection.Max_Queue_Size", "Max Connection Queue size", 50),
+        Connections_Min_Active("com.notion.connection.min_queue_size", "",10),
         ;
         private final String key;
         private final String description;
@@ -52,11 +62,36 @@ public abstract class Options {
         public String getDescription() {
             return this.description;
         }
-        public Integer getDefaultValue() {
+        public Integer getValue() {
             return this.defaultValue;
         }
     }
-    public enum NotionDefaultBooleans implements BooleanOption  {
+    public enum NotionDefaultDuration implements Option<Duration> {
+        ConnectionTimeoutInPool("com.notionds.connections_timeout_in_pool", "Amount of time connections will wait in the pool before reaping excess of the number of active in pool connections", Duration.of(20, ChronoUnit.MINUTES)),
+        ConnectionTimeoutInPool_Cool_Down("com.notionds.connections_timeout_in_pool_cool_down","Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections", Duration.of(1, ChronoUnit.MINUTES)),
+        ConnectionTimeoutOnLoan("com.notionds.connection_timeout_on_loan","Default max time before connection is automatically closed, breaking loaned connections. Anything but a positive amount disables that function", Duration.of(3, ChronoUnit.MINUTES)),
+        ConnectionMaxLifetime("com.notionds.connection_timeout_max_lifetime","Max lifetime of a connection", Duration.of(2, ChronoUnit.HOURS))
+        ;
+        private final String key;
+        private final String description;
+        private final Duration defaultValue;
+        NotionDefaultDuration(String key, String description, Duration defaultValue) {
+            this.key = key;
+            this.description = description;
+            this.defaultValue = defaultValue;
+        }
+        public String getKey() {
+            return this.key;
+        }
+        public String getDescription() {
+            return this.description;
+        }
+        public Duration getValue() {
+            return this.defaultValue;
+        }
+    }
+    public enum NotionDefaultBooleans implements Option<Boolean>  {
+
         ConnectionContainer_Check_ResultSet("com.notion.connectionMain.checkResultSet", "Order a check of all ResultSets before closing when cleanupAfterGC() had not been called, until the connection had been closed", true),
         ConnectionPool_Use("com.notion.pool.usePool", "Should pool connections", true),
         Logging("com.notion.connection.delegation.jdbcProxy.logging.UseLogging", "Use ProxyV1 logging", false),
@@ -76,217 +111,83 @@ public abstract class Options {
         public String getDescription() {
             return this.description;
         }
-        public Boolean getDefaultValue() {
+        public Boolean getValue() {
             return this.defaultValue;
         }
     }
 
-    public Options() {
-        this.setDefaultStringValues(NotionDefaultStrings.values());
-        this.setDefaultIntegerValues(NotionDefaultIntegers.values());
-        this.setDefaultBooleanValues(NotionDefaultBooleans.values());
+    protected StampedLock gate = new StampedLock();
+    protected final Map<String, Option<?>> allOptions = new HashMap<>();
+
+    public static final class Default extends Options {
+        public Default() {
+            super(null, null, null, null);
+        }
     }
-    public Options(StringOption[] stringOptionsLoad, IntegerOption[] integerOptionsLoad, BooleanOption[] booleanOptionsLoad) {
-        this();
+
+    public Options(Option<String>[] stringOptionsLoad, Option<Integer>[] integerOptionsLoad, Option<Boolean>[] booleanOptionsLoad, Option<Duration>[] durationOptionsLoad) {
         if (stringOptionsLoad != null) {
-            this.setDefaultStringValues(stringOptionsLoad);
+            this.setDefaultValues(stringOptionsLoad);
+        }
+        else {
+            this.setDefaultValues(NotionDefaultStrings.values());
         }
         if (integerOptionsLoad != null) {
-            this.setDefaultIntegerValues(integerOptionsLoad);
+            this.setDefaultValues(integerOptionsLoad);
+        }
+        else {
+            this.setDefaultValues(NotionDefaultIntegers.values());
         }
         if (booleanOptionsLoad != null) {
-            this.setDefaultBooleanValues(booleanOptionsLoad);
+            this.setDefaultValues(booleanOptionsLoad);
+        }
+        else {
+            this.setDefaultValues(NotionDefaultBooleans.values());
+        }
+        if (durationOptionsLoad != null) {
+            this.setDefaultValues(durationOptionsLoad);
+        }
+        else {
+            this.setDefaultValues(NotionDefaultDuration.values());
         }
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(Options.class);
-
-    public interface Option {
-        String getKey();
-        String getDescription();
+    @SuppressWarnings("unchecked")
+    public <D> Option<D> get(String key) {
+        if (this.allOptions.containsKey(key)) {
+            try {
+                return (Option<D>) this.allOptions.get(key);
+            }
+            catch(ClassCastException castException) {
+                castException.printStackTrace();
+                throw new NotionStartupException(NotionStartupException.Type.NullPointerOnGeneric, Options.class);
+            }
+        }
+        throw new NotionStartupException(NotionStartupException.Type.MissingDefaultValue, Options.class);
     }
-
-    public interface StringOption extends Option {
-        String getDefaultValue();
+    public final <D> void setDefaultValues(Option<D>[] optionsLoad) {
+        logger.info("loading default values");
+        long stamp = gate.writeLock();
+        try {
+            for (Option<D> option: optionsLoad) {
+                allOptions.put(option.getKey(), option);
+            }
+        }
+        finally {
+            gate.unlockWrite(stamp);
+        }
     }
-
-    public interface IntegerOption extends Option {
-        Integer getDefaultValue();
-    }
-
-    public interface BooleanOption extends Option {
-        Boolean getDefaultValue();
-    }
-
-    protected StampedLock gate = new StampedLock();
-
-
-    protected final Map<StringOption, String> stringOptionValues = new HashMap<>();
-    protected final Map<IntegerOption, Integer> integerOptionValues = new HashMap<>();
-    protected final Map<BooleanOption, Boolean> booleanOptionValues = new HashMap<>();
-    protected final Map<String, Option> allOptions = new HashMap<>();
-
-
-    public String getAllProperties() {
+    public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append('\n');
+        stringBuilder.append("Displaying all current default values:");
+        stringBuilder.append('\n');
         for (String key: allOptions.keySet()) {
             stringBuilder.append(key);
             stringBuilder.append("=");
-            stringBuilder.append(get(key));
+            stringBuilder.append(get(key).toString());
+            stringBuilder.append('\n');
         }
         return stringBuilder.toString();
-    }
-    public String get(String key) {
-        Option option = allOptions.get(key);
-        if (option instanceof StringOption) {
-            return this.get((StringOption) option);
-        }
-        if (option  instanceof IntegerOption) {
-            return this.get((IntegerOption)option).toString();
-        }
-        if (option instanceof BooleanOption) {
-            return this.get((BooleanOption) option).toString();
-        }
-        throw new RuntimeException("property not found: key= " + key);
-    }
-    public String get(StringOption stringOption) {
-        long stamp = gate.readLock();
-        try {
-            return stringOptionValues.get(stringOption);
-        }
-        finally {
-            gate.unlockWrite(stamp);
-        }
-    }
-    public String get(Option anonymousStringOption) {
-        long stamp = gate.readLock();
-        try {
-            return stringOptionValues.get(anonymousStringOption);
-        }
-        finally {
-            gate.unlockWrite(stamp);
-        }
-
-    }
-    public Integer get(IntegerOption integerOption) {
-        long stamp = gate.readLock();
-        try {
-            return integerOptionValues.get(integerOption);
-        }
-        finally {
-            gate.unlockWrite(stamp);
-        }
-
-    }
-    public Boolean get(BooleanOption booleanOption) {
-        long stamp = gate.readLock();
-        try {
-            return booleanOptionValues.get(booleanOption);
-        }
-        finally {
-            gate.unlockWrite(stamp);
-        }
-    }
-
-    public Option loadValue(String key, String value) {
-        for (StringOption stringOption : stringOptionValues.keySet()) {
-            if (stringOption.getKey().equals(key)) {
-                stringOptionValues.put(stringOption, value);
-                return stringOption;
-            }
-        }
-        for (IntegerOption integerOption: integerOptionValues.keySet()) {
-            if (integerOption.getKey().equals(key)) {
-                try {
-                    Integer integer = Integer.valueOf((String) value);
-                    integerOptionValues.put(integerOption, integer);
-                    return integerOption;
-                } catch (NumberFormatException nfe) {
-                    logger.error("problem trying to set key=" + key + " value= " + value + " allowing the default value (" + integerOption.getDefaultValue() + " to remain");
-                    integerOptionValues.put(integerOption, integerOption.getDefaultValue());
-                    return integerOption;
-                }
-            }
-        }
-        for (BooleanOption booleanOption: booleanOptionValues.keySet()) {
-            if (booleanOption.getKey().equals(key)) {
-                booleanOptionValues.put(booleanOption, Boolean.valueOf(value));
-                return booleanOption;
-            }
-        }
-        logger.error("Trying to set unknown value, key= " + key + " value= " + value + " loading as StringOption");
-        StringOption stringOption = new StringOption() {
-            @Override
-            public String getDefaultValue() {
-                return value;
-            }
-
-            @Override
-            public String getKey() {
-                return key;
-            }
-
-            @Override
-            public String getDescription() {
-                return "key not previously registered";
-            }
-        };
-        stringOptionValues.put(stringOption, value);
-        allOptions.put(stringOption.getKey(), stringOption);
-        return stringOption;
-    }
-
-    public final void loadProperties(Properties properties) {
-        logger.info("loading properties");
-        long stamp = gate.writeLock();
-        try {
-            for (Object propertyKeyObject : properties.keySet()) {
-                String propertyKey = (String) propertyKeyObject;
-                String propertyValue = properties.getProperty(propertyKey);
-                loadValue(propertyKey, propertyValue);
-            }
-        }
-        finally {
-            gate.unlockWrite(stamp);
-        }
-    }
-    public final void setDefaultStringValues(StringOption[] stringOptionsLoad) {
-        logger.info("loading default values");
-        long stamp = gate.writeLock();
-        try {
-            for (StringOption stringOption : stringOptionsLoad) {
-                stringOptionValues.put(stringOption, stringOption.getDefaultValue());
-                allOptions.put(stringOption.getKey(), stringOption);
-            }
-        }
-        finally {
-            gate.unlockWrite(stamp);
-        }
-    }
-    public final void setDefaultIntegerValues(IntegerOption[] integerOptionsLoad) {
-        logger.info("loading default values");
-        long stamp = gate.writeLock();
-        try {
-            for (IntegerOption integerOption : integerOptionsLoad) {
-                integerOptionValues.put(integerOption, integerOption.getDefaultValue());
-                allOptions.put(integerOption.getKey(), integerOption);
-            }
-        }
-        finally {
-            gate.unlockWrite(stamp);
-        }
-    }
-    public final void setDefaultBooleanValues(BooleanOption[] booleanOptionLoad) {
-        logger.info("loading default values");
-        long stamp = gate.writeLock();
-        try {
-            for (BooleanOption booleanOption : booleanOptionLoad) {
-                booleanOptionValues.put(booleanOption, booleanOption.getDefaultValue());
-                allOptions.put(booleanOption.getKey(), booleanOption);
-            }
-        }
-        finally {
-            gate.unlockWrite(stamp);
-        }
     }
 }

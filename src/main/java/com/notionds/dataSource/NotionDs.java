@@ -1,68 +1,120 @@
 package com.notionds.dataSource;
 
 import com.notionds.dataSource.connection.ConnectionContainer;
-import com.notionds.dataSource.connection.cleanup.ConnectionCleanup;
-import com.notionds.dataSource.connection.cleanup.GlobalCleanup;
+import com.notionds.dataSource.connection.Cleanup;
 import com.notionds.dataSource.connection.delegation.AbstractConnectionWrapperFactory;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
-import com.notionds.dataSource.exceptions.ExceptionAdvice;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.ConnectionWrapperFactory;
+import com.notionds.dataSource.exceptions.Advice;
 import com.notionds.dataSource.exceptions.SqlExceptionWrapper;
 
-import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Instant;
+import java.time.Duration;
+import java.util.Queue;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.StampedLock;
 
-public abstract class NotionDs<O extends Options, EA extends ExceptionAdvice, P extends DatabasePool, W extends AbstractConnectionWrapperFactory<O>, CC extends ConnectionCleanup, GC extends GlobalCleanup<O, CC>> {
+public abstract class NotionDs<O extends Options, A extends Advice, P extends ConnectionPool, W extends AbstractConnectionWrapperFactory, C extends Cleanup<?,P>> {
 
     private final O options;
     private final W delegation;
-    private final EA exceptionAdvice;
-    private final P databasePool;
-    private final GC globalCleanup;
-    private final ConnectionSupplier connectionSupplier;
+    private final A advice;
+    private final P connectionPool;
+    private final C cleanup;
+    private ConnectionSupplier_I connectionSupplier;
+    private final Queue<ConnectionSupplier_I> failoverConnectionSuppliers = new ConcurrentLinkedQueue<>();
+    private final Executor executor;
+    private final StampedLock connectionGate = new StampedLock();
+    private final StampedLock newConnectionGate = new StampedLock();
 
-    public interface ConnectionSupplier {
+    public interface AdviceSupplier_I {
+        ConnectionAction reviewRecommendation();
+    }
+    public interface ConnectionSupplier_I {
         Connection getConnection() throws SQLException;
     }
+    public static final class Default extends NotionDs<Options.Default, Advice.Default, ConnectionPool.Default, ConnectionWrapperFactory, Cleanup.Default> {
 
-    public NotionDs(O options, W delegation, P databasePool, EA exceptionAdvice, GC globalCleanup, ConnectionSupplier connectionSupplier) {
+        @SuppressWarnings("unchecked")
+        public Default(ConnectionSupplier_I connectionSupplier) {
+            super(Options.DEFAULT_INSTANCE, ConnectionWrapperFactory.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE, new Advice.Default(connectionSupplier), Cleanup.DEFAULT_INSTANCE, connectionSupplier, new ForkJoinPool(10));
+        }
+    }
+
+    public NotionDs(O options, W delegation, P connectionPool, A advice, C cleanup, ConnectionSupplier_I connectionSupplier, Executor executor) {
         this.options = options;
         this.delegation = delegation;
-        this.databasePool = databasePool;
-        this.exceptionAdvice = exceptionAdvice;
-        this.globalCleanup = globalCleanup;
+        this.connectionPool = connectionPool;
+        this.advice = advice;
+        this.cleanup = cleanup;
         this.connectionSupplier = connectionSupplier;
+        this.executor = executor;
     }
 
-    public Connection acquireConnection() throws SqlExceptionWrapper {
-        Connection connection = this.databasePool.getConnection();
-        if (connection != null) {
-            return connection;
-        }
+    public void addFailover(ConnectionSupplier_I failoverConnectionSupplier) {
+        this.failoverConnectionSuppliers.offer(failoverConnectionSupplier);
+    }
+
+    public void doFailover() {
+        long newConnectionLock = newConnectionGate.writeLock();
         try {
-            Connection freshConnection = this.connectionSupplier.getConnection();
-
+            ConnectionSupplier_I failoverConnection = this.failoverConnectionSuppliers.poll();
+            if (failoverConnection != null) {
+                this.connectionSupplier = failoverConnection;
+            }
         }
-        catch (SQLException sqle) {
-            throw this.exceptionAdvice.adviseSqlException(sqle);
+        finally {
+            newConnectionGate.unlockWrite(newConnectionLock);
         }
-
-
     }
 
-    protected <C extends Connection> Connection prepForDelivery(C connection, Instant expireInstant) {
-        ConnectionContainer connectionContainer = new ConnectionContainer(this.options, this.exceptionAdvice, this.delegation, connection, this.globalCleanup);
-        ConnectionArtifact_I connectionArtifact = connectionContainer.wrap(connection, Connection.class, null);
-        globalCleanup.register(connectionArtifact, expireInstant);
-        return connectionCleanup.getConnection(connectionContainer);
-    }
-    public Recommendation release(VC vendorConnection, Recommendation recommendation) {
-        Recommendation finalRecommendation = this.databasePool.analyzeRelease(recommendation);
-        if (finalRecommendation.equals(Recommendation.FailoverDatabase_Now)) {
-
+    /**
+     * A connection test which will lock out the normal 'acquireConnection' method
+     * @return
+     */
+    public Connection testConnectionBeforeStart() {
+        long writeLock = connectionGate.writeLock();
+        ConnectionArtifact_I connection = newPopulatedConnectionContainer();
+        if (connection != null) {
+            connectionGate.unlockWrite(writeLock);
+            return (Connection) connection;
         }
-        return finalRecommendation;
+        throw new NotionStartupException(NotionStartupException.Type.TEST_CONNECTION_FAILURE, NotionDs.class);
+    }
 
+    @SuppressWarnings("unchecked")
+    public Connection acquireConnection(Duration duration) throws SqlExceptionWrapper {
+        long readLock = connectionGate.readLock();
+        try {
+            ConnectionArtifact_I wrapped = connectionPool.getConnection(this::newPopulatedConnectionContainer);
+            wrapped.getConnectionMain().checkoutFromPool(duration);
+            return (Connection) wrapped.getConnectionMain().getConnection();
+        }
+        finally {
+            connectionGate.unlockRead(readLock);
+        }
+    }
+
+    protected ConnectionArtifact_I newPopulatedConnectionContainer() {
+        ConnectionContainer<O, A, W, C> connectionContainer = new ConnectionContainer<>(this.options, this.advice, this.delegation, this.cleanup);
+        long newConnectionLock = newConnectionGate.readLock();
+        try {
+            return connectionContainer.wrap(this.connectionSupplier.getConnection(), Connection.class, null);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            connectionContainer.handleSQLException(e, null);
+            return null;
+        }
+        finally {
+            newConnectionGate.unlockRead(newConnectionLock);
+        }
+    }
+
+    public CompletableFuture<ConnectionArtifact_I> futureConnectionToPool() {
+        CompletableFuture<ConnectionArtifact_I> future = new CompletableFuture<>();
+        future.complete(this.newPopulatedConnectionContainer());
+        return future;
     }
 }
+

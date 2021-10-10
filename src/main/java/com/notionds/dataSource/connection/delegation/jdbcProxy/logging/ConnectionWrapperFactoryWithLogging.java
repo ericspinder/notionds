@@ -28,6 +28,7 @@ public class ConnectionWrapperFactoryWithLogging<O extends Options, IA extends I
     protected final Constructor<SL> statementLoggingConstructor;
     protected final Constructor<PL> preparedStatementLoggingConstructor;
 
+    @SuppressWarnings("unchecked")
     public ConnectionWrapperFactoryWithLogging(O options) {
         super(options);
         this.invokeLibraryClass = (Class<IL>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[3];
@@ -48,12 +49,13 @@ public class ConnectionWrapperFactoryWithLogging<O extends Options, IA extends I
 
 
     @Override
-    public ProxyConnectionArtifact createProxyMember(ConnectionContainer connectionContainer, Object delegate, Object[] args) {
+    public <D> ProxyConnectionArtifact<D> createProxyMember(ConnectionContainer<?,?,?,?> connectionContainer, D delegate, Object[] args) {
         logger.trace("createProxyMember(...Object....");
-        if (this.options.get(Options.NotionDefaultBooleans.LogNonExecuteProxyMembers)) {
+        Options.Option<Boolean> logNonExecute = this.options.get(Options.NotionDefaultBooleans.LogNonExecuteProxyMembers.getKey());
+        if (logNonExecute.getValue()) {
             try {
-                DL dbObjectLogging = this.dbObjectLoggingConstructor.newInstance(this.options, connectionContainer.getConnectionId(), this.invokeLibrary);
-                return new ProxyWithLoggingConnectionArtifact<>(connectionContainer, delegate, dbObjectLogging);
+                DL dbObjectLogging = this.dbObjectLoggingConstructor.newInstance(this.options, connectionContainer.connectionId, this.invokeLibrary);
+                return new ProxyWithLoggingConnectionArtifact<D, DL>(connectionContainer, delegate, dbObjectLogging);
             }
             catch (ReflectiveOperationException roe) {
                 throw new RuntimeException(roe);
@@ -63,23 +65,23 @@ public class ConnectionWrapperFactoryWithLogging<O extends Options, IA extends I
             return super.createProxyMember(connectionContainer, delegate, args);
         }
     }
-    public ProxyConnectionArtifact createProxyMember(ConnectionContainer connectionContainer, Statement delegate, Object[] args) {
+    public ProxyConnectionArtifact<Statement> createProxyMember(ConnectionContainer<?,?,?,?> connectionContainer, Statement delegate, Object[] args) {
         logger.trace("createProxyMember(...Statement...)");
         try {
-            SL loggingForStatement = this.statementLoggingConstructor.newInstance(this.options, connectionContainer.getConnectionId(), this.invokeLibrary);
-            return new ProxyWithLoggingConnectionArtifact<>(connectionContainer, delegate, loggingForStatement);
+            SL loggingForStatement = this.statementLoggingConstructor.newInstance(this.options, connectionContainer.connectionId, this.invokeLibrary);
+            return new ProxyWithLoggingConnectionArtifact<Statement, SL>(connectionContainer, delegate, loggingForStatement);
         }
         catch (ReflectiveOperationException roe) {
             throw new RuntimeException(roe);
         }
     }
 
-    public ProxyConnectionArtifact createProxyMember(ConnectionContainer connectionContainer, PreparedStatement delegate, Object[] args) {
+    public ProxyConnectionArtifact<PreparedStatement> createProxyMember(ConnectionContainer<?,?,?,?> connectionContainer, PreparedStatement delegate, Object[] args) {
         logger.trace("createProxyMember(...PreparedStatement....");
         if (args != null && args[0] instanceof String) {
             try {
-                PL preparedStatementLogging = this.preparedStatementLoggingConstructor.newInstance(this.options, connectionContainer.getConnectionId(), this.invokeLibrary, (String) args[0]);
-                return new ProxyWithLoggingConnectionArtifact<>(connectionContainer, delegate,preparedStatementLogging);
+                PL preparedStatementLogging = this.preparedStatementLoggingConstructor.newInstance(this.options, connectionContainer.connectionId, this.invokeLibrary, (String) args[0]);
+                return new ProxyWithLoggingConnectionArtifact<PreparedStatement, PL>(connectionContainer, delegate,preparedStatementLogging);
             }
             catch (ReflectiveOperationException roe) {
                 throw new RuntimeException(roe);

@@ -5,6 +5,7 @@ import com.notionds.dataSource.connection.Cleanup;
 import com.notionds.dataSource.connection.delegation.AbstractConnectionWrapperFactory;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.ConnectionWrapperFactory;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.ConnectionWrapperFactoryWithLogging;
 import com.notionds.dataSource.exceptions.Advice;
 import com.notionds.dataSource.exceptions.SqlExceptionWrapper;
 
@@ -34,11 +35,16 @@ public abstract class NotionDs<O extends Options, A extends Advice, P extends Co
     public interface ConnectionSupplier_I {
         Connection getConnection() throws SQLException;
     }
-    public static final class Default extends NotionDs<Options.Default, Advice.Default, ConnectionPool.Default, ConnectionWrapperFactory, Cleanup.Default> {
+    public static final class Default extends NotionDs<Options.Default, Advice.Default<?>, ConnectionPool.Default, ConnectionWrapperFactory<?>, Cleanup.Default> {
 
-        @SuppressWarnings("unchecked")
         public Default(ConnectionSupplier_I connectionSupplier) {
-            super(Options.DEFAULT_INSTANCE, ConnectionWrapperFactory.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE, new Advice.Default(connectionSupplier), Cleanup.DEFAULT_INSTANCE, connectionSupplier, new ForkJoinPool(10));
+            super(Options.DEFAULT_INSTANCE, ConnectionWrapperFactory.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE, new Advice.Default<>(connectionSupplier), Cleanup.DEFAULT_INSTANCE, connectionSupplier, new ForkJoinPool(10));
+        }
+    }
+    public static final class Default_withLogging extends NotionDs<Options.Default, Advice.Default<?>, ConnectionPool.Default, ConnectionWrapperFactoryWithLogging<?,?,?,?,?,?,?>, Cleanup.Default> {
+
+        public Default_withLogging(ConnectionSupplier_I connectionSupplier) {
+            super(Options.DEFAULT_INSTANCE, ConnectionWrapperFactoryWithLogging.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE, new Advice.Default<>(connectionSupplier), Cleanup.DEFAULT_INSTANCE, connectionSupplier, new ForkJoinPool(10));
         }
     }
 

@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class ProxyConnectionArtifact<D> implements InvocationHandler, ConnectionArtifact_I {
 
-    private UUID uuid = UUID.randomUUID();
+    private UUID artifactId = UUID.randomUUID();
     protected final D delegate;
     protected final ConnectionContainer connectionContainer;
 
@@ -23,8 +23,8 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
         this.delegate = delegate;
     }
     @Override
-    public UUID getUuid() {
-        return this.uuid;
+    public UUID getArtifactId() {
+        return this.artifactId;
     }
     @Override
     public ConnectionContainer<?,?,?,?> getConnectionMain() {
@@ -54,8 +54,8 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
                 return null;
             case "getConnectionMain":
                 return getConnectionMain();
-            case "getUuid":
-                return getUuid();
+            case "getArtifactId":
+                return getArtifactId();
             case "equals":
                 return equals(args[0]);
         }
@@ -120,11 +120,11 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
         if (!(that instanceof ConnectionArtifact_I other)) {
             return false;
         }
-        if (this.getUuid() == null) {
-            if (other.getUuid() != null) {
+        if (this.getArtifactId() == null) {
+            if (other.getArtifactId() != null) {
                 return false;
             }
-        } else if (!this.getUuid().equals(other.getUuid())) {
+        } else if (!this.getArtifactId().equals(other.getArtifactId())) {
             return false;
         }
         return true;

@@ -27,7 +27,7 @@ public class ConnectionContainer<O extends Options,
     private static final Logger logger = LogManager.getLogger(ConnectionContainer.class);
 
     private final O options;
-    public final UUID connectionId = UUID.randomUUID();
+    public final UUID containerId = UUID.randomUUID();
     public final Instant createInstant = Instant.now();
     private Instant lastCheck;
     private final A exceptionAdvice;
@@ -55,6 +55,7 @@ public class ConnectionContainer<O extends Options,
         return (Connection) this.connectionSoftReference.get();
     }
     public boolean reuse(ConnectionArtifact_I artifact) {
+        logger.debug("checking if to reuse connection Artifact=" + artifact.getArtifactId());
         if (this.currentState.equals(State.Open) && artifact.equals(this.connectionSoftReference.get())) {
             if (this.connectionChildren.isEmpty()) {
                 this.lastCheck = Instant.now();
@@ -62,7 +63,7 @@ public class ConnectionContainer<O extends Options,
                 this.cleanup.timeoutCleanup.remove(this);
                 return true;
             } else {
-                logger.error("ConnectionChildren WeakHashMap size=" + this.connectionChildren.size());
+                logger.error("Child connection artifacts will not be reused " + this.connectionChildren.size());
                 return false;
             }
         }
@@ -113,21 +114,19 @@ public class ConnectionContainer<O extends Options,
         this.connectionChildren.clear();
     }
     public void closeChild(ConnectionArtifact_I connectionArtifact) {
-        System.out.println(connectionArtifact.getUuid() + " class=" + connectionArtifact.getClass().getCanonicalName());
+        logger.debug("closing = " + connectionArtifact.getArtifactId() + " class=" + connectionArtifact.getClass().getCanonicalName() + " searching for match");
         for (SoftReference<ConnectionArtifact_I> softReference: this.connectionChildren.keySet()) {
             ConnectionArtifact_I suspectConnectionArtifact = softReference.get();
             if (suspectConnectionArtifact != null) {
-                System.out.println(suspectConnectionArtifact.getUuid() + " class=" + suspectConnectionArtifact.getClass().getCanonicalName());
                 if (suspectConnectionArtifact.equals(connectionArtifact)) {
                     connectionArtifact.closeDelegate();
                     softReference.clear();
-                    System.out.println("cleared");
-                }
-                else {
-                    System.out.println("not cleared");
+                    logger.debug("matched");
+                    return;
                 }
             }
         }
+        logger.debug("no match at all");
     }
 
     @SuppressWarnings("unchecked")
@@ -137,10 +136,10 @@ public class ConnectionContainer<O extends Options,
         if (this.connectionSoftReference == null && delegate instanceof Connection) {
             this.connectionSoftReference = softReference;
             this.currentState = State.Open;
-            //System.out.println("added connection to container UUID=" + wrapped.getUuid());
+            logger.debug("added connection to artifact UUID=" + wrapped.getArtifactId() + " to container=" + containerId);
         }
         else {
-            //System.out.println("Adding a child UUID=" + wrapped.getUuid());
+            logger.debug("Adding a child UUID=" + wrapped.getArtifactId() + " to container=" + containerId);
             this.connectionChildren.put(softReference,Instant.now());
         }
         return wrapped;
@@ -148,11 +147,11 @@ public class ConnectionContainer<O extends Options,
 
     @Override
     public int compareTo(ConnectionContainer that) {
-        if (this.connectionId.equals(that.connectionId)) {
+        if (this.containerId.equals(that.containerId)) {
             return 0;
         } else {
             return (this.createInstant.compareTo(that.createInstant) == 0) ?
-                    this.connectionId.compareTo(that.connectionId) :
+                    this.containerId.compareTo(that.containerId) :
                     this.createInstant.compareTo(that.createInstant);
         }
     }

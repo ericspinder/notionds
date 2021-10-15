@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface ConnectionArtifact_I {
 
-    UUID getUuid();
+    UUID getArtifactId();
 
     ConnectionContainer getConnectionMain();
 

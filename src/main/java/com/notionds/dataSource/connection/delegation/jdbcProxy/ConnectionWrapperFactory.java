@@ -29,7 +29,7 @@ public class ConnectionWrapperFactory<O extends Options> extends AbstractConnect
 
     @Override
     public final <D> ConnectionArtifact_I getDelegate(ConnectionContainer<?,?,?,?> connectionContainer, D delegate, Class<D> delegateClassCreated, Object[] args) {
-        logger.trace("getDelegate(...Object....");
+        logger.debug("getDelegate(...Object....");
         if (delegateClassCreated.isInterface()) {
             Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassCreated);
             if (interfaces != null) {

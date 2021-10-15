@@ -84,16 +84,16 @@ public abstract class ConnectionPool<O extends Options> {
                 if (added.getConnectionMain().reuse(added)) {
                     added.getConnectionMain().currentState = State.Pooled;
                 } else {
-                    log.error("ConnectionId=" + added.getConnectionMain().connectionId + " was not able to reuse, will close");
+                    log.error("ConnectionId=" + added.getConnectionMain().containerId + " was not able to reuse, will close");
                     added.closeDelegate();
                     return false;
                 }
             }
             if (connectionQueue.add(added)) {
-                log.trace("ConnectionId=" + added.getConnectionMain().connectionId + " was re-added to connection queue queue_size=" + connectionQueue.size());
+                log.trace("ConnectionId=" + added.getConnectionMain().containerId + " was re-added to connection queue queue_size=" + connectionQueue.size());
                 return true;
             } else {
-                log.error("ConnectionId=" + added.getConnectionMain().connectionId + " was not able to add connection due to queue_size=" + connectionQueue.size());
+                log.error("ConnectionId=" + added.getConnectionMain().containerId + " was not able to add connection due to queue_size=" + connectionQueue.size());
                 added.closeDelegate();
                 return false;
             }

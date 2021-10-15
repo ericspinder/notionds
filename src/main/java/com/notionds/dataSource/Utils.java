@@ -1,7 +1,11 @@
 package com.notionds.dataSource;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 public class Utils {
 
@@ -35,5 +39,47 @@ public class Utils {
         return ((ParameterizedType)superclassType).getActualTypeArguments();
     }
 
+    @SuppressWarnings("unchecked")
+    public <X, O, IL> Supplier<X> invokeLibSupplier(Class<X> clazz, O options, UUID connectionId, IL invokeLibrary) {
+        try {
+            Constructor<?> constructor = clazz.getDeclaredConstructor(UUID.class);
+            return () -> {
+                try {
+                    return (X) constructor.newInstance(options, connectionId, invokeLibrary);
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                throw new NotionStartupException(NotionStartupException.Type.ReflectiveOperationFailed, this.getClass());
+            };
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new NotionStartupException(NotionStartupException.Type.ReflectiveOperationFailed, this.getClass());
+        }
+    }
+    @SuppressWarnings("unchecked")
+    public <T> Supplier<T> uuIdSupplier(Class<T> clazz, UUID connectionId) {
+        try {
+            Constructor<?> constructor = clazz.getDeclaredConstructor(UUID.class);
+            return () -> {
+                try {
+                    return (T) constructor.newInstance(connectionId);
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                throw new NotionStartupException(NotionStartupException.Type.ReflectiveOperationFailed, this.getClass());
+            };
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new NotionStartupException(NotionStartupException.Type.ReflectiveOperationFailed, this.getClass());
+        }
+    }
 
 }

@@ -57,7 +57,7 @@ public abstract class Cleanup<O extends Options, P extends ConnectionPool> imple
             if (artifact != null) {
                 if (artifact.equals(artifact.getConnectionMain().getConnection()) && artifact.getConnectionMain().currentState.equals(State.Open)) {
                     connectionPool.addConnectionFuture(artifact, true);
-                    log.debug("returned from garbage collection: id={}, created={}", artifact.getConnectionMain().connectionId, artifact.getConnectionMain().createInstant);
+                    log.debug("returned from garbage collection: id={}, created={}", artifact.getConnectionMain().containerId, artifact.getConnectionMain().createInstant);
                 }
                 else {
                     try {
@@ -77,10 +77,10 @@ public abstract class Cleanup<O extends Options, P extends ConnectionPool> imple
                 container.closeChildren();
                 try {
                     container.getConnection().closeDelegate();
-                    log.error("Timeout for ConnectionId=" + container.connectionId);
+                    log.error("Timeout for ConnectionId=" + container.containerId);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    log.error("Error closing the delegates on timeout ConnectionId=" + container.connectionId + ", message=" + e.getMessage());
+                    log.error("Error closing the delegates on timeout ConnectionId=" + container.containerId + ", message=" + e.getMessage());
                 }
             }
         }

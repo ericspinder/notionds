@@ -19,7 +19,7 @@ public class OutputStreamConnectionArtifact extends OutputStream implements Conn
         this.delegate = delegate;
     }
     @Override
-    public UUID getUuid() {
+    public UUID getArtifactId() {
         return this.uuid;
     }
     @Override
@@ -66,11 +66,11 @@ public class OutputStreamConnectionArtifact extends OutputStream implements Conn
         if (!(that instanceof ConnectionArtifact_I other)) {
             return false;
         }
-        if (this.getUuid() == null) {
-            if (other.getUuid() != null) {
+        if (this.getArtifactId() == null) {
+            if (other.getArtifactId() != null) {
                 return false;
             }
-        } else if (!this.getUuid().equals(other.getUuid())) {
+        } else if (!this.getArtifactId().equals(other.getArtifactId())) {
             return false;
         }
         return true;

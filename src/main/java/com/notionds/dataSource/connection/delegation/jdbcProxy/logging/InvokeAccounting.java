@@ -4,15 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-public abstract class InvokeAccounting {
-
-    public static class Default extends InvokeAccounting {
-
-        public Default(UUID connectionId) {
-            super(connectionId);
-        }
-    }
-
+public final class InvokeAccounting {
     private final UUID connectionId;
     private final Instant startTime;
     private Duration duration;

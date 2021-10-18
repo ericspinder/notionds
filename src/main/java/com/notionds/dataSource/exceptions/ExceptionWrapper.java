@@ -1,19 +1,18 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.ConnectionAction;
-
 public class ExceptionWrapper extends Exception implements NotionExceptionWrapper {
 
-    private final ConnectionAction connectionAction;
+    private final Recommendation recommendation;
 
-    public ExceptionWrapper(ConnectionAction connectionAction, Exception cause) {
-        super(connectionAction.getDescription(), cause, false, false);
-        this.connectionAction = connectionAction;
+    public ExceptionWrapper(String message, Recommendation recommendation, Exception cause) {
+        super(message, cause, false, false);
+        this.recommendation = recommendation;
     }
 
     /**
-     * This prevents a stack trace from being registered both for speed and because this wrapper
-     * @return
+     * Use of 'this' as the return prevents a stack trace from being registered.
+     * This is a wrapper and has nothing to do with the creation of the exception.
+     * @return this
      */
     @Override
     public synchronized Throwable fillInStackTrace() {
@@ -21,8 +20,8 @@ public class ExceptionWrapper extends Exception implements NotionExceptionWrappe
     }
 
     @Override
-    public ConnectionAction getRecommendation() {
-        return this.connectionAction;
+    public Recommendation getRecommendation() {
+        return this.recommendation;
     }
 
 

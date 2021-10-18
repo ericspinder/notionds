@@ -1,26 +1,28 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.ConnectionAction;
-
 import java.sql.SQLException;
 
 public class SqlExceptionWrapper extends SQLException implements NotionExceptionWrapper {
 
-    private final ConnectionAction connectionAction;
+    private final Recommendation recommendation;
 
-    public SqlExceptionWrapper(ConnectionAction connectionAction, SQLException cause) {
-        super(connectionAction.getDescription(), cause);
-        this.connectionAction = connectionAction;
+    public SqlExceptionWrapper(String message, SQLException cause, Recommendation recommendation) {
+        super(message, cause);
+        this.recommendation = recommendation;
     }
-
+    /**
+     * Use of 'this' as the return prevents a stack trace from being registered.
+     * This is a wrapper and has nothing to do with the creation of the exception.
+     * @return this
+     */
     @Override
     public synchronized Throwable fillInStackTrace() {
         return this;
     }
 
     @Override
-    public ConnectionAction getRecommendation() {
-        return this.connectionAction;
+    public Recommendation getRecommendation() {
+        return recommendation;
     }
 
 }

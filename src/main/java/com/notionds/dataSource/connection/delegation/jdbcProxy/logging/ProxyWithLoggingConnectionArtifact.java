@@ -29,8 +29,8 @@ public class ProxyWithLoggingConnectionArtifact<D, L extends ObjectProxyLogging>
             return super.invoke(proxy, m, args);
         }
         catch (Throwable throwable) {
-            if (throwable instanceof SqlExceptionWrapper) {
-                this.getDbLogging().exception((SqlExceptionWrapper) throwable, m, invokeAccounting);
+            if (throwable instanceof NotionExceptionWrapper) {
+                this.getDbLogging().exception((NotionExceptionWrapper) throwable, m, invokeAccounting);
             }
             throw throwable;
         }

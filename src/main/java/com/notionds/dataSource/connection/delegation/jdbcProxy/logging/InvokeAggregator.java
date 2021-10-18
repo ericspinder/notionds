@@ -1,14 +1,15 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
+import com.notionds.dataSource.EvictByLowCountMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class InvokeAggregator<IA extends InvokeAccounting, D> implements Comparable {
+public abstract class InvokeAggregator implements EvictByLowCountMap.EvictionByLowCountMember, Comparable {
 
-    public static class Default_intoLog<D> extends InvokeAggregator<InvokeAccounting.Default, D> {
+    public static class Default_intoLog extends InvokeAggregator {
 
         private static final Logger logger = LogManager.getLogger();
 
@@ -16,9 +17,10 @@ public abstract class InvokeAggregator<IA extends InvokeAccounting, D> implement
             super(method, message);
         }
 
-        public void addInvokeAccounting(InvokeAccounting.Default invokeAccounting) {
+        @Override
+        public void addInvokeAccounting(InvokeAccounting invokeAccounting) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(this.method.getDeclaringClass().getCanonicalName()).append(':').append(method).append('\n').append(invokeAccounting.toString());
+            stringBuilder.append(this.method.getDeclaringClass().getCanonicalName()).append(" : ").append(method).append(" : #").append(count.incrementAndGet()).append('\n').append(invokeAccounting.toString());
             logger.info(stringBuilder.toString());
         }
 
@@ -28,7 +30,7 @@ public abstract class InvokeAggregator<IA extends InvokeAccounting, D> implement
         }
     }
 
-    protected final AtomicLong count = new AtomicLong();
+    protected AtomicLong count = new AtomicLong();
     protected final Method method;
     protected final String description;
 
@@ -41,5 +43,8 @@ public abstract class InvokeAggregator<IA extends InvokeAccounting, D> implement
         return this.count.get();
     }
 
-    public abstract void addInvokeAccounting(IA invokeAccounting);
+    public void addInvokeAccounting(InvokeAccounting invokeAccounting) {
+        this.count.incrementAndGet();
+
+    }
 }

@@ -1,23 +1,23 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.exceptions.SqlExceptionWrapper;
+import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-public abstract class PreparedStatementLogging<O extends Options, A extends InvokeAccounting, G extends InvokeAggregator<A, D>, L extends InvokeLibrary<?,A, G, ?, ?, ?>, D> extends ObjectProxyLogging<O, A, G, L, D> {
+public abstract class PreparedStatementLogging<O extends Options, G extends InvokeAggregator, D> extends ObjectProxyLogging<O, G, D> {
 
-    public static class Default<D> extends PreparedStatementLogging<Options.Default, InvokeAccounting.Default, InvokeAggregator.Default_intoLog<D>, InvokeLibrary.Default, D> {
+    public static class Default<D> extends PreparedStatementLogging<Options.Default, InvokeAggregator.Default_intoLog, D> {
 
         public Default(UUID connectionId, String sql) {
-            super(Options.DEFAULT_INSTANCE, connectionId, InvokeLibrary.DEFAULT_INSTANCE, sql);
+            super(Options.DEFAULT_INSTANCE, connectionId, InvokeService.DEFAULT_INSTANCE, sql);
         }
 
         @Override
-        public InvokeAccounting.Default startInvoke(Method m, Object[] args) {
+        public InvokeAccounting startInvoke(Method m, Object[] args) {
             if (m.getName().startsWith("execute")) {
-                return this.invokeLibrary.newInvokeAccounting(this.connectionId);
+                return this.invokeService.newInvokeAccounting(this.connectionId);
             }
             else {
                 return null;
@@ -25,21 +25,21 @@ public abstract class PreparedStatementLogging<O extends Options, A extends Invo
         }
 
         @Override
-        public void exception(SqlExceptionWrapper sqlExceptionWrapper, Method method, String ) {
+        public void exception(NotionExceptionWrapper notionExceptionWrapper, Method method, InvokeAccounting invokeAccounting) {
 
         }
 
         @Override
-        public void endInvoke(Method m, Object[] args, InvokeAccounting.Default invokeAccounting) {
+        public void endInvoke(Method m, Object[] args, InvokeAccounting invokeAccounting) {
             if (m.getName().startsWith("execute") && invokeAccounting != null) {
-                this.invokeLibrary.populateAggregator(m, sql, invokeAccounting);
+                this.invokeService.populateAggregator(m, sql, invokeAccounting);
             }
         }
     }
     protected final String sql;
 
-    public PreparedStatementLogging(O options, UUID connectionId, L invokeLibrary, String sql) {
-        super(options, connectionId, invokeLibrary);
+    public PreparedStatementLogging(O options, UUID connectionId, InvokeService invokeService, String sql) {
+        super(options, connectionId, invokeService);
         this.sql = sql;
     }
 

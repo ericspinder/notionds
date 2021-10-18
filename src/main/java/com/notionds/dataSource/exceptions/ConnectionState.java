@@ -1,4 +1,4 @@
-package com.notionds.dataSource;
+package com.notionds.dataSource.exceptions;
 
 /**
  * copied from https://en.wikipedia.org/wiki/SQLSTATE
@@ -7,7 +7,7 @@ package com.notionds.dataSource;
  * Note that SQL class '46' has two different texts
  *
  */
-public enum SqlState {
+public enum ConnectionState {
     SqlState0("00000","S","000","(no subclass)", SqlClass.Success),
     SqlState1("01000", "W", "000", "(no subclass)", SqlClass.Warning),
     SqlState2("01001", "W", "001", "cursor operation conflict", SqlClass.Warning),
@@ -201,7 +201,7 @@ public enum SqlState {
     SqlState190("3B000","X", "000","(no subclass)", SqlClass.SavepointException),
     SqlState191("3B001","X", "001","invalid specification", SqlClass.SavepointException),
     SqlState192("3B002","X", "002","too many", SqlClass.SavepointException),
-    SqlState193("3C000","X", "000","(no subclass)", SqlClass.AmbiquousCursorName),
+    SqlState193("3C000","X", "000","(no subclass)", SqlClass.AmbiguousCursorName),
     SqlState194("3D000","X", "000","(no subclass)", SqlClass.InvalidCatalogName),
     SqlState195("3F000","X", "000","(no subclass)", SqlClass.InvalidSchemaName),
     SqlState196("40000","X", "000","(no subclass)", SqlClass.TransactionRollback),
@@ -302,13 +302,13 @@ public enum SqlState {
     SqlState291("HY108","X", "108","invalid cursor position" ,"SQL/CLI", SqlClass.CLI_SpecificCondition),
     SqlState292("HYC00","X", "C00","optional feature not implemented" ,"SQL/CLI", SqlClass.CLI_SpecificCondition);
     public enum SqlClass {
-        Success("00", "successful completion"),
-        Warning("01", "warning"),
+        Success("00", "successful completion", Recommendation.Nominal_Operation),
+        Warning("01", "warning", Recommendation.Nominal_Operation),
         NoData("02", "no data"),
         DynamicSqlError("07", "dynamic SQL error"),
         ConnectionException("08","connection exception"),
         TriggeredActionException("09", "triggered action exception"),
-        FeatureNotSupported("0A","feature not supported"),
+        FeatureNotSupported("0A","feature not supported", Recommendation.Version_Fail),
         InvalidTargetTypeSpecification("0D","invalid target type specification"),
         InvalidSchemaNameListSpecification("0E","invalid schema name list specification"),
         LocatorException("0F","locator exception"),
@@ -349,7 +349,7 @@ public enum SqlState {
         ExternalRoutineException("38","external routine exception"),
         ExternalRoutineInvocationException("39","external routine invocation exception"),
         SavepointException("3B","savepoint exception"),
-        AmbiquousCursorName("3C","ambiguous cursor name"),
+        AmbiguousCursorName("3C","ambiguous cursor name"),
         InvalidCatalogName("3D","invalid catalog name"),
         InvalidSchemaName("3F","invalid schema name"),
         TransactionRollback("40","transaction rollback"),
@@ -365,9 +365,14 @@ public enum SqlState {
 
         private final String code;
         private final String description;
+        private final Recommendation recommendation;
         SqlClass(String code, String description) {
+            this(code, description, Recommendation.Close_Closable);
+        }
+        SqlClass(String code, String description, Recommendation recommendation) {
             this.code = code;
             this.description = description;
+            this.recommendation = recommendation;
         }
         public String getCode() {
             return this.code;
@@ -383,10 +388,10 @@ public enum SqlState {
     private final String sqlPart;
     private final SqlClass sqlClass;
 
-    private SqlState(String code, String category, String subClass, String subClassText, SqlClass sqlClass) {
+    private ConnectionState(String code, String category, String subClass, String subClassText, SqlClass sqlClass) {
         this(code, category, subClass, subClassText, "", sqlClass);
     }
-    private SqlState(String code, String category, String subClass, String subClassText, String sqlPart, SqlClass sqlClass) {
+    private ConnectionState(String code, String category, String subClass, String subClassText, String sqlPart, SqlClass sqlClass) {
         this.code = code;
         this.category = category;
         this.subClass = subClass;

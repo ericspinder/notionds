@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.ConnectionAction;
+import com.notionds.dataSource.exceptions.Recommendation;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.AbstractConnectionWrapperFactory;
 import com.notionds.dataSource.exceptions.*;
@@ -156,8 +156,8 @@ public class ConnectionContainer<O extends Options,
         }
     }
 
-    public void reviewException(ConnectionArtifact_I connectionArtifact, ConnectionAction connectionAction) {
-        if (connectionAction.shouldClose()) {
+    public void reviewException(ConnectionArtifact_I connectionArtifact, Recommendation recommendation) {
+        if (recommendation.shouldClose()) {
             connectionArtifact.closeDelegate();
         }
     }

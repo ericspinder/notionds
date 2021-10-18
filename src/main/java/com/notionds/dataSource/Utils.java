@@ -1,9 +1,13 @@
 package com.notionds.dataSource;
 
+import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.InvokeAggregator;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -11,6 +15,10 @@ public class Utils {
 
     private static final String TYPE_NAME_PREFIX = "class ";
 
+    public static LinkedHashMap<String, InvokeAggregator> queue = new LinkedHashMap<String, InvokeAggregator>()
+    {
+
+    };
     public static String getClassName(Type type) {
         if (type==null) {
             return "";

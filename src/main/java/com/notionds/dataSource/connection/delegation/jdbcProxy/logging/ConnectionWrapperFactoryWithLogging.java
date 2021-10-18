@@ -12,24 +12,24 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 
-public class ConnectionWrapperFactoryWithLogging<O extends Options, A extends InvokeAccounting, L extends InvokeLibrary<?, A, ?, DL, SL, PL>, DL extends ObjectProxyLogging<?, ?, ?, ?>, SL extends StatementLogging<?, ?, ?, ?,?>, PL extends PreparedStatementLogging<?, ?, ?, ? ,?>> extends ConnectionWrapperFactory<O> {
+public class ConnectionWrapperFactoryWithLogging<O extends Options, DL extends ObjectProxyLogging<?, ?, ?>, SL extends StatementLogging<?, ?,?>, PL extends PreparedStatementLogging<?, ? ,?>> extends ConnectionWrapperFactory<O> {
 
     private static final Logger logger = LogManager.getLogger(ConnectionWrapperFactoryWithLogging.class);
 
     public static final ConnectionWrapperFactoryWithLogging.Default DEFAULT_INSTANCE = new ConnectionWrapperFactoryWithLogging.Default();
 
-    public static class Default extends ConnectionWrapperFactoryWithLogging<Options.Default, InvokeAccounting.Default, InvokeLibrary.Default, ObjectProxyLogging.Default<?>, StatementLogging.Default<?>, PreparedStatementLogging.Default<?>> {
+    public static class Default extends ConnectionWrapperFactoryWithLogging<Options.Default, ObjectProxyLogging.Default<?>, StatementLogging.Default<?>, PreparedStatementLogging.Default<?>> {
 
         public Default() {
-            super(Options.DEFAULT_INSTANCE, InvokeLibrary.DEFAULT_INSTANCE);
+            super(Options.DEFAULT_INSTANCE, InvokeService.DEFAULT_INSTANCE);
         }
     }
 
-    private final L invokeLibrary;
+    private final InvokeService invokeService;
 
-    public ConnectionWrapperFactoryWithLogging(O options, L invokeLibrary) {
+    public ConnectionWrapperFactoryWithLogging(O options, InvokeService invokeService) {
         super(options);
-        this.invokeLibrary = invokeLibrary;
+        this.invokeService = invokeService;
     }
 
 
@@ -38,13 +38,13 @@ public class ConnectionWrapperFactoryWithLogging<O extends Options, A extends In
         logger.debug("createProxyMember for " + delegate.getClass().getCanonicalName());
         Options.Option<Boolean> logNonExecute = this.options.get(Options.NotionDefaultBooleans.LogNonExecuteProxyMembers.getKey());
         if (delegate instanceof CallableStatement || delegate instanceof PreparedStatement) {
-            return new ProxyWithLoggingConnectionArtifact<D, PL>(connectionContainer, delegate, this.invokeLibrary.newPreparedStatementLogging(connectionContainer.containerId, (String) args[0]));
+            return new ProxyWithLoggingConnectionArtifact<D, PL>(connectionContainer, delegate, (PL) this.invokeService.newPreparedStatementLogging(connectionContainer.containerId, (String) args[0]));
         }
         else if (delegate instanceof Statement){
-            return new ProxyWithLoggingConnectionArtifact<D, SL>(connectionContainer, delegate, this.invokeLibrary.newStatementLogging(connectionContainer.containerId));
+            return new ProxyWithLoggingConnectionArtifact<D, SL>(connectionContainer, delegate, (SL) this.invokeService.newStatementLogging(connectionContainer.containerId));
         }
         else if (logNonExecute.getValue()) {
-            return new ProxyWithLoggingConnectionArtifact<D, DL>(connectionContainer, delegate, this.invokeLibrary.newObjectProxyLogging(connectionContainer.containerId));
+            return new ProxyWithLoggingConnectionArtifact<D, DL>(connectionContainer, delegate, (DL) this.invokeService.newObjectProxyLogging(connectionContainer.containerId));
         }
         else {
             return super.createProxyMember(connectionContainer, delegate, args);

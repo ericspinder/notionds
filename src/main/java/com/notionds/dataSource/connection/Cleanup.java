@@ -22,7 +22,7 @@ public abstract class Cleanup<O extends Options, P extends ConnectionPool> imple
 
     public static final class Default extends Cleanup<Options.Default, ConnectionPool.Default> {
         public Default() {
-            super(Options.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE);
+            super(Options.DEFAULT_OPTIONS_INSTANCE, ConnectionPool.DEFAULT_INSTANCE);
         }
     }
 
@@ -43,6 +43,7 @@ public abstract class Cleanup<O extends Options, P extends ConnectionPool> imple
     public P getConnectionPool() {
         return this.connectionPool;
     }
+
 
     /**
      *

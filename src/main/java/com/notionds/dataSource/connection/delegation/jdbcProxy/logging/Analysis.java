@@ -1,26 +1,25 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
+import com.notionds.dataSource.EvictByLowCountMap;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class InvokeService<O extends Options, G extends InvokeAggregator, X extends ObjectProxyLogging<?,?,?>, S extends StatementLogging<?,?,?>, P extends PreparedStatementLogging<?,?,?>> {
+public abstract class Analysis<O extends Options, G extends InvokeAggregator, X extends ObjectProxyLogging<?,?,?>, S extends StatementLogging<?,?,?>, P extends PreparedStatementLogging<?,?,?>> {
 
     public static final Default DEFAULT_INSTANCE = new Default();
 
-    public static class Default extends InvokeService<Options.Default, InvokeAggregator.Default_intoLog, ObjectProxyLogging.Default<?>, StatementLogging.Default<?>, PreparedStatementLogging.Default<?>> {
+    public static class Default extends Analysis<Options.Default, InvokeAggregator.Default_intoLog, ObjectProxyLogging.Default<?>, StatementLogging.Default<?>, PreparedStatementLogging.Default<?>> {
 
         public Default() {
-            super(Options.DEFAULT_INSTANCE);
+            super(Options.DEFAULT_OPTIONS_INSTANCE);
         }
 
 
         @Override
-        protected <D> InvokeAggregator.Default_intoLog newInvokeAggregator(Method method, String description) {
+        protected InvokeAggregator.Default_intoLog newInvokeAggregator(Method method, String description) {
             return new InvokeAggregator.Default_intoLog(method, description);
         }
 
@@ -63,23 +62,33 @@ public abstract class InvokeService<O extends Options, G extends InvokeAggregato
     }
 
     protected final O options;
-    protected final Map<String, G> invokeAggregators = new ConcurrentHashMap<>();
+    protected final EvictByLowCountMap<String, G> sqlExceptionAggregators;
+    protected final EvictByLowCountMap<String, G> nominalOperationAggregators;
 
     @SuppressWarnings("unchecked")
-    public InvokeService(O options) {
+    public Analysis(O options) {
         this.options = options;
+        sqlExceptionAggregators = new EvictByLowCountMap<>((Integer) options.get(Options.NotionDefaultIntegers.Advice_Exception_Aggregator_Map_Max_Size.getKey()).getValue());
+        nominalOperationAggregators = new EvictByLowCountMap<>((Integer) options.get(Options.NotionDefaultIntegers.Advice_Nominal_Aggregator_Map_Max_Size.getKey()).getValue());
+    }
+
+    public final EvictByLowCountMap getSqlExceptionAggregators() {
+        return this.sqlExceptionAggregators;
+    }
+    public final EvictByLowCountMap getNominalOperationAggregators() {
+        return this.nominalOperationAggregators;
     }
 
 
-    protected abstract <D> G newInvokeAggregator(Method method, String description);
+    protected abstract G newInvokeAggregator(Method method, String description);
     protected abstract String makeKey(Method method, String description);
     protected abstract String makeKey(NotionExceptionWrapper notionExceptionWrapper);
     public void populateAggregator(Method method, String description, InvokeAccounting invokeAccounting) {
-        G ig = this.invokeAggregators.getOrDefault( makeKey(method, description), this.newInvokeAggregator(method, description));
+        G ig = this.nominalOperationAggregators.getOrDefault( makeKey(method, description), this.newInvokeAggregator(method, description));
         ig.addInvokeAccounting(invokeAccounting);
     }
     public void populateAggregator(NotionExceptionWrapper notionExceptionWrapper, Method method, InvokeAccounting invokeAccounting) {
-        G ig = this.invokeAggregators.getOrDefault(makeKey(notionExceptionWrapper), this.newInvokeAggregator(method, ""));
+        G ig = this.sqlExceptionAggregators.getOrDefault(makeKey(notionExceptionWrapper), this.newInvokeAggregator(method, notionExceptionWrapper.getCause().getClass().getCanonicalName()));
         ig.addInvokeAccounting(invokeAccounting);
     }
     public  abstract InvokeAccounting newInvokeAccounting(UUID connectionId);

@@ -12,7 +12,7 @@ import java.util.concurrent.locks.StampedLock;
 public abstract class Options {
 
     private static final Logger logger = LogManager.getLogger(Options.class);
-    public static final Options.Default DEFAULT_INSTANCE = new Default();
+    public static final Options.Default DEFAULT_OPTIONS_INSTANCE = new Default();
 
 
     public interface Option<O> {
@@ -20,13 +20,13 @@ public abstract class Options {
         O getValue();
         String getDescription();
     }
-    public enum NotionDefaultStrings implements Option<String>  {
-
+    public enum NotionDefaultString implements Option<String>  {
+        Management_JMX("com.notionds.jmx.management", "JMX management mBean Implementation", "com.notionds.dataSource.jmx.NotionDsBean"),
         ;
         private final String key;
         private final String description;
         private final String defaultValue;
-        NotionDefaultStrings(String key, String description, String defaultValue) {
+        NotionDefaultString(String key, String description, String defaultValue) {
             this.key = key;
             this.description = description;
             this.defaultValue = defaultValue;
@@ -43,8 +43,9 @@ public abstract class Options {
     }
     public enum NotionDefaultIntegers implements Option<Integer>  {
         Advice_Exception_Aggregator_Map_Max_Size("com.notionds.advice.exception.aggregatorMap.maxSize", "The number of ", 1000),
-        ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5),
-        ConnectionAnalysis_Max_Normal_Seconds("com.notion.connectionAnalysis.maxNormalSeconds", "The maximum time of an operation before it's reported as abnormal", 10),
+        Advice_Nominal_Aggregator_Map_Max_Size("com.notionds.advice.nominal.aggregatorMap.maxSize", "The number of ", 1000),
+        //ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5),
+        //ConnectionAnalysis_Max_Normal_Seconds("com.notion.connectionAnalysis.maxNormalSeconds", "The maximum time of an operation before it's reported as abnormal", 10),
         Connection_Max_Wait_On_Create("com.notion.connection.max_weight_on_create", "The maximum amount of time in milliseconds until a RuntimeException is thrown to end", 1000),
         Connection_Max_Queue_Size("com.notion.connection.Max_Queue_Size", "Max Connection Queue size", 50),
         Connections_Min_Active("com.notion.connection.min_queue_size", "",10),
@@ -68,8 +69,9 @@ public abstract class Options {
         }
     }
     public enum NotionDefaultDuration implements Option<Duration> {
+
         ConnectionTimeoutInPool("com.notionds.connections_timeout_in_pool", "Amount of time connections will wait in the pool before reaping excess of the number of active in pool connections", Duration.of(20, ChronoUnit.MINUTES)),
-        ConnectionTimeoutInPool_Cool_Down("com.notionds.connections_timeout_in_pool_cool_down","Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections", Duration.of(1, ChronoUnit.MINUTES)),
+        ConnectionTimeoutInPool_Cool_Down("com.notionds.connections_timeout_in_pool_cool_down","Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections", Duration.of(60, ChronoUnit.SECONDS)),
         ConnectionTimeoutOnLoan("com.notionds.connection_timeout_on_loan","Default max time before connection is automatically closed, breaking loaned connections. Anything but a positive amount disables that function", Duration.of(3, ChronoUnit.MINUTES)),
         ConnectionMaxLifetime("com.notionds.connection_timeout_max_lifetime","Max lifetime of a connection", Duration.of(2, ChronoUnit.HOURS))
         ;
@@ -131,7 +133,7 @@ public abstract class Options {
             this.setDefaultValues(stringOptionsLoad);
         }
         else {
-            this.setDefaultValues(NotionDefaultStrings.values());
+            this.setDefaultValues(NotionDefaultString.values());
         }
         if (integerOptionsLoad != null) {
             this.setDefaultValues(integerOptionsLoad);
@@ -161,7 +163,7 @@ public abstract class Options {
             }
             catch(ClassCastException castException) {
                 castException.printStackTrace();
-                throw new NotionStartupException(NotionStartupException.Type.NullPointerOnGeneric, Options.class);
+                throw new NotionStartupException(NotionStartupException.Type.BadCastToGeneric, Options.class);
             }
         }
         throw new NotionStartupException(NotionStartupException.Type.MissingDefaultValue, Options.class);

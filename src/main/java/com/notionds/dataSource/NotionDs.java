@@ -36,39 +36,61 @@ public abstract class NotionDs<O extends Options, A extends Advice, P extends Co
     public interface ConnectionSupplier_I {
         Connection getConnection() throws SQLException;
     }
+    private static StampedLock gate = new StampedLock();
+
     public static final class Default extends NotionDs<Options.Default, Advice.Default<?>, ConnectionPool.Default, ConnectionWrapperFactory<?>, Cleanup.Default> {
 
         public Default(ConnectionSupplier_I connectionSupplier) {
-            super(Options.DEFAULT_INSTANCE, ConnectionWrapperFactory.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE, new Advice.Default<>(connectionSupplier), Cleanup.DEFAULT_INSTANCE, connectionSupplier, new ForkJoinPool(10));
+            super(Options.DEFAULT_OPTIONS_INSTANCE, ConnectionWrapperFactory.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE, new Advice.Default<>(connectionSupplier), Cleanup.DEFAULT_INSTANCE, connectionSupplier, new ForkJoinPool(10));
         }
     }
     public static final class Default_withLogging extends NotionDs<Options.Default, Advice.Default<?>, ConnectionPool.Default, ConnectionWrapperFactoryWithLogging<?,?,?,?>, Cleanup.Default> {
 
         public Default_withLogging(ConnectionSupplier_I connectionSupplier) {
-            super(Options.DEFAULT_INSTANCE, ConnectionWrapperFactoryWithLogging.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE, new Advice.Default<>(connectionSupplier), Cleanup.DEFAULT_INSTANCE, connectionSupplier, new ForkJoinPool(10));
+            super(Options.DEFAULT_OPTIONS_INSTANCE, ConnectionWrapperFactoryWithLogging.DEFAULT_INSTANCE, ConnectionPool.DEFAULT_INSTANCE, new Advice.Default<>(connectionSupplier), Cleanup.DEFAULT_INSTANCE, connectionSupplier, new ForkJoinPool(10));
         }
     }
 
     public NotionDs(O options, W delegation, P connectionPool, A advice, C cleanup, ConnectionSupplier_I connectionSupplier, Executor executor) {
-        this.options = options;
-        this.delegation = delegation;
-        this.connectionPool = connectionPool;
-        this.advice = advice;
-        this.cleanup = cleanup;
-        this.connectionSupplier = connectionSupplier;
-        this.executor = executor;
+        long lock = gate.writeLock();
+        try {
+            this.options = options;
+            this.delegation = delegation;
+            this.connectionPool = connectionPool;
+            this.advice = advice;
+            this.cleanup = cleanup;
+            this.connectionSupplier = connectionSupplier;
+            this.executor = executor;
+        }
+        finally {
+            gate.unlockWrite(lock);
+        }
     }
 
+    /**
+     * Add a connection supplier to the failover stack
+     * @param failoverConnectionSupplier
+     */
     public void addFailover(ConnectionSupplier_I failoverConnectionSupplier) {
         this.failoverConnectionSuppliers.offer(failoverConnectionSupplier);
     }
 
-    public void doFailover() {
+    /**
+     * Updates the active connection supplier
+     * @param burn clears connections which may still be active from previous connection supplier
+     */
+    public void doFailover(Boolean burn) {
         long newConnectionLock = newConnectionGate.writeLock();
         try {
             ConnectionSupplier_I failoverConnection = this.failoverConnectionSuppliers.poll();
             if (failoverConnection != null) {
                 this.connectionSupplier = failoverConnection;
+                if (burn) {
+                    this.connectionPool.drainAllCurrentConnections();
+                }
+            }
+            else {
+                throw new NotionStartupException(NotionStartupException.Type.No_Failover_Available, this.getClass());
             }
         }
         finally {
@@ -122,6 +144,13 @@ public abstract class NotionDs<O extends Options, A extends Advice, P extends Co
         CompletableFuture<ConnectionArtifact_I> future = new CompletableFuture<>();
         future.complete(this.newPopulatedConnectionContainer());
         return future;
+    }
+    public P getConnectionPool() {
+        return connectionPool;
+    }
+
+    public C getCleanup() {
+        return cleanup;
     }
 }
 

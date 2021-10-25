@@ -1,9 +1,8 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.EvictByLowCountMap;
 import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.InvokeAggregator;
+import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,16 +10,16 @@ import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
-public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSupplier_I, G extends InvokeAggregator> {
+public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSupplier_I> {
 
     private static final Logger logger = LogManager.getLogger(Advice.class);
 
-    public static class Default<S extends NotionDs.ConnectionSupplier_I> extends Advice<Options.Default, S, InvokeAggregator.Default_intoLog> {
+    public static class Default<S extends NotionDs.ConnectionSupplier_I> extends Advice<Options.Default, S> {
 
         private static final Logger logger = LogManager.getLogger(Default.class);
 
         public Default(S connectionSupplier) {
-            super(Options.DEFAULT_INSTANCE, connectionSupplier);
+            super(Options.DEFAULT_OPTIONS_INSTANCE, connectionSupplier);
         }
 
         @Override
@@ -50,11 +49,9 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
 
     protected final O options;
     protected S connectionSupplier;
-    protected final EvictByLowCountMap<String, G> sqlExceptionAggregator;
 
     public Advice(O options, S connectionSupplier) {
         this.options = options;
-        sqlExceptionAggregator = new EvictByLowCountMap<>((Integer) options.get(Options.NotionDefaultIntegers.Advice_Exception_Aggregator_Map_Max_Size.getKey()).getValue());
         this.connectionSupplier = connectionSupplier;
     }
 
@@ -63,7 +60,7 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
     protected abstract Recommendation parseIOException(IOException ioException);
     protected abstract Recommendation parseException(Exception exception);
 
-    public SqlExceptionWrapper adviseSqlException(SQLException sqlException) {
+    public SqlExceptionWrapper adviseSqlException(SQLException sqlException, ConnectionArtifact_I connectionArtifact) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped SQLException, recommendation=");
         try {
@@ -78,7 +75,7 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
             }
         }
     }
-    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
+    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, ConnectionArtifact_I connectionArtifact) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped SQLClientInfoException, recommendation=");
         try {
@@ -93,7 +90,7 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
             }
         }
     }
-    public IoExceptionWrapper adviseIoException(IOException ioException) {
+    public IoExceptionWrapper adviseIoException(IOException ioException, ConnectionArtifact_I connectionArtifact) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped IOException, recommendation=");
         try {
@@ -108,7 +105,7 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
             }
         }
     }
-    public ExceptionWrapper adviseException(Exception exception) {
+    public ExceptionWrapper adviseException(Exception exception, ConnectionArtifact_I connectionArtifact) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped Exception, recommendation=");
         try {

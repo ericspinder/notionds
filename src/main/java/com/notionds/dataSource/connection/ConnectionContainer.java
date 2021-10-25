@@ -29,7 +29,6 @@ public class ConnectionContainer<O extends Options,
     private final O options;
     public final UUID containerId = UUID.randomUUID();
     public final Instant createInstant = Instant.now();
-    private Instant lastCheck;
     private final A exceptionAdvice;
     private final W connectionWrapper;
     private final C cleanup;
@@ -51,16 +50,14 @@ public class ConnectionContainer<O extends Options,
             this.cleanup.timeoutCleanup.put(this, Instant.now().plus(connectionTimeout) );
         }
         this.currentState = State.Open;
-        this.lastCheck = Instant.now();
         return (Connection) this.connectionSoftReference.get();
     }
     public boolean reuse(ConnectionArtifact_I artifact) {
         logger.debug("checking if to reuse connection Artifact=" + artifact.getArtifactId());
+        this.cleanup.timeoutCleanup.remove(this);
         if (this.currentState.equals(State.Open) && artifact.equals(this.connectionSoftReference.get())) {
+            this.closeChildren();
             if (this.connectionChildren.isEmpty()) {
-                this.lastCheck = Instant.now();
-                this.closeChildren();
-                this.cleanup.timeoutCleanup.remove(this);
                 return true;
             } else {
                 logger.error("Child connection artifacts will not be reused " + this.connectionChildren.size());
@@ -76,25 +73,25 @@ public class ConnectionContainer<O extends Options,
     }
 
     public SQLException handleSQLException(SQLException sqlException, ConnectionArtifact_I delegatedInstance) {
-        SqlExceptionWrapper sqlExceptionWrapper = this.exceptionAdvice.adviseSqlException(sqlException);
+        SqlExceptionWrapper sqlExceptionWrapper = this.exceptionAdvice.adviseSqlException(sqlException, delegatedInstance);
         this.reviewException(delegatedInstance, sqlExceptionWrapper.getRecommendation());
         return sqlExceptionWrapper;
     }
 
     public SQLClientInfoException handleSQLClientInfoException(SQLClientInfoException sqlClientInfoException, ConnectionArtifact_I delegatedInstance) {
-        SqlClientInfoExceptionWrapper sqlClientInfoExceptionWrapper = this.exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException);
+        SqlClientInfoExceptionWrapper sqlClientInfoExceptionWrapper = this.exceptionAdvice.adviseSQLClientInfoException(sqlClientInfoException, delegatedInstance);
         this.reviewException(delegatedInstance, sqlClientInfoExceptionWrapper.getRecommendation());
         return sqlClientInfoExceptionWrapper;
     }
 
     public IOException handleIoException(IOException ioException, ConnectionArtifact_I delegatedInstance) {
-        IoExceptionWrapper ioExceptionWrapper = this.exceptionAdvice.adviseIoException(ioException);
+        IoExceptionWrapper ioExceptionWrapper = this.exceptionAdvice.adviseIoException(ioException, delegatedInstance);
         this.reviewException(delegatedInstance, ioExceptionWrapper.getRecommendation());
         return ioExceptionWrapper;
     }
 
     public Exception handleException(Exception exception, ConnectionArtifact_I delegatedInstance) {
-        ExceptionWrapper exceptionWrapper = this.exceptionAdvice.adviseException(exception);
+        ExceptionWrapper exceptionWrapper = this.exceptionAdvice.adviseException(exception, delegatedInstance);
         this.reviewException(delegatedInstance, exceptionWrapper.getRecommendation());
         return exceptionWrapper;
     }

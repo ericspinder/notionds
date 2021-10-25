@@ -11,64 +11,78 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
 
+import static com.notionds.dataSource.Options.NotionDefaultDuration.*;
+import static com.notionds.dataSource.Options.NotionDefaultIntegers.*;
+import static com.notionds.dataSource.Options.*;
 public abstract class ConnectionPool<O extends Options> {
 
-    public static final ConnectionPool.Default DEFAULT_INSTANCE = new Default(new ForkJoinPool(10), new ForkJoinPool(10));
+    public static final ConnectionPool.Default DEFAULT_INSTANCE = new Default(new ForkJoinPool(10));
 
     @SuppressWarnings("unchecked")
     public static class Default extends ConnectionPool {
-        public Default(Executor executor1, Executor executor2) {
+        public Default(Executor connectionFutures) {
             super(
-                    Options.DEFAULT_INSTANCE,
-                    executor1,
-                    executor2,
-                    (Duration) Options.DEFAULT_INSTANCE.get(Options.NotionDefaultDuration.ConnectionMaxLifetime.getKey()).getValue(),
-                    (Duration) Options.DEFAULT_INSTANCE.get(Options.NotionDefaultDuration.ConnectionTimeoutOnLoan.getKey()).getValue(),
-                    (Duration) Options.DEFAULT_INSTANCE.get(Options.NotionDefaultDuration.ConnectionTimeoutInPool.getKey()).getValue(),
-                    (int) Options.DEFAULT_INSTANCE.get(Options.NotionDefaultIntegers.Connection_Max_Wait_On_Create.getKey()).getValue(),
-                    (int) Options.DEFAULT_INSTANCE.get(Options.NotionDefaultIntegers.Connection_Max_Queue_Size.getKey()).getValue(),
-                    (int) Options.DEFAULT_INSTANCE.get(Options.NotionDefaultIntegers.Connections_Min_Active.getKey()).getValue()
+                    DEFAULT_OPTIONS_INSTANCE,
+                    connectionFutures,
+                    (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionMaxLifetime.getKey()).getValue(),
+                    (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionTimeoutOnLoan.getKey()).getValue(),
+                    (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionTimeoutInPool.getKey()).getValue(),
+                    (int) DEFAULT_OPTIONS_INSTANCE.get(Connection_Max_Queue_Size.getKey()).getValue(),
+                    (int) DEFAULT_OPTIONS_INSTANCE.get(Connections_Min_Active.getKey()).getValue()
             );
         }
-
     }
     private static final Logger log = LogManager.getLogger();
     protected final O options;
-    private final Executor executor1;
-    private final Executor executor2;
-    private final Duration maxConnectionLifetime;
-    private final Duration timeoutOnLoan_default;
-    private final Duration timeoutInPool;
-    private final long millis;
-    private final int maxQueueSize;
-    private final int minActiveConnections;
+    private final Executor connectionFutures;
+    /**
+     * The max time a connection will be allowed to stay active.
+     */
+    private Duration maxConnectionLifetime;
+    /**
+     * Default timeout when loaned out
+     */
+    private Duration timeoutOnLoan_default;
+    /**
+     * This is the length of time a client will wait for a connection before erroring out
+     * The Duration is split into TimeUnits for efficient use in the poll method
+     */
+    private long connection_retrieve_millis;
+    private final TimeUnit connection_retrieve_time_unit = TimeUnit.MILLISECONDS;
+    /**
+     * Max number of connections allowed, this is not a hard limit
+     */
+    private int maxTotalAllowedConnections;
+    /**
+     * The number of connections the system will attempt to keep in absence of breaching the maximum
+     */
+    private int minActiveConnections;
     /**
      * Holds the ready connection objects, wrapped and active
      */
     private final BlockingQueue<ConnectionArtifact_I> connectionQueue = new LinkedBlockingQueue<>();
     /**
-     * The loaned connections are held weakly and will drop out when garbage collected.
+     * The loaned connections are held weakly and will drop out when garbage collected. They will be sent to a
+     * referenceQueue in the Cleanup class when ready
      */
     private final WeakHashMap<ConnectionArtifact_I, Instant> loanedConnections = new WeakHashMap<>();
 
-    public ConnectionPool(O options, Executor executor1, Executor executor2, Duration maxConnectionLifetime, Duration timeoutOnLoan_default, Duration timeoutInPool, long millis, int maxQueueSize, int minActiveConnections) {
+    public ConnectionPool(O options, Executor connectionFutures, Duration maxConnectionLifetime, Duration timeoutOnLoan_default, Duration connection_retrieve, int maxTotalAllowedConnections, int minActiveConnections) {
         this.options = options;
-        this.executor1 = executor1;
-        this.executor2 = executor2;
+        this.connectionFutures = connectionFutures;
         this.maxConnectionLifetime = maxConnectionLifetime;
         this.timeoutOnLoan_default = timeoutOnLoan_default;
-        this.timeoutInPool = timeoutInPool;
-        this.millis = millis;
-        this.maxQueueSize = maxQueueSize;
+        this.connection_retrieve_millis = connection_retrieve_time_unit.convert(connection_retrieve);
+        this.maxTotalAllowedConnections = maxTotalAllowedConnections;
         this.minActiveConnections = minActiveConnections;
     }
 
     public ConnectionArtifact_I getConnection(Supplier<ConnectionArtifact_I> newConnectionArtifactSupplier) {
-        if (loanedConnections.size() < (maxQueueSize + minActiveConnections) && connectionQueue.size() < minActiveConnections) {
+        if (loanedConnections.size() < (maxTotalAllowedConnections + minActiveConnections) && connectionQueue.size() < minActiveConnections) {
             addConnectionFutures(newConnectionArtifactSupplier,minActiveConnections - connectionQueue.size());
         }
         try {
-            ConnectionArtifact_I connection = connectionQueue.poll(millis, TimeUnit.MILLISECONDS);
+            ConnectionArtifact_I connection = connectionQueue.poll(connection_retrieve_millis, connection_retrieve_time_unit);
             loanedConnections.put(connection, Instant.now());
             return connection;
         } catch (InterruptedException e) {
@@ -79,7 +93,9 @@ public abstract class ConnectionPool<O extends Options> {
 
     public boolean addConnection(ConnectionArtifact_I added, boolean returned) {
         if (added.getConnectionMain().getConnection().equals(added)) {
+            //This checks if the
             if (returned) {
+
                 this.loanedConnections.remove(added);
                 if (added.getConnectionMain().reuse(added)) {
                     added.getConnectionMain().currentState = State.Pooled;
@@ -108,21 +124,66 @@ public abstract class ConnectionPool<O extends Options> {
 
     public void addConnectionFutures(Supplier<ConnectionArtifact_I> newConnectionSupplier, int number) {
         if (number > 0) {
-            CompletableFuture.supplyAsync(() -> {
-                List<CompletableFuture<Boolean>> futures = new ArrayList<>();
-                for (int i = 0; i < number; i++) {
-                    futures.add(CompletableFuture.supplyAsync(() -> this.addConnection(newConnectionSupplier.get(), false), executor2));
-                }
-                return futures;
-            }, executor1);
+            for (int i = 0; i < number; i++) {
+                CompletableFuture.supplyAsync(() -> this.addConnection(newConnectionSupplier.get(), false), connectionFutures);
+            }
         }
         else {
             log.info("This sort of threading failure should be rare overall, maybe?");
         }
     }
     public void addConnectionFuture(ConnectionArtifact_I added, boolean returned) {
-        CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(()-> this.addConnection(added, returned), executor2);
-        return;
+        CompletableFuture.supplyAsync(()-> this.addConnection(added, returned), connectionFutures);
     }
 
+    /**
+     * Drains the current connection pool and marks them all loaned to be close when no longer in use, rather than returned to the pool.
+     */
+    public void drainAllCurrentConnections() {
+        List<ConnectionArtifact_I> drain = new ArrayList<>();
+        this.connectionQueue.drainTo(drain);
+        this.loanedConnections.keySet().stream().forEach((ConnectionArtifact_I loaned) -> loaned.getConnectionMain().currentState = State.Empty);
+        drain.forEach((ConnectionArtifact_I artifactI) -> artifactI.closeDelegate());
+
+    }
+
+    public Duration getMaxConnectionLifetime() {
+        return maxConnectionLifetime;
+    }
+
+    public void setMaxConnectionLifetime(Duration maxConnectionLifetime) {
+        this.maxConnectionLifetime = maxConnectionLifetime;
+    }
+
+    public Duration getTimeoutOnLoan_default() {
+        return timeoutOnLoan_default;
+    }
+
+    public void setTimeoutOnLoan_default(Duration timeoutOnLoan_default) {
+        this.timeoutOnLoan_default = timeoutOnLoan_default;
+    }
+
+    public Duration getConnection_retrieveTimeout() {
+        return Duration.of(connection_retrieve_millis, connection_retrieve_time_unit.toChronoUnit());
+    }
+
+    public void setConnection_retrieveTimeout(Duration connection_retrieveTimeout) {
+        this.connection_retrieve_time_unit.convert(connection_retrieveTimeout);
+    }
+
+    public int getMaxTotalAllowedConnections() {
+        return maxTotalAllowedConnections;
+    }
+
+    public void setMaxTotalAllowedConnections(int maxTotalAllowedConnections) {
+        this.maxTotalAllowedConnections = maxTotalAllowedConnections;
+    }
+
+    public int getMinActiveConnections() {
+        return minActiveConnections;
+    }
+
+    public void setMinActiveConnections(int minActiveConnections) {
+        this.minActiveConnections = minActiveConnections;
+    }
 }

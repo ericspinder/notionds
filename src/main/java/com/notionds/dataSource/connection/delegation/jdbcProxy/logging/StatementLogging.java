@@ -12,18 +12,18 @@ public class StatementLogging<O extends Options, G extends InvokeAggregator, D> 
     public static class Default<D> extends StatementLogging<Options.Default, InvokeAggregator.Default_intoLog, D> {
 
         public Default(UUID connectionId) {
-            super(Options.DEFAULT_INSTANCE, connectionId, InvokeService.DEFAULT_INSTANCE);
+            super(Options.DEFAULT_OPTIONS_INSTANCE, connectionId, Analysis.DEFAULT_INSTANCE);
         }
     }
 
-    public StatementLogging(O options, UUID connectionId, InvokeService invokeService) {
-        super(options, connectionId, invokeService);
+    public StatementLogging(O options, UUID connectionId, Analysis analysis) {
+        super(options, connectionId, analysis);
     }
 
     @Override
     public InvokeAccounting startInvoke(Method m, Object[] args) {
         if (m.getName().startsWith("execute")) {
-            return this.invokeService.newInvokeAccounting(this.connectionId);
+            return this.analysis.newInvokeAccounting(this.connectionId);
         }
         else {
             return null;
@@ -32,17 +32,17 @@ public class StatementLogging<O extends Options, G extends InvokeAggregator, D> 
 
     @Override
     public void exception(NotionExceptionWrapper notionExceptionWrapper, Method method, InvokeAccounting invokeAccounting) {
-        this.invokeService.populateAggregator(notionExceptionWrapper, method, invokeAccounting);
+        this.analysis.populateAggregator(notionExceptionWrapper, method, invokeAccounting);
     }
 
     @Override
     public void endInvoke(Method m, Object[] args, InvokeAccounting invokeAccounting) {
         if (m.getName().startsWith("execute")) {
             if (args.length > 0 && args[0] instanceof String) {
-                this.invokeService.populateAggregator(m, (String) args[0], invokeAccounting);
+                this.analysis.populateAggregator(m, (String) args[0], invokeAccounting);
             }
             else {
-                this.invokeService.populateAggregator(m, "unexplained", invokeAccounting);
+                this.analysis.populateAggregator(m, "black swan", invokeAccounting);
             }
         }
     }

@@ -11,32 +11,32 @@ public abstract class ObjectProxyLogging<O extends Options, G extends InvokeAggr
     public static class Default<D> extends ObjectProxyLogging<Options.Default, InvokeAggregator.Default_intoLog, D> {
 
         public Default(final UUID connectionId) {
-            super(Options.DEFAULT_INSTANCE, connectionId, InvokeService.DEFAULT_INSTANCE);
+            super(Options.DEFAULT_OPTIONS_INSTANCE, connectionId, Analysis.DEFAULT_INSTANCE);
         }
         @Override
         public InvokeAccounting startInvoke(Method m, Object[] args) {
-            return  invokeService.newInvokeAccounting(connectionId);
+            return  analysis.newInvokeAccounting(connectionId);
         }
 
         @Override
         public void exception(NotionExceptionWrapper notionExceptionWrapper, Method method, InvokeAccounting invokeAccounting) {
-            invokeService.populateAggregator(notionExceptionWrapper, method, invokeAccounting);
+            analysis.populateAggregator(notionExceptionWrapper, method, invokeAccounting);
         }
 
         @Override
         public void endInvoke(Method m, Object[] args, InvokeAccounting invokeAccounting) {
-            invokeService.populateAggregator(m,  "", invokeAccounting);
+            analysis.populateAggregator(m,  "", invokeAccounting);
         }
     }
 
     protected final UUID connectionId;
     protected final O options;
-    protected final InvokeService invokeService;
+    protected final Analysis analysis;
 
-    public ObjectProxyLogging(O options, final UUID connectionId, InvokeService invokeService) {
+    public ObjectProxyLogging(O options, final UUID connectionId, Analysis analysis) {
         this.options = options;
         this.connectionId = connectionId;
-        this.invokeService = invokeService;
+        this.analysis = analysis;
     }
     abstract InvokeAccounting startInvoke(Method m, Object[] args);
 

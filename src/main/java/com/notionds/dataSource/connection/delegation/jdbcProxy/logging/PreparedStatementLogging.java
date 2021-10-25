@@ -11,13 +11,13 @@ public abstract class PreparedStatementLogging<O extends Options, G extends Invo
     public static class Default<D> extends PreparedStatementLogging<Options.Default, InvokeAggregator.Default_intoLog, D> {
 
         public Default(UUID connectionId, String sql) {
-            super(Options.DEFAULT_INSTANCE, connectionId, InvokeService.DEFAULT_INSTANCE, sql);
+            super(Options.DEFAULT_OPTIONS_INSTANCE, connectionId, Analysis.DEFAULT_INSTANCE, sql);
         }
 
         @Override
         public InvokeAccounting startInvoke(Method m, Object[] args) {
             if (m.getName().startsWith("execute")) {
-                return this.invokeService.newInvokeAccounting(this.connectionId);
+                return this.analysis.newInvokeAccounting(this.connectionId);
             }
             else {
                 return null;
@@ -32,14 +32,14 @@ public abstract class PreparedStatementLogging<O extends Options, G extends Invo
         @Override
         public void endInvoke(Method m, Object[] args, InvokeAccounting invokeAccounting) {
             if (m.getName().startsWith("execute") && invokeAccounting != null) {
-                this.invokeService.populateAggregator(m, sql, invokeAccounting);
+                this.analysis.populateAggregator(m, sql, invokeAccounting);
             }
         }
     }
     protected final String sql;
 
-    public PreparedStatementLogging(O options, UUID connectionId, InvokeService invokeService, String sql) {
-        super(options, connectionId, invokeService);
+    public PreparedStatementLogging(O options, UUID connectionId, Analysis analysis, String sql) {
+        super(options, connectionId, analysis);
         this.sql = sql;
     }
 

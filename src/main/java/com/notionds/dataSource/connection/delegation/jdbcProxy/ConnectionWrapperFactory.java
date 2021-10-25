@@ -21,7 +21,7 @@ public class ConnectionWrapperFactory<O extends Options> extends AbstractConnect
 
     private static Logger logger = LogManager.getLogger(ConnectionWrapperFactory.class);
 
-    public static final ConnectionWrapperFactory<Options.Default> DEFAULT_INSTANCE = new ConnectionWrapperFactory<>(Options.DEFAULT_INSTANCE);
+    public static final ConnectionWrapperFactory<Options.Default> DEFAULT_INSTANCE = new ConnectionWrapperFactory<>(Options.DEFAULT_OPTIONS_INSTANCE);
 
     public ConnectionWrapperFactory(O options) {
         super(options);

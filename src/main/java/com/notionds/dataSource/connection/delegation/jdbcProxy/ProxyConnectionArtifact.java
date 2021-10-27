@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
 import com.notionds.dataSource.connection.Cleanup;
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 
 import java.io.IOException;
@@ -16,10 +16,10 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
 
     private UUID artifactId = UUID.randomUUID();
     protected final D delegate;
-    protected final ConnectionContainer connectionContainer;
+    protected final Container container;
 
-    public ProxyConnectionArtifact(ConnectionContainer<?,?,?,?> connectionContainer, D delegate) {
-        this.connectionContainer = connectionContainer;
+    public ProxyConnectionArtifact(Container<?,?,?> container, D delegate) {
+        this.container = container;
         this.delegate = delegate;
     }
     @Override
@@ -27,23 +27,26 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
         return this.artifactId;
     }
     @Override
-    public ConnectionContainer<?,?,?,?> getConnectionMain() {
-        return this.connectionContainer;
+    public Container<?,?,?> getContainer() {
+        return this.container;
     }
 
-    public void closeDelegate() {
-        Cleanup.DoDelegateClose(this.delegate);
-    }
     @Override
+    public Object getDelegate() {
+        return this.delegate;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
         switch (m.getName()) {
             case "close":
-                if (connectionContainer.getConnection().equals(this)) {
-                    this.connectionContainer.getCleanup().getConnectionPool().addConnectionFuture(this, true);
+                if (container.getConnection().equals(this)) {
+                    this.container.getCleanup().getReturnConnectionFutureConsumer().accept(this);
                     return Void.TYPE;
                 }
             case "free":
-                this.connectionContainer.closeChild(this);
+                this.container.closeDelegate(this);
                 return Void.TYPE;
             case "isWrapperFor":
                 return ((Class<?>) args[0]).isInstance(delegate);
@@ -52,8 +55,8 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
                     return delegate;
                 }
                 return null;
-            case "getConnectionMain":
-                return getConnectionMain();
+            case "getContainer":
+                return getContainer();
             case "getArtifactId":
                 return getArtifactId();
             case "equals":
@@ -79,7 +82,7 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
         try {
             Object object = m.invoke(delegate, args);
             String maybeSql = (args != null && args[0] instanceof String) ? (String) args[0] : null;
-            ConnectionArtifact_I connectionMember = connectionContainer.wrap(object, m.getReturnType(), args);
+            ConnectionArtifact_I connectionMember = container.wrap(object, m.getReturnType(), args);
             if (connectionMember != null) {
                 return connectionMember;
             }
@@ -98,13 +101,13 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
     protected void throwCause(Throwable cause) throws Throwable {
         if (cause != null) {
             if (cause instanceof SQLClientInfoException) {
-                connectionContainer.handleSQLClientInfoException((SQLClientInfoException) cause, this);
+                container.handleSQLClientInfoException((SQLClientInfoException) cause, this);
             } else if (cause instanceof SQLException) {
-                connectionContainer.handleSQLException((SQLException) cause, this);
+                container.handleSQLException((SQLException) cause, this);
             } else if (cause instanceof IOException) {
-                connectionContainer.handleIoException((IOException) cause, this);
+                container.handleIoException((IOException) cause, this);
             } else if (cause instanceof Exception) {
-                connectionContainer.handleException((Exception) cause, this);
+                container.handleException((Exception) cause, this);
             }
             throw cause;
         }

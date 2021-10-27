@@ -10,33 +10,30 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
-import java.sql.Connection;
-import java.sql.SQLClientInfoException;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ConnectionContainer<O extends Options,
+public class Container<O extends Options,
         A extends Advice,
-        W extends AbstractConnectionWrapperFactory,
-        C extends Cleanup> implements Comparable<ConnectionContainer> {
+        W extends AbstractConnectionWrapperFactory> implements Comparable<Container> {
 
-    private static final Logger logger = LogManager.getLogger(ConnectionContainer.class);
+    private static final Logger log = LogManager.getLogger(Container.class);
 
     private final O options;
     public final UUID containerId = UUID.randomUUID();
     public final Instant createInstant = Instant.now();
     private final A exceptionAdvice;
     private final W connectionWrapper;
-    private final C cleanup;
+    private final Cleanup<?> cleanup;
     public volatile State currentState;
     private SoftReference<ConnectionArtifact_I> connectionSoftReference;
     private Map<SoftReference<ConnectionArtifact_I>, Instant> connectionChildren = new HashMap<>();
 
-    public ConnectionContainer(O options, A exceptionAdvice, W connectionWrapper, C cleanup) {
+    public Container(O options, A exceptionAdvice, W connectionWrapper, Cleanup<?> cleanup) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.connectionWrapper = connectionWrapper;
@@ -53,14 +50,14 @@ public class ConnectionContainer<O extends Options,
         return (Connection) this.connectionSoftReference.get();
     }
     public boolean reuse(ConnectionArtifact_I artifact) {
-        logger.debug("checking if to reuse connection Artifact=" + artifact.getArtifactId());
+        log.debug("checking if to reuse connection Artifact=" + artifact.getArtifactId());
         this.cleanup.timeoutCleanup.remove(this);
         if (this.currentState.equals(State.Open) && artifact.equals(this.connectionSoftReference.get())) {
             this.closeChildren();
             if (this.connectionChildren.isEmpty()) {
                 return true;
             } else {
-                logger.error("Child connection artifacts will not be reused " + this.connectionChildren.size());
+                log.error("Child connection artifacts will not be reused " + this.connectionChildren.size());
                 return false;
             }
         }
@@ -68,7 +65,7 @@ public class ConnectionContainer<O extends Options,
             return false;
         }
     }
-    public C getCleanup() {
+    public Cleanup<?> getCleanup() {
         return this.cleanup;
     }
 
@@ -104,26 +101,27 @@ public class ConnectionContainer<O extends Options,
         for (SoftReference<ConnectionArtifact_I> softReference: this.connectionChildren.keySet()) {
             ConnectionArtifact_I connectionArtifact = softReference.get();
             if (connectionArtifact != null) {
-                connectionArtifact.closeDelegate();
+                DoDelegateClose(connectionArtifact.getDelegate());
             }
             softReference.clear();
         }
         this.connectionChildren.clear();
     }
-    public void closeChild(ConnectionArtifact_I connectionArtifact) {
-        logger.debug("closing = " + connectionArtifact.getArtifactId() + " class=" + connectionArtifact.getClass().getCanonicalName() + " searching for match");
+    public void closeDelegate(ConnectionArtifact_I connectionArtifact) {
+        log.debug("closing = " + connectionArtifact.getArtifactId() + " class=" + connectionArtifact.getClass().getCanonicalName() + " searching for match");
+        boolean closeAll = this.getConnection().equals(connectionArtifact);
         for (SoftReference<ConnectionArtifact_I> softReference: this.connectionChildren.keySet()) {
-            ConnectionArtifact_I suspectConnectionArtifact = softReference.get();
-            if (suspectConnectionArtifact != null) {
-                if (suspectConnectionArtifact.equals(connectionArtifact)) {
-                    connectionArtifact.closeDelegate();
+            ConnectionArtifact_I refConnectionArtifact = softReference.get();
+            if (refConnectionArtifact != null) {
+                if (closeAll || connectionArtifact.equals(connectionArtifact)) {
+                    DoDelegateClose(connectionArtifact.getDelegate());
                     softReference.clear();
-                    logger.debug("matched");
+                    log.debug("matched");
                     return;
                 }
             }
         }
-        logger.debug("no match at all");
+        log.debug("no match at all");
     }
 
     @SuppressWarnings("unchecked")
@@ -133,17 +131,17 @@ public class ConnectionContainer<O extends Options,
         if (this.connectionSoftReference == null && delegate instanceof Connection) {
             this.connectionSoftReference = softReference;
             this.currentState = State.Open;
-            logger.debug("added connection to artifact UUID=" + wrapped.getArtifactId() + " to container=" + containerId);
+            log.debug("added connection to artifact UUID=" + wrapped.getArtifactId() + " to container=" + containerId);
         }
         else {
-            logger.debug("Adding a child UUID=" + wrapped.getArtifactId() + " to container=" + containerId);
+            log.debug("Adding a child UUID=" + wrapped.getArtifactId() + " to container=" + containerId);
             this.connectionChildren.put(softReference,Instant.now());
         }
         return wrapped;
     }
 
     @Override
-    public int compareTo(ConnectionContainer that) {
+    public int compareTo(Container that) {
         if (this.containerId.equals(that.containerId)) {
             return 0;
         } else {
@@ -153,9 +151,45 @@ public class ConnectionContainer<O extends Options,
         }
     }
 
-    public void reviewException(ConnectionArtifact_I connectionArtifact, Recommendation recommendation) {
-        if (recommendation.shouldClose()) {
-            connectionArtifact.closeDelegate();
+    private static void DoDelegateClose(Object delegate) {
+        try {
+            if (delegate instanceof AutoCloseable) {
+                ((AutoCloseable)delegate).close();
+            }
+            else if (delegate instanceof Clob) {
+                ((Clob)delegate).free();
+            }
+            else if (delegate instanceof Blob) {
+                ((Blob)delegate).free();
+            }
+            else if (delegate instanceof Array) {
+                ((Array)delegate).free();
+            }
+        }
+        catch (Exception e) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Exception trying to clean up Reference was ignored: ");
+            PrintCause(e, stringBuilder);
+            log.error(stringBuilder.toString());
         }
     }
+    public static void PrintCause(Throwable t, StringBuilder stringBuilder) {
+        stringBuilder.append(t.getMessage());
+        if (t.getCause() != null) {
+            stringBuilder.append("\n caused by: ");
+            PrintCause(t.getCause(), stringBuilder);
+        }
+    }
+
+    public void reviewException(ConnectionArtifact_I connectionArtifact, Recommendation recommendation) {
+        if (recommendation.shouldClose() && connectionArtifact != null) {
+            log.debug("Close delegate");
+            this.closeDelegate(connectionArtifact);
+        }
+        if (recommendation.isFailoverToNextConnectionSupplier()) {
+            log.info("Failover");
+            this.cleanup.getFailoverConsumer().accept(false);
+        }
+    }
+
 }

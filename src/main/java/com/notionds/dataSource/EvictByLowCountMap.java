@@ -27,7 +27,7 @@ public class EvictByLowCountMap<K, V extends EvictByLowCountMap.EvictionByLowCou
             try {
                 gate.lock();
                 if (eldest.getValue().getCount() > reaperLine) {
-                    if (size() > ++unresolvedNesting) {
+                    if (size() > ++ unresolvedNesting) {
                         reaperLine++;
                         unresolvedNesting = 0;
                     }
@@ -60,5 +60,9 @@ public class EvictByLowCountMap<K, V extends EvictByLowCountMap.EvictionByLowCou
 
     public void setReaperLine(int reaperLine) {
         this.reaperLine = reaperLine;
+    }
+
+    public long getOverflowCount(){
+        return this.overflowCount;
     }
 }

@@ -72,7 +72,7 @@ public abstract class Management<O extends Options> {
     }
     protected abstract void initialize(String instanceName);
     private final O options;
-    private NotionDs<?,?,?,?,?> notionDs;
+    private NotionDs<?,?,?,?> notionDs;
     protected Map<String, Supplier<?>> getterSupplierList = new HashMap<>();
     protected Map<String, Consumer<?>> setterConsumerList = new HashMap<>();
     protected Map<String, Function<?,?>> functionMap = new HashMap<>();
@@ -107,7 +107,7 @@ public abstract class Management<O extends Options> {
         this.options = options;
     }
 
-    public void setNotionDs(NotionDs<?,?,?,?,?> notionDs, String instanceName) {
+    public void setNotionDs(NotionDs<?,?,?,?> notionDs, String instanceName) {
         if (this.notionDs == null) {
             this.notionDs = notionDs;
             this.initialize(instanceName);

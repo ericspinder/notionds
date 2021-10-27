@@ -20,7 +20,7 @@ public abstract class InvokeAggregator implements EvictByLowCountMap.EvictionByL
         @Override
         public void addInvokeAccounting(InvokeAccounting invokeAccounting) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(this.method.getDeclaringClass().getCanonicalName()).append(" : ").append(method).append(" : #").append(count.incrementAndGet()).append('\n').append(invokeAccounting.toString());
+            stringBuilder.append(this.method.getDeclaringClass().getCanonicalName()).append(" : ").append(method).append(" : #").append(count.incrementAndGet()).append("\n\t").append(invokeAccounting.toString());
             logger.info(stringBuilder.toString());
         }
 

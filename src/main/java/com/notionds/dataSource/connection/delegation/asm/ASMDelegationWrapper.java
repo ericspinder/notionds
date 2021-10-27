@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection.delegation.asm;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.AbstractConnectionWrapperFactory;
 
@@ -24,7 +24,7 @@ public class ASMDelegationWrapper<O extends Options> extends AbstractConnectionW
     }
 
     @Override
-    public ConnectionArtifact_I getDelegate(ConnectionContainer connectionContainer, Object delegate, Class delegateClassCreated, Object[] args) {
+    public ConnectionArtifact_I getDelegate(Container container, Object delegate, Class delegateClassCreated, Object[] args) {
         Class<ConnectionArtifact_I> delegateClass = cache.get(delegateClassCreated);
         if (delegateClass == null) {
             // The autostart should have captured all of the classes needed

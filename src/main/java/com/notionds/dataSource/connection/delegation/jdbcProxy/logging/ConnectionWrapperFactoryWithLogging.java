@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.ConnectionWrapperFactory;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.ProxyConnectionArtifact;
 import org.apache.logging.log4j.LogManager;
@@ -33,20 +33,20 @@ public class ConnectionWrapperFactoryWithLogging<O extends Options, DL extends O
 
     @Override
     @SuppressWarnings("unchecked")
-    public <D> ProxyConnectionArtifact<D> createProxyMember(ConnectionContainer<?,?,?,?> connectionContainer, D delegate, Object[] args) {
+    public <D> ProxyConnectionArtifact<D> createProxyMember(Container<?,?,?> container, D delegate, Object[] args) {
         logger.debug("createProxyMember for " + delegate.getClass().getCanonicalName());
         Options.Option<Boolean> logNonExecute = this.options.get(Options.NotionDefaultBooleans.LogNonExecuteProxyMembers.getKey());
         if (delegate instanceof PreparedStatement) {
-            return new ProxyWithLoggingConnectionArtifact<D, PL>(connectionContainer, delegate, (PL) this.analysis.newPreparedStatementLogging(connectionContainer.containerId, (String) args[0]));
+            return new ProxyWithLoggingConnectionArtifact<D, PL>(container, delegate, (PL) this.analysis.newPreparedStatementLogging(container.containerId, (String) args[0]));
         }
         else if (delegate instanceof Statement){
-            return new ProxyWithLoggingConnectionArtifact<D, SL>(connectionContainer, delegate, (SL) this.analysis.newStatementLogging(connectionContainer.containerId));
+            return new ProxyWithLoggingConnectionArtifact<D, SL>(container, delegate, (SL) this.analysis.newStatementLogging(container.containerId));
         }
         else if (logNonExecute.getValue()) {
-            return new ProxyWithLoggingConnectionArtifact<D, DL>(connectionContainer, delegate, (DL) this.analysis.newObjectProxyLogging(connectionContainer.containerId));
+            return new ProxyWithLoggingConnectionArtifact<D, DL>(container, delegate, (DL) this.analysis.newObjectProxyLogging(container.containerId));
         }
         else {
-            return super.createProxyMember(connectionContainer, delegate, args);
+            return super.createProxyMember(container, delegate, args);
         }
     }
 

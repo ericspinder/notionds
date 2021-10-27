@@ -1,10 +1,14 @@
 package com.notionds.dataSource;
 
+import com.notionds.dataSource.connection.Cleanup;
+import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.State;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -16,25 +20,26 @@ import static com.notionds.dataSource.Options.NotionDefaultIntegers.*;
 import static com.notionds.dataSource.Options.*;
 public abstract class ConnectionPool<O extends Options> {
 
-    public static final ConnectionPool.Default DEFAULT_INSTANCE = new Default(new ForkJoinPool(10));
-
     @SuppressWarnings("unchecked")
     public static class Default extends ConnectionPool {
-        public Default(Executor connectionFutures) {
+        public Default(Executor connectionFuture, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
             super(
                     DEFAULT_OPTIONS_INSTANCE,
-                    connectionFutures,
+                    connectionFuture,
                     (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionMaxLifetime.getKey()).getValue(),
                     (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionTimeoutOnLoan.getKey()).getValue(),
                     (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionTimeoutInPool.getKey()).getValue(),
                     (int) DEFAULT_OPTIONS_INSTANCE.get(Connection_Max_Queue_Size.getKey()).getValue(),
-                    (int) DEFAULT_OPTIONS_INSTANCE.get(Connections_Min_Active.getKey()).getValue()
+                    (int) DEFAULT_OPTIONS_INSTANCE.get(Connections_Min_Active.getKey()).getValue(),
+                    connectionSuppliers
             );
         }
     }
     private static final Logger log = LogManager.getLogger();
     protected final O options;
     private final Executor connectionFutures;
+
+    private final Cleanup<?> cleanup;
     /**
      * The max time a connection will be allowed to stay active.
      */
@@ -44,7 +49,7 @@ public abstract class ConnectionPool<O extends Options> {
      */
     private Duration timeoutOnLoan_default;
     /**
-     * This is the length of time a client will wait for a connection before erroring out
+     * This is the length of time a client will wait for a connection before erring out
      * The Duration is split into TimeUnits for efficient use in the poll method
      */
     private long connection_retrieve_millis;
@@ -66,8 +71,10 @@ public abstract class ConnectionPool<O extends Options> {
      * referenceQueue in the Cleanup class when ready
      */
     private final WeakHashMap<ConnectionArtifact_I, Instant> loanedConnections = new WeakHashMap<>();
+    private volatile NotionDs.ConnectionSupplier_I connectionSupplier;
+    private final Queue<NotionDs.ConnectionSupplier_I> failoverConnectionSuppliers = new ConcurrentLinkedQueue<>();
 
-    public ConnectionPool(O options, Executor connectionFutures, Duration maxConnectionLifetime, Duration timeoutOnLoan_default, Duration connection_retrieve, int maxTotalAllowedConnections, int minActiveConnections) {
+    public ConnectionPool(O options, Executor connectionFutures, Duration maxConnectionLifetime, Duration timeoutOnLoan_default, Duration connection_retrieve, int maxTotalAllowedConnections, int minActiveConnections, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
         this.options = options;
         this.connectionFutures = connectionFutures;
         this.maxConnectionLifetime = maxConnectionLifetime;
@@ -75,10 +82,24 @@ public abstract class ConnectionPool<O extends Options> {
         this.connection_retrieve_millis = connection_retrieve_time_unit.convert(connection_retrieve);
         this.maxTotalAllowedConnections = maxTotalAllowedConnections;
         this.minActiveConnections = minActiveConnections;
+        this.connectionSupplier = connectionSuppliers.poll();
+        this.failoverConnectionSuppliers.addAll(connectionSuppliers);
+        this.cleanup = new Cleanup<>(options, this::returnConnectionFuture, this::doFailover);
+    }
+    protected ConnectionArtifact_I populateConnectionContainer(Container<?,?,?> container) {
+        try {
+            return container.wrap(this.connectionSupplier.getConnection(), Connection.class, null);
+        } catch (SQLException e) {
+            container.handleSQLException(e, null);
+            return null;
+        }
     }
 
+    private boolean evalForSpaceInConnectionQueue() {
+        return loanedConnections.size() < (maxTotalAllowedConnections + minActiveConnections) && connectionQueue.size() < minActiveConnections;
+    }
     public ConnectionArtifact_I getConnection(Supplier<ConnectionArtifact_I> newConnectionArtifactSupplier) {
-        if (loanedConnections.size() < (maxTotalAllowedConnections + minActiveConnections) && connectionQueue.size() < minActiveConnections) {
+        if (evalForSpaceInConnectionQueue()) {
             addConnectionFutures(newConnectionArtifactSupplier,minActiveConnections - connectionQueue.size());
         }
         try {
@@ -92,34 +113,46 @@ public abstract class ConnectionPool<O extends Options> {
     }
 
     public boolean addConnection(ConnectionArtifact_I added, boolean returned) {
-        if (added.getConnectionMain().getConnection().equals(added)) {
-            //This checks if the
+        if (added.getContainer().getConnection().equals(added)) {
             if (returned) {
-
                 this.loanedConnections.remove(added);
-                if (added.getConnectionMain().reuse(added)) {
-                    added.getConnectionMain().currentState = State.Pooled;
-                } else {
-                    log.error("ConnectionId=" + added.getConnectionMain().containerId + " was not able to reuse, will close");
-                    added.closeDelegate();
+                if (!added.getContainer().reuse(added)) {
+                    log.error("ConnectionId=" + added.getContainer().containerId + " was not able to reuse, will close");
+                    added.getContainer().closeDelegate(added);
                     return false;
                 }
             }
-            if (connectionQueue.add(added)) {
-                log.trace("ConnectionId=" + added.getConnectionMain().containerId + " was re-added to connection queue queue_size=" + connectionQueue.size());
+            if (evalForSpaceInConnectionQueue() && connectionQueue.add(added)) {
+                added.getContainer().currentState = State.Pooled;
+                log.trace("ConnectionId=" + added.getContainer().containerId + " was added/re-added to connection pool queue_size=" + connectionQueue.size());
                 return true;
             } else {
-                log.error("ConnectionId=" + added.getConnectionMain().containerId + " was not able to add connection due to queue_size=" + connectionQueue.size());
-                added.closeDelegate();
+                log.error("ConnectionId=" + added.getContainer().containerId + " was not able to add connection pool due to queue_size=" + connectionQueue.size());
+                added.getContainer().closeDelegate(added);
                 return false;
             }
         }
         else {
-            // child object to be closed (may also be a connection, but it would not be properly wrapped in its own ConnectionContainer)
-            added.closeDelegate();
+            // child object to be closed (may also be a Connection, but it would not be properly wrapped in its own ConnectionContainer)
+            added.getContainer().closeDelegate(added);
             return false;
         }
-
+    }
+    /**
+     * Updates the active connection supplier
+     * @param burn clears connections which may still be active from previous connection supplier
+     */
+    public void doFailover(Boolean burn) {
+        NotionDs.ConnectionSupplier_I failoverConnection = this.failoverConnectionSuppliers.poll();
+        if (failoverConnection != null) {
+            this.connectionSupplier = failoverConnection;
+            if (burn) {
+                this.drainAllCurrentConnections();
+            }
+        }
+        else {
+            throw new NotionStartupException(NotionStartupException.Type.No_Failover_Available, this.getClass());
+        }
     }
 
     public void addConnectionFutures(Supplier<ConnectionArtifact_I> newConnectionSupplier, int number) {
@@ -132,19 +165,27 @@ public abstract class ConnectionPool<O extends Options> {
             log.info("This sort of threading failure should be rare overall, maybe?");
         }
     }
-    public void addConnectionFuture(ConnectionArtifact_I added, boolean returned) {
-        CompletableFuture.supplyAsync(()-> this.addConnection(added, returned), connectionFutures);
+    public void returnConnectionFuture(ConnectionArtifact_I added) {
+        CompletableFuture.supplyAsync(()-> this.addConnection(added, true), connectionFutures);
     }
 
     /**
-     * Drains the current connection pool and marks them all loaned to be close when no longer in use, rather than returned to the pool.
+     * Drains and closes the current connection pool and marks them all loaned to be close when no longer in use, rather than returned to the pool.
      */
     public void drainAllCurrentConnections() {
         List<ConnectionArtifact_I> drain = new ArrayList<>();
         this.connectionQueue.drainTo(drain);
-        this.loanedConnections.keySet().stream().forEach((ConnectionArtifact_I loaned) -> loaned.getConnectionMain().currentState = State.Empty);
-        drain.forEach((ConnectionArtifact_I artifactI) -> artifactI.closeDelegate());
+        this.loanedConnections.keySet().stream().forEach((ConnectionArtifact_I loaned) -> loaned.getContainer().currentState = State.Empty);
+        drain.forEach((ConnectionArtifact_I artifactI) -> artifactI.getContainer().closeDelegate(artifactI));
 
+    }
+
+    /**
+     * Add a connection supplier to the failover stack
+     * @param failoverConnectionSupplier
+     */
+    public void addFailover(NotionDs.ConnectionSupplier_I failoverConnectionSupplier) {
+        this.failoverConnectionSuppliers.offer(failoverConnectionSupplier);
     }
 
     public Duration getMaxConnectionLifetime() {
@@ -185,5 +226,8 @@ public abstract class ConnectionPool<O extends Options> {
 
     public void setMinActiveConnections(int minActiveConnections) {
         this.minActiveConnections = minActiveConnections;
+    }
+    public Cleanup<?> getCleanup() {
+        return this.cleanup;
     }
 }

@@ -1,9 +1,8 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.ProxyConnectionArtifact;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
-import com.notionds.dataSource.exceptions.SqlExceptionWrapper;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -12,8 +11,8 @@ public class ProxyWithLoggingConnectionArtifact<D, L extends ObjectProxyLogging>
 
     private final L dbLogging;
 
-    public ProxyWithLoggingConnectionArtifact(ConnectionContainer<?,?,?,?> connectionContainer, D delegate, L dbLogging) {
-        super(connectionContainer, delegate);
+    public ProxyWithLoggingConnectionArtifact(Container<?,?,?> container, D delegate, L dbLogging) {
+        super(container, delegate);
         this.dbLogging = dbLogging;
     }
 

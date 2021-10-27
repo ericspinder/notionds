@@ -1,7 +1,6 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.Cleanup;
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 
 import java.io.IOException;
@@ -12,10 +11,10 @@ public class InputStreamConnectionArtifact extends InputStream implements Connec
 
     private final UUID uuid = UUID.randomUUID();
     protected final InputStream delegate;
-    protected final ConnectionContainer<?,?,?,?> connectionContainer;
+    protected final Container<?,?,?> container;
 
-    public InputStreamConnectionArtifact(ConnectionContainer<?,?,?,?> connectionContainer, InputStream delegate) {
-        this.connectionContainer = connectionContainer;
+    public InputStreamConnectionArtifact(Container<?,?,?> container, InputStream delegate) {
+        this.container = container;
         this.delegate = delegate;
     }
 
@@ -24,8 +23,13 @@ public class InputStreamConnectionArtifact extends InputStream implements Connec
         return this.uuid;
     }
     @Override
-    public ConnectionContainer<?,?,?,?> getConnectionMain() {
-        return this.connectionContainer;
+    public Container<?,?,?> getContainer() {
+        return this.container;
+    }
+
+    @Override
+    public Object getDelegate() {
+        return this.delegate;
     }
 
     @Override
@@ -34,17 +38,13 @@ public class InputStreamConnectionArtifact extends InputStream implements Connec
             return delegate.read();
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw container.handleIoException(ioe, this);
         }
-    }
-
-    public void closeDelegate() {
-        Cleanup.DoDelegateClose(this.delegate);
     }
 
     @Override
     public void close() throws IOException {
-        this.connectionContainer.closeChild(this);
+        this.container.closeDelegate(this);
     }
     @Override
     public final boolean equals(final Object that) {

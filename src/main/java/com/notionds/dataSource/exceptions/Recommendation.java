@@ -5,19 +5,21 @@ package com.notionds.dataSource.exceptions;
  */
 public enum Recommendation {
 
-    Close_Closable("Close any Closeable associated with this connection", true),
-    Database_Failover("Error that shows a database failover is needed", true),
-    Burn_Pool_Failover("Error indicates a need to remove old connections to prevent more exceptions, then failover to next DB config", true),
-    Authentication_Failover("Error indicates an authentication fail over is needed", true),
-    Version_Fail("Error indicative of a coding problem", true),
-    Nominal_Operation("Nominal Operation", false),
+    Close_Closable("Close any Closeable associated with this connection", true, false),
+    Database_Failover("Error that shows a database failover is needed", true, true),
+    Burn_Pool_Failover("Error indicates a need to remove old connections to prevent more exceptions, then failover to next DB config", true, true),
+    Authentication_Failover("Error indicates an authentication fail over is needed", false, true),
+    Version_Fail("Error indicative of a coding problem", true, false),
+    Nominal_Operation("Nominal Operation", false, false),
     ;
     private final String description;
-    private final boolean shouldClose;
+    private final boolean shouldCloseExisting;
+    private final boolean failoverToNextConnectionSupplier;
 
-    Recommendation(String description, boolean shouldClose) {
+    Recommendation(String description, boolean shouldCloseExisting, boolean failoverToNextConnectionSupplier) {
         this.description = description;
-        this.shouldClose = shouldClose;
+        this.shouldCloseExisting = shouldCloseExisting;
+        this.failoverToNextConnectionSupplier = failoverToNextConnectionSupplier;
     }
 
     public String getDescription() {
@@ -25,6 +27,10 @@ public enum Recommendation {
     }
 
     public boolean shouldClose() {
-        return this.shouldClose;
+        return this.shouldCloseExisting;
+    }
+
+    public boolean isFailoverToNextConnectionSupplier() {
+        return this.failoverToNextConnectionSupplier;
     }
 }

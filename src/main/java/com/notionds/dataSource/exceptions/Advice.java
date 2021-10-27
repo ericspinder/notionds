@@ -14,17 +14,20 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
 
     private static final Logger logger = LogManager.getLogger(Advice.class);
 
-    public static class Default<S extends NotionDs.ConnectionSupplier_I> extends Advice<Options.Default, S> {
+    public static class Default_H2<S extends NotionDs.ConnectionSupplier_I> extends Advice<Options.Default, S> {
 
-        private static final Logger logger = LogManager.getLogger(Default.class);
+        private static final Logger logger = LogManager.getLogger(Default_H2.class);
 
-        public Default(S connectionSupplier) {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, connectionSupplier);
+        public Default_H2() {
+            super(Options.DEFAULT_OPTIONS_INSTANCE);
         }
 
         @Override
         protected Recommendation parseSQLException(SQLException sqlException) {
             logger.error(sqlException.getMessage());
+            if (sqlException.getSQLState().equals("28000")) {
+                return Recommendation.Authentication_Failover;
+            }
             return Recommendation.Close_Closable;
         }
 
@@ -48,11 +51,9 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
     }
 
     protected final O options;
-    protected S connectionSupplier;
 
-    public Advice(O options, S connectionSupplier) {
+    public Advice(O options) {
         this.options = options;
-        this.connectionSupplier = connectionSupplier;
     }
 
     protected abstract Recommendation parseSQLException(SQLException sqlException);
@@ -69,6 +70,7 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
             return new SqlExceptionWrapper(s.toString(), sqlException, recommendation);
         }
         finally {
+            System.out.println("dude");
             if (logger.isDebugEnabled()) {
                 s.append('\n').append(sqlException);
                 logger.debug(s.toString());

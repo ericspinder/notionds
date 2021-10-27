@@ -1,6 +1,7 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.ConnectionContainer;
+import com.notionds.dataSource.connection.Cleanup;
+import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 
 import java.io.IOException;
@@ -11,11 +12,11 @@ import java.util.UUID;
 public class ReaderConnectionArtifact extends Reader implements ConnectionArtifact_I {
 
     private UUID uuid = UUID.randomUUID();
-    private final ConnectionContainer connectionContainer;
+    private final Container container;
     private final Reader delegate;
 
-    public ReaderConnectionArtifact(ConnectionContainer<?,?,?,?> connectionContainer, Reader delegate) {
-        this.connectionContainer = connectionContainer;
+    public ReaderConnectionArtifact(Container<?,?,?> container, Reader delegate) {
+        this.container = container;
         this.delegate = delegate;
     }
     @Override
@@ -23,8 +24,13 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
         return this.uuid;
     }
     @Override
-    public ConnectionContainer<?,?,?,?> getConnectionMain() {
-        return this.connectionContainer;
+    public Container<?,?,?> getContainer() {
+        return this.container;
+    }
+
+    @Override
+    public Object getDelegate() {
+        return this.delegate;
     }
 
     @Override
@@ -33,7 +39,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
             return delegate.read(target);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw container.handleIoException(ioe, this);
         }
     }
 
@@ -43,7 +49,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
             return delegate.read();
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw container.handleIoException(ioe, this);
         }
     }
 
@@ -53,7 +59,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
             return delegate.read(cbuf);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw container.handleIoException(ioe, this);
         }
     }
 
@@ -68,7 +74,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
             return delegate.read(cbuf, off, len);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw container.handleIoException(ioe, this);
         }
     }
 
@@ -78,7 +84,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
             return delegate.skip(n);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw container.handleIoException(ioe, this);
         }
     }
 
@@ -88,7 +94,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
             return delegate.ready();
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw container.handleIoException(ioe, this);
         }
     }
 
@@ -98,7 +104,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
             delegate.mark(readAheadLimit);
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
+            throw container.handleIoException(ioe, this);
         }
     }
 
@@ -108,21 +114,13 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
             delegate.reset();
         }
         catch (IOException ioe) {
-            throw connectionContainer.handleIoException(ioe, this);
-        }
-    }
-
-    public void closeDelegate() {
-        try {
-            this.delegate.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            throw container.handleIoException(ioe, this);
         }
     }
 
     @Override
     public void close() throws IOException {
-        this.connectionContainer.closeChild(this);
+        this.container.closeDelegate(this);
     }
     @Override
     public final boolean equals(final Object that) {

@@ -5,10 +5,7 @@ import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.Duration;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -19,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class TestLogging {
 
     @Test
-    public void logTest() throws SQLException {
+    public void statementTest() throws SQLException {
         Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
         connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "", ""));
         NotionDs.Default_withLogging notionDs = new NotionDs.Default_withLogging(connectionSuppliers);
@@ -45,6 +42,24 @@ public class TestLogging {
         assertTrue(resultSet2.isClosed());
         assertFalse(connection1.isClosed());
         assertFalse(connection2.isClosed());
+    }
+    @Test
+    public void preparedStatementTest() throws SQLException {
+        Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "", ""));
+        NotionDs.Default_withLogging notionDs = new NotionDs.Default_withLogging(connectionSuppliers);
+        Connection connection1 = notionDs.testConnection();
+        Connection connection2 = notionDs.getConnection(Duration.ofHours(1));
+        PreparedStatement preparedStatement1 = connection1.prepareStatement("SELECT 3 from DUAL");
+        PreparedStatement preparedStatement2 = connection2.prepareStatement("SELECT 4 FROM DUAL");
+        for (int i = 0; i < 20; i++) {
+            ResultSet resultSet1 = preparedStatement1.executeQuery();
+            resultSet1.first();
+            ResultSet resultSet2 = preparedStatement2.executeQuery();
+            resultSet2.first();
+            assertEquals(3, resultSet1.getInt(1));
+            assertEquals(4, resultSet2.getInt(1));
+        }
     }
 
 }

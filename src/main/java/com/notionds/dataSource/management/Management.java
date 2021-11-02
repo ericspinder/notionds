@@ -116,4 +116,7 @@ public abstract class Management<O extends Options> {
             throw new NotionStartupException(NotionStartupException.Type.UnableToChangeJXM, this.getClass());
         }
     }
+    public MBeanInfo getMBeanInfo() {
+        throw new UnsupportedOperationException("MBeanInfo was not overridden for Management Bean");
+    }
 }

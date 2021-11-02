@@ -47,7 +47,18 @@ public class Container<O extends Options,
             this.cleanup.timeoutCleanup.put(this, Instant.now().plus(connectionTimeout) );
         }
         this.currentState = State.Open;
-        return (Connection) this.connectionSoftReference.get();
+        Connection connection = (Connection) this.connectionSoftReference.get();
+        try {
+            connection.beginRequest();
+            return connection;
+        }
+        catch (SQLException e) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Exception trying to beginRequest() was ignored: ");
+            PrintCause(e, stringBuilder);
+            log.error(stringBuilder.toString());
+            return null;
+        }
     }
     public boolean reuse(ConnectionArtifact_I artifact) {
         log.debug("checking if to reuse connection Artifact=" + artifact.getArtifactId());
@@ -108,7 +119,6 @@ public class Container<O extends Options,
         this.connectionChildren.clear();
     }
     public void closeDelegate(ConnectionArtifact_I connectionArtifact) {
-        log.debug("closing = " + connectionArtifact.getArtifactId() + " class=" + connectionArtifact.getClass().getCanonicalName() + " searching for match");
         boolean closeAll = this.getConnection().equals(connectionArtifact);
         for (SoftReference<ConnectionArtifact_I> softReference: this.connectionChildren.keySet()) {
             ConnectionArtifact_I refConnectionArtifact = softReference.get();
@@ -116,12 +126,20 @@ public class Container<O extends Options,
                 if (closeAll || connectionArtifact.equals(connectionArtifact)) {
                     DoDelegateClose(connectionArtifact.getDelegate());
                     softReference.clear();
-                    log.debug("matched");
-                    return;
                 }
             }
         }
-        log.debug("no match at all");
+        try {
+            if (connectionArtifact instanceof Connection) {
+                ((Connection) connectionArtifact).endRequest();
+            }
+        }
+        catch (SQLException e) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Exception trying to endRequest() was ignored: ");
+            PrintCause(e, stringBuilder);
+            log.error(stringBuilder.toString());
+        }
     }
 
     @SuppressWarnings("unchecked")

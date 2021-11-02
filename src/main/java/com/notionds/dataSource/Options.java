@@ -22,6 +22,7 @@ public abstract class Options {
     }
     public enum NotionDefaultString implements Option<String>  {
         Management_JMX("com.notionds.jmx.management", "JMX management mBean Implementation", "com.notionds.dataSource.jmx.NotionDsBean"),
+        Logging_Method_REGEX("com.notionds.logging.method_regex", "The regex for the method or methods (how clever is your regex?) which need have an InvokeAccounting created", "^execute")
         ;
         private final String key;
         private final String description;
@@ -98,7 +99,7 @@ public abstract class Options {
         ConnectionContainer_Check_ResultSet("com.notion.connectionMain.checkResultSet", "Order a check of all ResultSets before closing when cleanupAfterGC() had not been called, until the connection had been closed", true),
         ConnectionPool_Use("com.notion.pool.usePool", "Should pool connections", true),
         Logging("com.notion.connection.delegation.jdbcProxy.logging.UseLogging", "Use ProxyV1 logging", false),
-        LogNonExecuteProxyMembers("com.notion.connection.delegation.jdbcProxy.logging.LogNonExecuteProxyMembers", "Use a proxy wrapper for even non-execute proxy member classes, when logging is turned on", true),
+        LogNonExecuteProxyMembers("com.notion.connection.delegation.jdbcProxy.logging.LogNonExecuteProxyMembers", "Use a proxy wrapper for even non-execute proxy member classes, when logging is turned on", false),
         ;
         private final String key;
         private final String description;

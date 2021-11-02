@@ -4,44 +4,48 @@ import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Method;
-import java.util.UUID;
+import java.time.Instant;
+
+import static com.notionds.dataSource.Options.NotionDefaultString.*;
 
 public abstract class ObjectProxyLogging<O extends Options, G extends InvokeAggregator, D> {
 
     public static class Default<D> extends ObjectProxyLogging<Options.Default, InvokeAggregator.Default_intoLog, D> {
 
-        public Default(final UUID connectionId) {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, connectionId, Analysis.DEFAULT_INSTANCE);
+        public Default() {
+            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.DEFAULT_INSTANCE);
         }
         @Override
         public InvokeAccounting startInvoke(Method m, Object[] args) {
-            return  analysis.newInvokeAccounting(connectionId);
+            if (m.getName().matches((String) options.get(Logging_Method_REGEX.getKey()).getValue())) {
+                return  loggingService.newInvokeAccounting();
+            }
+            return null;
         }
 
         @Override
-        public void exception(NotionExceptionWrapper notionExceptionWrapper, Method method, InvokeAccounting invokeAccounting) {
-            analysis.populateAggregator(notionExceptionWrapper, method, invokeAccounting);
+        public void exception(NotionExceptionWrapper notionExceptionWrapper, String description, Method method, InvokeAccounting invokeAccounting) {
+            loggingService.populateException(notionExceptionWrapper, description, method, invokeAccounting);
         }
 
         @Override
-        public void endInvoke(Method m, Object[] args, InvokeAccounting invokeAccounting) {
-            analysis.populateAggregator(m,  "", invokeAccounting);
+        public void endInvoke(Method m, String description, InvokeAccounting invokeAccounting) {
+            invokeAccounting.setFinishTime(Instant.now());
+            loggingService.populateExecution(m,  description, invokeAccounting);
         }
     }
 
-    protected final UUID connectionId;
     protected final O options;
-    protected final Analysis analysis;
+    protected final LoggingService<?,?,?,?,?> loggingService;
 
-    public ObjectProxyLogging(O options, final UUID connectionId, Analysis analysis) {
+    public ObjectProxyLogging(O options, LoggingService<?,?,?,?,?> loggingService) {
         this.options = options;
-        this.connectionId = connectionId;
-        this.analysis = analysis;
+        this.loggingService = loggingService;
     }
     abstract InvokeAccounting startInvoke(Method m, Object[] args);
 
-    abstract void exception(NotionExceptionWrapper notionExceptionWrapper, Method m, InvokeAccounting invokeAccounting);
+    abstract void exception(NotionExceptionWrapper notionExceptionWrapper, String description, Method m, InvokeAccounting invokeAccounting);
 
-    abstract void endInvoke(Method m, Object[] args, InvokeAccounting invokeAccounting);
+    abstract void endInvoke(Method m, String description, InvokeAccounting invokeAccounting);
 
 }

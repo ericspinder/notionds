@@ -1,5 +1,6 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
+import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
@@ -29,14 +30,13 @@ public class ConnectionWrapperFactory<O extends Options> extends AbstractConnect
 
     @Override
     public final <D> ConnectionArtifact_I getDelegate(Container<?,?,?> container, D delegate, Class<D> delegateClassCreated, Object[] args) {
-        logger.debug("getDelegate(...Object....");
         if (delegateClassCreated.isInterface()) {
             Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassCreated);
             if (interfaces != null) {
                 return this.getProxyMember(interfaces, container, delegate, args);
             }
             logger.error("No Interfaces, very odd as it's an interface: " + delegateClassCreated.getCanonicalName());
-            throw new RuntimeException("No Interfaces, very odd as it's an interface: " + delegateClassCreated.getCanonicalName());
+            throw new NotionStartupException(NotionStartupException.Type.ReflectiveOperationFailed, this.getClass());
         }
         else if (delegate instanceof InputStream) {
             return this.createInputStreamDelegate(container, (InputStream) delegate, args);

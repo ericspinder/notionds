@@ -5,13 +5,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 public final class InvokeAccounting {
-    private final UUID connectionId;
     private final Instant startTime;
     private Duration duration;
 
-    public InvokeAccounting(UUID connectionId) {
+    public InvokeAccounting() {
         this.startTime = Instant.now();
-        this.connectionId = connectionId;
     }
 
     public void setFinishTime(Instant finishTime) {
@@ -23,12 +21,9 @@ public final class InvokeAccounting {
     public Duration getDuration() {
         return this.duration;
     }
-    public UUID getConnectionId() {
-        return this.connectionId;
-    }
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("connectionId=").append(this.connectionId).append(", startTime=").append(this.startTime).append(", duration=").append(this.duration);
+        stringBuilder.append(", startTime=").append(this.startTime).append(", duration=").append(this.duration);
         return stringBuilder.toString();
     }
 }

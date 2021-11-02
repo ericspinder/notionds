@@ -96,7 +96,7 @@ public abstract class ConnectionPool<O extends Options> {
     }
 
     private boolean evalForSpaceInConnectionQueue() {
-        return loanedConnections.size() < (maxTotalAllowedConnections + minActiveConnections) && connectionQueue.size() < minActiveConnections;
+        return loanedConnections.size() + connectionQueue.size() < maxTotalAllowedConnections;
     }
     public ConnectionArtifact_I getConnection(Supplier<ConnectionArtifact_I> newConnectionArtifactSupplier) {
         if (evalForSpaceInConnectionQueue()) {

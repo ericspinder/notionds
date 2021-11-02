@@ -24,6 +24,7 @@ public class EvictByLowCountMap<K, V extends EvictByLowCountMap.EvictionByLowCou
     @Override
     protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
         if (size() > maxSize) {
+            System.out.println("removing eldest entry");
             try {
                 gate.lock();
                 if (eldest.getValue().getCount() > reaperLine) {

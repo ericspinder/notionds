@@ -15,9 +15,13 @@ public class NotionDsMBean extends NotificationBroadcasterSupport implements Dyn
 
 
     List<String> allowedClassNamesForInvoke = new ArrayList<>();
-    private Management.Default_JMX management;
+    private Management management;
 
     public NotionDsMBean() {
+        this.management = new Management.Default_JMX();
+    }
+    public NotionDsMBean(Management management) {
+        this.management = management;
     }
 
     public Object getAttribute(String attribute_name) throws AttributeNotFoundException, MBeanException, ReflectionException {
@@ -95,7 +99,7 @@ public class NotionDsMBean extends NotificationBroadcasterSupport implements Dyn
 
 
     public void reset() {
-        AttributeChangeNotification acn = new AttributeChangeNotification(this,0, 0,"NbChanges reset","NbChanges","Integer", new Integer(nbChanges), new Integer(0));
+        AttributeChangeNotification acn = new AttributeChangeNotification(this,0, 0,"NbChanges reset","NbChanges","Integer", nbChanges, 0);
         state = "initial state";
         nbChanges = 0;
         nbResets++;

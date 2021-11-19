@@ -1,8 +1,8 @@
 package com.notion.dataSource;
 
-import com.notionds.dataSource.ConnectionSupplier;
-import com.notionds.dataSource.NotionDs;
-import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
+import com.notionds.dataSupplier.jdbc.JdbcSupplier;
+import com.notionds.dataSupplier.NotionDs;
+import com.notionds.dataSupplier.delegation.Wrapper;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;
@@ -17,20 +17,21 @@ public class TestLogging {
 
     @Test
     public void statementTest() throws SQLException {
-        Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "", ""));
+        Queue<NotionDs.Supplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+        connectionSuppliers.add(new JdbcSupplier.H2("Server #1", "jdbc:h2:~/test1", "", ""));
+        connectionSuppliers.add(new JdbcSupplier.H2("Server #2", "jdbc:h2:~/test2", "", ""));
         NotionDs.Default_withLogging notionDs = new NotionDs.Default_withLogging(connectionSuppliers);
         Connection connection1 = notionDs.testConnection();
         Connection connection2 = notionDs.getConnection(Duration.ofHours(1));
         Statement statement1 = connection1.createStatement();
         Statement statement2 = connection2.createStatement();
-        assertTrue(statement1 instanceof ConnectionArtifact_I);
-        assertTrue(statement2 instanceof ConnectionArtifact_I);
+        assertTrue(statement1 instanceof Wrapper);
+        assertTrue(statement2 instanceof Wrapper);
         statement1.execute("Select 1 from DUAL");
         statement2.execute("select 2 from DUAL");
         ResultSet resultSet1 = statement1.getResultSet();
         ResultSet resultSet2 = statement2.getResultSet();
-        assertTrue(resultSet1 instanceof ConnectionArtifact_I);
+        assertTrue(resultSet1 instanceof Wrapper);
         resultSet1.first();
         resultSet2.first();
         assertEquals(1, resultSet1.getInt(1));
@@ -45,8 +46,9 @@ public class TestLogging {
     }
     @Test
     public void preparedStatementTest() throws SQLException {
-        Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "", ""));
+        Queue<NotionDs.Supplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+        connectionSuppliers.add(new JdbcSupplier.H2("Server #1", "jdbc:h2:~/test1", "", ""));
+        connectionSuppliers.add(new JdbcSupplier.H2("Server #2", "jdbc:h2:~/test2", "", ""));
         NotionDs.Default_withLogging notionDs = new NotionDs.Default_withLogging(connectionSuppliers);
         Connection connection1 = notionDs.testConnection();
         Connection connection2 = notionDs.getConnection(Duration.ofHours(1));

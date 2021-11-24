@@ -17,9 +17,9 @@ import java.util.function.Supplier;
 
 public class Factory<O extends Operational> {
 
-    private Map<String, Controller<?,?,?,?,?,?,?,?>> controllerMap = new ConcurrentHashMap<>();
+    private Map<String, Controller<?,?,?,?,?,?,?,?,?>> controllerMap = new ConcurrentHashMap<>();
 
-    public Factory(Operational operational, LinkedBlockingDeque<NotionSupplier> notionSuppliers, Rubric rubric) {
+    public Factory(Operational<?,?> operational, LinkedBlockingDeque<NotionSupplier> notionSuppliers, Rubric rubric) {
 
     }
     public <N, W extends Wrapper<N>> void addNotionSupplier(LinkedBlockingDeque<NotionSupplier<N,?,W,?,?,?>> notionSuppliers) {
@@ -27,8 +27,9 @@ public class Factory<O extends Operational> {
     }
     public <N, W extends Wrapper<N>> W wrap(N delegate, Class<N> delegateClass, Object[] args) {
         if (this.controllerMap.containsKey(delegateClass.getCanonicalName())) {
-            Controller<?,?,?,?,?,?,?,?> controller = this.controllerMap.get(delegateClass.getCanonicalName());
-            W wrapped = controller.delegation.getDelegate(, delegate, delegateClass, args);
+            Controller<?,?,?,?,?,?,?,?,?> controller = this.controllerMap.get(delegateClass.getCanonicalName());
+            Container<N,O,W> newContainer = controller.notionSupplier.getNewContainer(controller);
+            W wrapped = controller.getgetDelegate();
 //            controller.pool.addNotion(wrapped, false);
             return wrapped;
         }

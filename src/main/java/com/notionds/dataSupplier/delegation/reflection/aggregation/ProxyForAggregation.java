@@ -1,31 +1,32 @@
-package com.notionds.dataSupplier.delegation.refelction.logging;
+package com.notionds.dataSupplier.delegation.reflection.aggregation;
 
 import com.notionds.dataSupplier.NotionStartupException;
 import com.notionds.dataSupplier.Container;
 import com.notionds.dataSupplier.delegation.Wrapper;
+import com.notionds.dataSupplier.delegation.reflection.Proxy;
 import com.notionds.dataSupplier.exceptions.NotionExceptionWrapper;
 import com.notionds.dataSupplier.operational.Operational;
 
 import java.lang.reflect.Method;
 
-public class ProxyLogging<N, O extends Operational, W extends Wrapper<N>, L extends ObjectProxyLogging<?,?,?>> extends com.notionds.dataSupplier.delegation.refelction.Proxy<N,O,W> {
+public class ProxyForAggregation<N, O extends Operational<N,W>, W extends Wrapper<N>, G extends InvokeAggregator, I extends InvokeInterceptor<N,O,W,G>> extends Proxy<N,O,W> {
 
-    private final L dbLogging;
+    private final I invokeInterceptor;
     private String description = "No description";
 
-    public ProxyLogging(O operational, Container<N,O,W> container, N delegate, L dbLogging) {
-        super(operational, container, delegate);
-        this.dbLogging = dbLogging;
+    public ProxyForAggregation(N delegate, O operational, Container<N,O,W> container, I invokeInterceptor) {
+        super(delegate, operational, container);
+        this.invokeInterceptor = invokeInterceptor;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-        InvokeAccounting invokeAccounting = this.getDbLogging().startInvoke(m, args);
+        InvokeAccounting invokeAccounting = this.getInvokeInterceptor().startInvoke(m, args);
         try {
             switch (m.getName()) {
-                case "getDbLogging":
-                    return this.getDbLogging();
+                case "getInvokeInterceptor":
+                    return this.getInvokeInterceptor();
                 case "getDescription":
                     return this.getDescription();
                 case "setDescription":
@@ -39,24 +40,24 @@ public class ProxyLogging<N, O extends Operational, W extends Wrapper<N>, L exte
         }
         catch (Throwable throwable) {
             if (invokeAccounting != null && throwable instanceof NotionExceptionWrapper) {
-                this.getDbLogging().exception((NotionExceptionWrapper) throwable, this.description, m, invokeAccounting);
+                this.getInvokeInterceptor().exception((NotionExceptionWrapper) throwable, this.description, m, invokeAccounting);
             }
             throw throwable;
         }
         finally {
             if (invokeAccounting != null) {
                 if (args != null && args[0] != null && args[0] instanceof String) {
-                    this.getDbLogging().endInvoke(m, (String)args[0], invokeAccounting);
+                    this.getInvokeInterceptor().endInvoke(m, (String)args[0], invokeAccounting);
                 }
                 else {
-                    this.getDbLogging().endInvoke(m, description, invokeAccounting);
+                    this.getInvokeInterceptor().endInvoke(m, description, invokeAccounting);
                 }
             }
         }
     }
 
-    public L getDbLogging() {
-        return this.dbLogging;
+    public I getInvokeInterceptor() {
+        return this.invokeInterceptor;
     }
 
     public String getDescription() {

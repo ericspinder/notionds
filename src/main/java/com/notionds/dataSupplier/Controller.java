@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.locks.StampedLock;
 
-public class Controller<N, O extends Operational, W extends Wrapper<N>, S extends NotionSupplier<N,O,W,A,D,C>, A extends Advice<N,O,W>, D extends Delegation<N,O,W>, C extends Cron<N,O,W>, P extends Pool<N,O,W>> {
+public class Controller<N, O extends Operational<N,W>, W extends Wrapper<N>, T extends Container<N,O,W>, S extends NotionSupplier<N,O,W,T,A,D,C>, A extends Advice<N,O,W>, D extends Delegation<N,O,W>, C extends Cron<N,O,W>, P extends Pool<N,O,W>> {
 
         private final Factory factory;
         protected final S notionSupplier;
@@ -50,6 +50,7 @@ public class Controller<N, O extends Operational, W extends Wrapper<N>, S extend
                 long writeLock = memberGate.writeLock();
                 try {
                         Container<N,O,W> newContainer = notionSupplier.getNewContainer(this);
+                        W wrapped = this.delegation.getDelegate(newContainer, delegate, (Class<N>) delegate.getClass(), null);
                         cron.add(emptyWrapper, duration);
 
                 }
@@ -64,7 +65,7 @@ public class Controller<N, O extends Operational, W extends Wrapper<N>, S extend
                 return this.pool.addNotion(wrapper, true);
         }
         public W wrap(N delegate, Class<N> delegateClassReturned, Object[] args) {
-                Container<N,O,W> container = notionSupplier.getNewContainer(this);
+                T container = notionSupplier.getNewContainer(this);
                 W wrapped = delegation.getDelegate(container, delegate, delegateClassReturned, args);
                 return wrapped;
         }

@@ -1,4 +1,4 @@
-package com.notionds.dataSupplier.delegation.refelction;
+package com.notionds.dataSupplier.delegation.reflection;
 
 import com.notionds.dataSupplier.Container;
 import com.notionds.dataSupplier.delegation.Wrapper;
@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.UUID;
 
-public class OutputStreamMember extends OutputStream implements Wrapper<OutputStream> {
+public class OutputStreamWrapper extends OutputStream implements Wrapper<OutputStream> {
 
     private UUID uuid = UUID.randomUUID();
     protected final OutputStream delegate;
     protected final Container<OutputStream,?,?> container;
 
-    public OutputStreamMember(Container<OutputStream,?,?> container, OutputStream delegate) {
+    public OutputStreamWrapper(Container<OutputStream,?,?> container, OutputStream delegate) {
         this.container = container;
         this.delegate = delegate;
     }

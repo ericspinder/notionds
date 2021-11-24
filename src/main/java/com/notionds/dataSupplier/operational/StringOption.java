@@ -2,7 +2,7 @@ package com.notionds.dataSupplier.operational;
 
 public enum StringOption implements Operational.Option<String> {
     Management_JMX("com.notionds.jmx.management", "JMX management mBean Implementation", "com.notionds.dataSupplier.jmx.NotionDsBean"),
-    Logging_Method_REGEX("com.notionds.logging.method_regex", "The regex for the method or methods (how clever is your regex?) which need have an InvokeAccounting created", "^execute"),
+    Aggreation_Method_REGEX("com.notionds.aggregation.method_regex", "The regex for the method or methods (how clever is your regex?) which need have an InvokeAccounting created", "^execute"),
     ;
     private final String i18n;
     private final String description;

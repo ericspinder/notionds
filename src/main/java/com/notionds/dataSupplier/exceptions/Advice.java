@@ -1,13 +1,11 @@
 package com.notionds.dataSupplier.exceptions;
 
 import com.notionds.dataSupplier.delegation.Wrapper;
-import com.notionds.dataSupplier.delegation.refelction.Proxy;
 import com.notionds.dataSupplier.operational.Operational;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.time.Duration;

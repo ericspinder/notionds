@@ -18,7 +18,6 @@ public abstract class Operational<N,W extends Wrapper<N>> {
     private static final Logger logger = LogManager.getLogger(Operational.class);
     public static final Operational.Default DEFAULT_OPTIONS_INSTANCE = new Default();
 
-
     public interface Option<V> {
         String getI18n();
         V getDefaultValue();
@@ -32,7 +31,7 @@ public abstract class Operational<N,W extends Wrapper<N>> {
     protected final Map<String, Duration> durationOptions = new HashMap<>();
     protected final Map<String, Boolean> booleanOptions = new HashMap<>();
 
-    public static final class Default extends Operational {
+    public static final class Default<N, W extends Wrapper<N>> extends Operational<N,W> {
         public Default() {
             super();
         }

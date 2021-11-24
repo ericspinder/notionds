@@ -19,11 +19,11 @@ public abstract class Container<N, O extends Operational<N,W>, W extends Wrapper
     public final UUID containerId = UUID.randomUUID();
     public final Instant createInstant = Instant.now();
     protected final O options;
-    protected final Controller<N,O, W,?,?,?,?,?> controller;
+    protected final Controller<N,O, W,?,?,?,?,?,?> controller;
     public volatile Situation currentSituation;
     private Receipt<N,O,W> receipt = null;
 
-    public Container(O options, Controller<N,O, W,?,?,?,?,?> controller) {
+    public Container(O options, Controller<N,O, W,?,?,?,?,?,?> controller) {
         this.options = options;
         this.controller = controller;
         this.currentSituation = Situation.New_Unattached;
@@ -52,7 +52,7 @@ public abstract class Container<N, O extends Operational<N,W>, W extends Wrapper
 
     public void closeDelegate() {
         this.currentSituation = Situation.Closed;
-        DoDelegateClose(this.getDelegate());
+        DoDelegateClose(this.getReceipt().get().getDelegate());
         if (this.receipt != null) {
             this.receipt.clear();
         }
@@ -88,7 +88,7 @@ public abstract class Container<N, O extends Operational<N,W>, W extends Wrapper
     public Receipt<N,O,W> getReceipt() {
         return this.receipt;
     }
-    public Controller<N,O, W,?,?,?,?,?> getBridge() {
+    public Controller<N,O, W,?,?,?,?,?,?> getBridge() {
         return this.controller;
     }
 

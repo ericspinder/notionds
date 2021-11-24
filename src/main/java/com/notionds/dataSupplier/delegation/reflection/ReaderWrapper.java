@@ -1,4 +1,4 @@
-package com.notionds.dataSupplier.delegation.refelction;
+package com.notionds.dataSupplier.delegation.reflection;
 
 import com.notionds.dataSupplier.Container;
 import com.notionds.dataSupplier.delegation.Wrapper;
@@ -8,13 +8,13 @@ import java.io.Reader;
 import java.nio.CharBuffer;
 import java.util.UUID;
 
-public class ReaderMember extends Reader implements Wrapper<Reader> {
+public class ReaderWrapper extends Reader implements Wrapper<Reader> {
 
     private final UUID uuid = UUID.randomUUID();
     private final Container<Reader,?,?> container;
     private final Reader delegate;
 
-    public ReaderMember(Container<Reader,?,?> container, Reader delegate) {
+    public ReaderWrapper(Container<Reader,?,?> container, Reader delegate) {
         this.container = container;
         this.delegate = delegate;
     }

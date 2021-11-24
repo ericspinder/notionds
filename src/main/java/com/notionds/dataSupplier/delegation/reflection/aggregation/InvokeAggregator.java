@@ -1,4 +1,4 @@
-package com.notionds.dataSupplier.delegation.refelction.logging;
+package com.notionds.dataSupplier.delegation.reflection.aggregation;
 
 import com.notionds.dataSupplier.pool.EvictByLowCountMap;
 import org.apache.logging.log4j.LogManager;

@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * https://www.baeldung.com/java-asm
  *
  */
-public class ASMDelegationWrapper<N,O extends Operational,W extends Wrapper<N>> extends Delegation<N,O,W> {
+public class ASMDelegationWrapper<N,O extends Operational<N,W>,W extends Wrapper<N>> extends Delegation<N,O,W> {
 
     private Map<Class, Class<Wrapper>> cache = new HashMap<>();
     private StampedLock creationGate = new StampedLock();

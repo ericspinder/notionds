@@ -6,7 +6,7 @@ import com.notionds.dataSupplier.exceptions.Advice;
 import com.notionds.dataSupplier.operational.Operational;
 import com.notionds.dataSupplier.cron.Cron;
 
-public abstract class NotionSupplier<N, O extends Operational, W extends Wrapper<N>, A extends Advice<N,O,W>, D extends Delegation<N,O,W>, C extends Cron<N,O,W>> {
+public abstract class NotionSupplier<N, O extends Operational<N,W>, W extends Wrapper<N>, T extends Container<N,O,W>, A extends Advice<N,O,W>, D extends Delegation<N,O,W>, C extends Cron<N,O,W>> {
 
     private final O options;
     private final String name;
@@ -17,6 +17,6 @@ public abstract class NotionSupplier<N, O extends Operational, W extends Wrapper
     }
 
 
-    public abstract Container<N,O,W> getNewContainer(Controller<N,O,W,?,A,D,C,?> controller);
+    public abstract T getNewContainer(Controller<N,O,W,T,?,A,D,C,?> controller);
     public abstract N createNotion();
 }

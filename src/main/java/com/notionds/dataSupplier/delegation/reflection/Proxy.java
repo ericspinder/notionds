@@ -1,4 +1,4 @@
-package com.notionds.dataSupplier.delegation.refelction;
+package com.notionds.dataSupplier.delegation.reflection;
 
 import com.notionds.dataSupplier.Container;
 import com.notionds.dataSupplier.delegation.Wrapper;
@@ -10,16 +10,16 @@ import java.lang.reflect.Method;
 
 import java.util.UUID;
 
-public class Proxy<N, O extends Operational, W extends Wrapper<N>> implements InvocationHandler, Wrapper<N> {
+public class Proxy<N, O extends Operational<N,W>, W extends Wrapper<N>> implements InvocationHandler, Wrapper<N> {
 
     private UUID artifactId = UUID.randomUUID();
     protected final N delegate;
     protected final Container<N,O,W> container;
     protected final boolean equalsByUUID;
 
-    public Proxy(Operational operational, Container<N,O,W> container, N delegate) {
-        this.container = container;
+    public Proxy(N delegate, Operational<N,W> operational, Container<N,O,W> container) {
         this.delegate = delegate;
+        this.container = container;
         this.equalsByUUID = operational.getBoolean(BooleanOption.EqualsByUUID.getI18n());
 
     }

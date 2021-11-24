@@ -1,4 +1,4 @@
-package com.notionds.dataSupplier.delegation.refelction.logging;
+package com.notionds.dataSupplier.delegation.reflection.aggregation;
 
 import java.time.Duration;
 import java.time.Instant;

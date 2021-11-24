@@ -3,16 +3,14 @@ package com.notionds.dataSupplier.delegation;
 import com.notionds.dataSupplier.Container;
 import com.notionds.dataSupplier.operational.Operational;
 
-import java.util.function.Supplier;
-
-public abstract class Delegation<N, O extends Operational, W extends Wrapper<N>> {
+public abstract class Delegation<N, O extends Operational<N,W>, W extends Wrapper<N>> {
 
     protected final O operational;
-    protected final Supplier<W> proxySupplier;
+    protected final ClassLoader classLoader;
 
-    public Delegation(O operational, Supplier<W> proxySupplier) {
+    public Delegation(O operational, ClassLoader classLoader) {
         this.operational = operational;
-        this.proxySupplier = proxySupplier;
+        this.classLoader = classLoader;
     }
 
 

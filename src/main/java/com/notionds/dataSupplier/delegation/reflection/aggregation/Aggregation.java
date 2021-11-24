@@ -1,25 +1,19 @@
-package com.notionds.dataSupplier.delegation.refelction.logging;
+package com.notionds.dataSupplier.delegation.reflection.aggregation;
 
 import com.notionds.dataSupplier.operational.IntegerOption;
 import com.notionds.dataSupplier.pool.EvictByLowCountMap;
 import com.notionds.dataSupplier.operational.Operational;
 import com.notionds.dataSupplier.exceptions.NotionExceptionWrapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 
-public abstract class LoggingService<O extends Operational, G extends InvokeAggregator, X extends ObjectProxyLogging<?,?,?>, S extends StatementLogging<?,?,?>, P extends PreparedStatementLogging<?,?,?>> {
+public abstract class Aggregation<O extends Operational<?,?>, G extends InvokeAggregator> {
 
-    public static final Default DEFAULT_INSTANCE = new Default();
+    public static class Default_Into_Log extends Aggregation<Operational.Default<?,?>, InvokeAggregator.Default_intoLog> {
 
-    public static class Default extends LoggingService<Operational.Default, InvokeAggregator.Default_intoLog, ObjectProxyLogging.Default<?>, StatementLogging.Default<?>, PreparedStatementLogging.Default<?>> {
-
-        public static final Logger log = LogManager.getLogger();
-
-        public Default() {
-            super(Operational.DEFAULT_OPTIONS_INSTANCE);
+        public Default_Into_Log(Method method, String message) {
+            super(Operational.DEFAULT_OPTIONS_INSTANCE, new InvokeAggregator.Default_intoLog(method, message));
         }
 
         @Override
@@ -50,29 +44,17 @@ public abstract class LoggingService<O extends Operational, G extends InvokeAggr
             return new InvokeAccounting();
         }
 
-        @Override
-        protected ObjectProxyLogging.Default newObjectProxyLogging() {
-            return new ObjectProxyLogging.Default();
-        }
-
-        @Override
-        protected StatementLogging.Default newStatementLogging() {
-            return new StatementLogging.Default();
-        }
-
-        @Override
-        protected PreparedStatementLogging.Default newPreparedStatementLogging(String sql) {
-            return new PreparedStatementLogging.Default(sql);
-        }
     }
 
     protected final O options;
+    protected final G aggregator;
     protected final Map<String, G> sqlExceptionAggregators;
     protected final Map<String, G> nominalOperationAggregators;
 
     @SuppressWarnings("unchecked")
-    public LoggingService(O options) {
+    public Aggregation(O options, G aggregator) {
         this.options = options;
+        this.aggregator = aggregator;
         sqlExceptionAggregators = new EvictByLowCountMap<>(options.getInteger(IntegerOption.Advice_Exception_Aggregator_Map_Max_Size.getI18n()));
         nominalOperationAggregators = new EvictByLowCountMap<>(options.getInteger(IntegerOption.Advice_Nominal_Aggregator_Map_Max_Size.getI18n()));
     }
@@ -113,8 +95,5 @@ public abstract class LoggingService<O extends Operational, G extends InvokeAggr
         ig.addInvokeAccounting(invokeAccounting);
     }
     public  abstract InvokeAccounting newInvokeAccounting();
-    protected abstract X newObjectProxyLogging();
-    protected abstract S newStatementLogging();
-    protected abstract P newPreparedStatementLogging(String sql);
 
 }

@@ -14,12 +14,12 @@ import java.util.concurrent.locks.StampedLock;
  * https://www.baeldung.com/java-asm
  *
  */
-public class ASMDelegationWrapper<O extends Options> extends AbstractConnectionWrapperFactory<O> {
+public class ASMDelegationWrapper extends AbstractConnectionWrapperFactory {
 
     private Map<Class, Class<ConnectionArtifact_I>> cache = new HashMap<>();
     private StampedLock creationGate = new StampedLock();
 
-    public ASMDelegationWrapper(O options) {
+    public ASMDelegationWrapper(Options options) {
         super(options);
     }
 

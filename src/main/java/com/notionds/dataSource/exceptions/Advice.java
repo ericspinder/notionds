@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
-public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSupplier_I> {
+public abstract class Advice {
 
     private static final Logger logger = LogManager.getLogger(Advice.class);
 
-    public static class Default_H2<S extends NotionDs.ConnectionSupplier_I> extends Advice<Options.Default, S> {
+    public static class Default_H2<S extends NotionDs.ConnectionSupplier_I> extends Advice {
 
         private static final Logger logger = LogManager.getLogger(Default_H2.class);
 
@@ -50,9 +50,9 @@ public abstract class Advice<O extends Options, S extends NotionDs.ConnectionSup
         }
     }
 
-    protected final O options;
+    protected final Options options;
 
-    public Advice(O options) {
+    public Advice(Options options) {
         this.options = options;
     }
 

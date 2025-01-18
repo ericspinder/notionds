@@ -18,7 +18,7 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
     protected final D delegate;
     protected final Container container;
 
-    public ProxyConnectionArtifact(Container<?,?,?> container, D delegate) {
+    public ProxyConnectionArtifact(Container container, D delegate) {
         this.container = container;
         this.delegate = delegate;
     }
@@ -27,7 +27,7 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
         return this.artifactId;
     }
     @Override
-    public Container<?,?,?> getContainer() {
+    public Container getContainer() {
         return this.container;
     }
 

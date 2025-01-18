@@ -10,12 +10,10 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class LoggingService<O extends Options, G extends InvokeAggregator, X extends ObjectProxyLogging<?,?,?>, S extends StatementLogging<?,?,?>, P extends PreparedStatementLogging<?,?,?>> {
-
-    public static final Default DEFAULT_INSTANCE = new Default();
+public abstract class LoggingService<O extends Options, G extends InvokeAggregator, X extends ObjectProxyLogging<?,?>, S extends StatementLogging<?,?>, P extends PreparedStatementLogging<?,?>> {
 
     public static class Default extends LoggingService<Options.Default, InvokeAggregator.Default_intoLog, ObjectProxyLogging.Default<?>, StatementLogging.Default<?>, PreparedStatementLogging.Default<?>> {
-
+        public static final Default INSTANCE = new Default();
         public static final Logger log = LogManager.getLogger();
 
         public Default() {

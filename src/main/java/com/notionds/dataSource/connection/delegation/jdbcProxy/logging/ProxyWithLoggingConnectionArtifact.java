@@ -8,12 +8,12 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class ProxyWithLoggingConnectionArtifact<D, L extends ObjectProxyLogging<?,?,?>> extends ProxyConnectionArtifact<D> {
+public class ProxyWithLoggingConnectionArtifact<D, L extends ObjectProxyLogging<?,?>> extends ProxyConnectionArtifact<D> {
 
     private final L dbLogging;
     private String description = "No description";
 
-    public ProxyWithLoggingConnectionArtifact(Container<?,?,?> container, D delegate, L dbLogging) {
+    public ProxyWithLoggingConnectionArtifact(Container container, D delegate, L dbLogging) {
         super(container, delegate);
         this.dbLogging = dbLogging;
     }

@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 import static com.notionds.dataSource.Options.NotionDefaultDuration.*;
 import static com.notionds.dataSource.Options.NotionDefaultIntegers.*;
 import static com.notionds.dataSource.Options.*;
-public abstract class ConnectionPool<O extends Options> {
+public abstract class ConnectionPool {
 
     @SuppressWarnings("unchecked")
     public static class Default extends ConnectionPool {
@@ -36,10 +36,10 @@ public abstract class ConnectionPool<O extends Options> {
         }
     }
     private static final Logger log = LogManager.getLogger();
-    protected final O options;
+    protected final Options options;
     private final Executor connectionFutures;
 
-    private final Cleanup<?> cleanup;
+    private final Cleanup cleanup;
     /**
      * The max time a connection will be allowed to stay active.
      */
@@ -74,7 +74,7 @@ public abstract class ConnectionPool<O extends Options> {
     private volatile NotionDs.ConnectionSupplier_I connectionSupplier;
     private final Queue<NotionDs.ConnectionSupplier_I> failoverConnectionSuppliers = new ConcurrentLinkedQueue<>();
 
-    public ConnectionPool(O options, Executor connectionFutures, Duration maxConnectionLifetime, Duration timeoutOnLoan_default, Duration connection_retrieve, int maxTotalAllowedConnections, int minActiveConnections, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
+    public ConnectionPool(Options options, Executor connectionFutures, Duration maxConnectionLifetime, Duration timeoutOnLoan_default, Duration connection_retrieve, int maxTotalAllowedConnections, int minActiveConnections, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
         this.options = options;
         this.connectionFutures = connectionFutures;
         this.maxConnectionLifetime = maxConnectionLifetime;
@@ -84,9 +84,9 @@ public abstract class ConnectionPool<O extends Options> {
         this.minActiveConnections = minActiveConnections;
         this.connectionSupplier = connectionSuppliers.poll();
         this.failoverConnectionSuppliers.addAll(connectionSuppliers);
-        this.cleanup = new Cleanup<>(options, this::returnConnectionFuture, this::doFailover);
+        this.cleanup = new Cleanup(options, this::returnConnectionFuture, this::doFailover);
     }
-    protected ConnectionArtifact_I populateConnectionContainer(Container<?,?,?> container) {
+    protected ConnectionArtifact_I populateConnectionContainer(Container container) {
         try {
             return container.wrap(this.connectionSupplier.getConnection(), Connection.class, null);
         } catch (SQLException e) {
@@ -227,7 +227,7 @@ public abstract class ConnectionPool<O extends Options> {
     public void setMinActiveConnections(int minActiveConnections) {
         this.minActiveConnections = minActiveConnections;
     }
-    public Cleanup<?> getCleanup() {
+    public Cleanup getCleanup() {
         return this.cleanup;
     }
 }

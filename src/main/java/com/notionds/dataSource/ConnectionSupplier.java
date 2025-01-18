@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
 
-    private String url;
-    private String username;
-    private String password;
+    private final String url;
+    private final String username;
+    private final String password;
 
     public ConnectionSupplier(String driverClassName, String url, String username, String password) {
         this.url = url;
@@ -28,7 +28,7 @@ public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
     public static class H2 extends ConnectionSupplier {
 
         public H2(String url, String userName, String password) {
-            super("org.h2.Driver", url, userName, password);
+                super("org.h2.Driver", url, userName, password);
         }
     }
 }

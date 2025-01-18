@@ -19,12 +19,12 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.StampedLock;
 import java.util.logging.Logger;
 
-public abstract class NotionDs<O extends Options, A extends Advice, P extends ConnectionPool, W extends AbstractConnectionWrapperFactory> implements DataSource {
+public abstract class NotionDs implements DataSource {
 
-    private final O options;
-    private final W delegation;
-    private final A advice;
-    private final P connectionPool;
+    private final Options options;
+    private final AbstractConnectionWrapperFactory delegation;
+    private final Advice advice;
+    private final ConnectionPool connectionPool;
     private final StampedLock connectionGate = new StampedLock();
 
 
@@ -32,20 +32,20 @@ public abstract class NotionDs<O extends Options, A extends Advice, P extends Co
         Connection getConnection() throws SQLException;
     }
 
-    public static final class Default extends NotionDs<Options.Default, Advice.Default_H2<?>, ConnectionPool.Default, ConnectionWrapperFactory<?>> {
+    public static final class Default extends NotionDs {
 
         public Default(Queue<ConnectionSupplier_I> connectionSuppliers) {
             super(Options.DEFAULT_OPTIONS_INSTANCE, ConnectionWrapperFactory.DEFAULT_INSTANCE, new ConnectionPool.Default(new ForkJoinPool(10), connectionSuppliers), new Advice.Default_H2<>());
         }
     }
-    public static final class Default_withLogging extends NotionDs<Options.Default, Advice.Default_H2<?>, ConnectionPool.Default, ConnectionWrapperFactoryWithLogging<?,?,?,?>> {
+    public static final class Default_withLogging extends NotionDs {
 
         public Default_withLogging(Queue<ConnectionSupplier_I> connectionSuppliers) {
             super(Options.DEFAULT_OPTIONS_INSTANCE, ConnectionWrapperFactoryWithLogging.DEFAULT_INSTANCE, new ConnectionPool.Default(new ForkJoinPool(10), connectionSuppliers), new Advice.Default_H2<>());
         }
     }
 
-    public NotionDs(O options, W delegation, P connectionPool, A advice) {
+    public NotionDs(Options options, AbstractConnectionWrapperFactory delegation, ConnectionPool connectionPool, Advice advice) {
         this.options = options;
         this.delegation = delegation;
         this.connectionPool = connectionPool;
@@ -91,10 +91,10 @@ public abstract class NotionDs<O extends Options, A extends Advice, P extends Co
 
     @SuppressWarnings("unchecked")
     private ConnectionArtifact_I newConnectionContainer() {
-        return this.connectionPool.populateConnectionContainer(new Container<>(this.options, this.advice, this.delegation, this.connectionPool.getCleanup()));
+        return this.connectionPool.populateConnectionContainer(new Container(this.options, this.advice, this.delegation, this.connectionPool.getCleanup()));
     }
 
-    public P getConnectionPool() {
+    public ConnectionPool getConnectionPool() {
         return connectionPool;
     }
 

@@ -5,12 +5,12 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Method;
 
-public abstract class PreparedStatementLogging<O extends Options, G extends InvokeAggregator, D> extends ObjectProxyLogging<O, G, D> {
+public abstract class PreparedStatementLogging<G extends InvokeAggregator, D> extends ObjectProxyLogging<G, D> {
 
-    public static class Default<D> extends PreparedStatementLogging<Options.Default, InvokeAggregator.Default_intoLog, D> {
+    public static class Default<D> extends PreparedStatementLogging<InvokeAggregator.Default_intoLog, D> {
 
         public Default(String sql) {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.DEFAULT_INSTANCE, sql);
+            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE, sql);
         }
 
         @Override
@@ -35,7 +35,7 @@ public abstract class PreparedStatementLogging<O extends Options, G extends Invo
     }
     protected final String sql;
 
-    public PreparedStatementLogging(O options, LoggingService<?,?,?,?,?> loggingService, String sql) {
+    public PreparedStatementLogging(Options options, LoggingService<?,?,?,?,?> loggingService, String sql) {
         super(options, loggingService);
         this.sql = sql;
     }

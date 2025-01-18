@@ -18,18 +18,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConnectionWrapperFactory<O extends Options> extends AbstractConnectionWrapperFactory<O> {
+public class ConnectionWrapperFactory extends AbstractConnectionWrapperFactory {
 
     private static Logger logger = LogManager.getLogger(ConnectionWrapperFactory.class);
 
-    public static final ConnectionWrapperFactory<Options.Default> DEFAULT_INSTANCE = new ConnectionWrapperFactory<>(Options.DEFAULT_OPTIONS_INSTANCE);
+    public static final ConnectionWrapperFactory DEFAULT_INSTANCE = new ConnectionWrapperFactory(Options.DEFAULT_OPTIONS_INSTANCE);
 
-    public ConnectionWrapperFactory(O options) {
+    public ConnectionWrapperFactory(Options options) {
         super(options);
     }
 
     @Override
-    public final <D> ConnectionArtifact_I getDelegate(Container<?,?,?> container, D delegate, Class<D> delegateClassCreated, Object[] args) {
+    public final <D> ConnectionArtifact_I getDelegate(Container container, D delegate, Class<D> delegateClassCreated, Object[] args) {
         if (delegateClassCreated.isInterface()) {
             Class[] interfaces = this.getConnectionMemberInterfaces(delegateClassCreated);
             if (interfaces != null) {
@@ -51,26 +51,26 @@ public class ConnectionWrapperFactory<O extends Options> extends AbstractConnect
         throw new RuntimeException("ProxyDelegation is unable to create: " + delegateClassCreated.getCanonicalName());
     }
 
-    protected <D> ConnectionArtifact_I getProxyMember(Class<?>[] interfaces, Container<?,?,?> container, D delegate, Object[] args) {
+    protected <D> ConnectionArtifact_I getProxyMember(Class<?>[] interfaces, Container container, D delegate, Object[] args) {
         return (ConnectionArtifact_I) Proxy.newProxyInstance(
                 ConnectionWrapperFactory.class.getClassLoader(),
                 interfaces,
                 createProxyMember(container, delegate, args));
     }
 
-    protected ConnectionArtifact_I createInputStreamDelegate(Container<?,?,?> container, InputStream delegate, Object[] args) {
+    protected ConnectionArtifact_I createInputStreamDelegate(Container container, InputStream delegate, Object[] args) {
         return new InputStreamConnectionArtifact(container, delegate);
     }
 
-    protected ConnectionArtifact_I createOutputStreamDelegate(Container<?,?,?> container, OutputStream delegate, Object[] args) {
+    protected ConnectionArtifact_I createOutputStreamDelegate(Container container, OutputStream delegate, Object[] args) {
         return new OutputStreamConnectionArtifact(container, delegate);
     }
 
-    protected ConnectionArtifact_I createReaderDelegate(Container<?,?,?> container, Reader delegate, Object[] args) {
+    protected ConnectionArtifact_I createReaderDelegate(Container container, Reader delegate, Object[] args) {
         return new ReaderConnectionArtifact(container, delegate);
     }
 
-    protected <D> ProxyConnectionArtifact<D> createProxyMember(Container<?,?,?> container, D delegate, Object[] args) {
+    protected <D> ProxyConnectionArtifact<D> createProxyMember(Container container, D delegate, Object[] args) {
         return new ProxyConnectionArtifact<D>(container, delegate);
     }
 

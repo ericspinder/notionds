@@ -6,16 +6,16 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import java.lang.reflect.Method;
 
 
-public class StatementLogging<O extends Options, G extends InvokeAggregator, D> extends ObjectProxyLogging<O, G, D> {
+public class StatementLogging<G extends InvokeAggregator, D> extends ObjectProxyLogging<G, D> {
 
-    public static class Default<D> extends StatementLogging<Options.Default, InvokeAggregator.Default_intoLog, D> {
+    public static class Default<D> extends StatementLogging<InvokeAggregator.Default_intoLog, D> {
 
         public Default() {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.DEFAULT_INSTANCE);
+            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE);
         }
     }
 
-    public StatementLogging(O options, LoggingService<?,?,?,?,?> loggingService) {
+    public StatementLogging(Options options, LoggingService<?,?,?,?,?> loggingService) {
         super(options, loggingService);
     }
 

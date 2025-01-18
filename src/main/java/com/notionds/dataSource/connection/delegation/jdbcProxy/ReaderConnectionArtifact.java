@@ -15,7 +15,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
     private final Container container;
     private final Reader delegate;
 
-    public ReaderConnectionArtifact(Container<?,?,?> container, Reader delegate) {
+    public ReaderConnectionArtifact(Container container, Reader delegate) {
         this.container = container;
         this.delegate = delegate;
     }
@@ -24,7 +24,7 @@ public class ReaderConnectionArtifact extends Reader implements ConnectionArtifa
         return this.uuid;
     }
     @Override
-    public Container<?,?,?> getContainer() {
+    public Container getContainer() {
         return this.container;
     }
 

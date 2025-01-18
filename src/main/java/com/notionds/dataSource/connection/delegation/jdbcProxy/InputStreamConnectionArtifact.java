@@ -11,9 +11,9 @@ public class InputStreamConnectionArtifact extends InputStream implements Connec
 
     private final UUID uuid = UUID.randomUUID();
     protected final InputStream delegate;
-    protected final Container<?,?,?> container;
+    protected final Container container;
 
-    public InputStreamConnectionArtifact(Container<?,?,?> container, InputStream delegate) {
+    public InputStreamConnectionArtifact(Container container, InputStream delegate) {
         this.container = container;
         this.delegate = delegate;
     }
@@ -23,7 +23,7 @@ public class InputStreamConnectionArtifact extends InputStream implements Connec
         return this.uuid;
     }
     @Override
-    public Container<?,?,?> getContainer() {
+    public Container getContainer() {
         return this.container;
     }
 

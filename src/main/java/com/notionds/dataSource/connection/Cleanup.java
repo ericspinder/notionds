@@ -16,19 +16,19 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
-public class Cleanup<O extends Options> implements Runnable {
+public class Cleanup implements Runnable {
 
     private static final Logger log = LogManager.getLogger(Cleanup.class);
 
-    protected final O options;
+    protected final Options options;
     protected final Consumer<ConnectionArtifact_I> returnConnectionFutureConsumer;
     private final Consumer<Boolean> failoverConsumer;
     protected boolean doCleanup = true;
     public final ReferenceQueue<ConnectionArtifact_I> globalReferenceQueue = new ReferenceQueue<>();
-    public final Map<Container<?,?,?>, Instant> timeoutCleanup = Collections.synchronizedMap(new WeakHashMap<>());
+    public final Map<Container, Instant> timeoutCleanup = Collections.synchronizedMap(new WeakHashMap<>());
 
 
-    public Cleanup(O options, Consumer<ConnectionArtifact_I> returnConnectionFutureConsumer, Consumer<Boolean> failoverConsumer) {
+    public Cleanup(Options options, Consumer<ConnectionArtifact_I> returnConnectionFutureConsumer, Consumer<Boolean> failoverConsumer) {
         this.options = options;
         this.returnConnectionFutureConsumer = returnConnectionFutureConsumer;
         this.failoverConsumer = failoverConsumer;
@@ -38,10 +38,10 @@ public class Cleanup<O extends Options> implements Runnable {
      * Patrol ConnectionContainer timeouts
      */
     protected void patrolTimeouts() {
-        for (Map.Entry<Container<?,?,?>, Instant> containerInstantEntry: timeoutCleanup.entrySet()) {
+        for (Map.Entry<Container, Instant> containerInstantEntry: timeoutCleanup.entrySet()) {
             Instant expireTime = containerInstantEntry.getValue();
             if (expireTime != null && expireTime.isAfter(Instant.now())) {
-                Container<?,?,?> container = containerInstantEntry.getKey();
+                Container container = containerInstantEntry.getKey();
                 container.closeDelegate(container.getConnection());
                 log.error("Timeout for ConnectionId=" + container.containerId);
             }

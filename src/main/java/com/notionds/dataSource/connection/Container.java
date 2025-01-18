@@ -17,23 +17,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class Container<O extends Options,
-        A extends Advice,
-        W extends AbstractConnectionWrapperFactory> implements Comparable<Container> {
+public class Container implements Comparable<Container> {
 
     private static final Logger log = LogManager.getLogger(Container.class);
 
-    private final O options;
+    private final Options options;
     public final UUID containerId = UUID.randomUUID();
     public final Instant createInstant = Instant.now();
-    private final A exceptionAdvice;
-    private final W connectionWrapper;
-    private final Cleanup<?> cleanup;
+    private final Advice exceptionAdvice;
+    private final AbstractConnectionWrapperFactory connectionWrapper;
+    private final Cleanup cleanup;
     public volatile State currentState;
     private SoftReference<ConnectionArtifact_I> connectionSoftReference;
     private Map<SoftReference<ConnectionArtifact_I>, Instant> connectionChildren = new HashMap<>();
 
-    public Container(O options, A exceptionAdvice, W connectionWrapper, Cleanup<?> cleanup) {
+    public Container(Options options, Advice exceptionAdvice, AbstractConnectionWrapperFactory connectionWrapper, Cleanup cleanup) {
         this.options = options;
         this.exceptionAdvice = exceptionAdvice;
         this.connectionWrapper = connectionWrapper;
@@ -76,7 +74,7 @@ public class Container<O extends Options,
             return false;
         }
     }
-    public Cleanup<?> getCleanup() {
+    public Cleanup getCleanup() {
         return this.cleanup;
     }
 

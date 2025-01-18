@@ -8,12 +8,12 @@ import java.time.Instant;
 
 import static com.notionds.dataSource.Options.NotionDefaultString.*;
 
-public abstract class ObjectProxyLogging<O extends Options, G extends InvokeAggregator, D> {
+public abstract class ObjectProxyLogging<G extends InvokeAggregator, D> {
 
-    public static class Default<D> extends ObjectProxyLogging<Options.Default, InvokeAggregator.Default_intoLog, D> {
+    public static class Default<D> extends ObjectProxyLogging<InvokeAggregator.Default_intoLog, D> {
 
         public Default() {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.DEFAULT_INSTANCE);
+            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE);
         }
         @Override
         public InvokeAccounting startInvoke(Method m, Object[] args) {
@@ -35,10 +35,10 @@ public abstract class ObjectProxyLogging<O extends Options, G extends InvokeAggr
         }
     }
 
-    protected final O options;
+    protected final Options options;
     protected final LoggingService<?,?,?,?,?> loggingService;
 
-    public ObjectProxyLogging(O options, LoggingService<?,?,?,?,?> loggingService) {
+    public ObjectProxyLogging(Options options, LoggingService<?,?,?,?,?> loggingService) {
         this.options = options;
         this.loggingService = loggingService;
     }

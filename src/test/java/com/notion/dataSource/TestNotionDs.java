@@ -17,24 +17,24 @@ public class TestNotionDs {
 	@Test
 	public void basicTest() throws SQLException {
 		Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "", ""));
+		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "sa", ""));
 		NotionDs.Default notionDs = new NotionDs.Default(connectionSuppliers);
 
 		Connection connection1 = notionDs.testConnection();
 		Connection connection2 = notionDs.getConnection(Duration.ofHours(1));
 		Statement statement1 = connection1.createStatement();
 		Statement statement2 = connection2.createStatement();
-		assertTrue(statement1 instanceof ConnectionArtifact_I);
-		assertTrue(statement2 instanceof ConnectionArtifact_I);
+        assertInstanceOf(ConnectionArtifact_I.class, statement1);
+        assertInstanceOf(ConnectionArtifact_I.class, statement2);
 		statement1.execute("Select 1 from DUAL");
 		statement2.execute("select 2 from DUAL");
 		ResultSet resultSet1 = statement1.getResultSet();
 		ResultSet resultSet2 = statement2.getResultSet();
-		assertTrue(resultSet1 instanceof ConnectionArtifact_I);
+        assertInstanceOf(ConnectionArtifact_I.class, resultSet1);
 		resultSet1.first();
 		resultSet2.first();
-		assertTrue(resultSet1.getInt(1) == 1);
-		assertTrue(resultSet2.getInt(1) == 2);
+        assertEquals(1, resultSet1.getInt(1));
+        assertEquals(2, resultSet2.getInt(1));
 		assertFalse(resultSet1.isClosed());
 		resultSet1.close();
 		resultSet2.close();
@@ -51,7 +51,7 @@ public class TestNotionDs {
 	public void failedLogin() throws SQLException {
 		Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "badUser", "badPass"));
-		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "", ""));
+		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "sa", ""));
 		NotionDs.Default notionDs = new NotionDs.Default(connectionSuppliers);
 		NotionStartupException notionStartupException = assertThrows(NotionStartupException.class, () ->notionDs.testConnection());
 

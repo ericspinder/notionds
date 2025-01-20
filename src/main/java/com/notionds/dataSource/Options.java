@@ -12,7 +12,6 @@ import java.util.concurrent.locks.StampedLock;
 public abstract class Options {
 
     private static final Logger logger = LogManager.getLogger(Options.class);
-    public static final Options.Default DEFAULT_OPTIONS_INSTANCE = new Default();
 
 
     public interface Option<O> {
@@ -42,7 +41,7 @@ public abstract class Options {
             return this.defaultValue;
         }
     }
-    public enum NotionDefaultIntegers implements Option<Integer>  {
+    public enum NotionIntegers implements Option<Integer>  {
         Advice_Exception_Aggregator_Map_Max_Size("com.notionds.advice.exception.aggregatorMap.maxSize", "The number of ", 1000),
         Advice_Nominal_Aggregator_Map_Max_Size("com.notionds.advice.nominal.aggregatorMap.maxSize", "The number of ", 1000),
         //ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5),
@@ -54,7 +53,7 @@ public abstract class Options {
         private final String key;
         private final String description;
         private final Integer defaultValue;
-        NotionDefaultIntegers(String key, String description, Integer defaultValue) {
+        NotionIntegers(String key, String description, Integer defaultValue) {
             this.key = key;
             this.description = description;
             this.defaultValue = defaultValue;
@@ -69,17 +68,17 @@ public abstract class Options {
             return this.defaultValue;
         }
     }
-    public enum NotionDefaultDuration implements Option<Duration> {
+    public enum NotionDuration implements Option<Duration> {
 
-        ConnectionTimeoutInPool("com.notionds.connections_timeout_in_pool", "Amount of time connections will wait in the pool before reaping excess of the number of active in pool connections", Duration.of(20, ChronoUnit.MINUTES)),
-        ConnectionTimeoutInPool_Cool_Down("com.notionds.connections_timeout_in_pool_cool_down","Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections", Duration.of(60, ChronoUnit.SECONDS)),
-        ConnectionTimeoutOnLoan("com.notionds.connection_timeout_on_loan","Default max time before connection is automatically closed, breaking loaned connections. Anything but a positive amount disables that function", Duration.of(3, ChronoUnit.MINUTES)),
-        ConnectionMaxLifetime("com.notionds.connection_timeout_max_lifetime","Max lifetime of a connection", Duration.of(2, ChronoUnit.HOURS))
+        ConnectionTimeoutInPool("com.notionds.connections_timeout_in_pool", "Amount of time connections will wait in the pool before reaping excess of the number of active in pool connections", java.time.Duration.of(20, ChronoUnit.MINUTES)),
+        ConnectionTimeoutInPool_Cool_Down("com.notionds.connections_timeout_in_pool_cool_down","Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections", java.time.Duration.of(60, ChronoUnit.SECONDS)),
+        ConnectionTimeoutOnLoan("com.notionds.connection_timeout_on_loan","Default max time before connection is automatically closed, breaking loaned connections. Anything but a positive amount disables that function", java.time.Duration.of(3, ChronoUnit.MINUTES)),
+        ConnectionMaxLifetime("com.notionds.connection_timeout_max_lifetime","Max lifetime of a connection", java.time.Duration.of(2, ChronoUnit.HOURS))
         ;
         private final String key;
         private final String description;
-        private final Duration defaultValue;
-        NotionDefaultDuration(String key, String description, Duration defaultValue) {
+        private final java.time.Duration defaultValue;
+        NotionDuration(String key, String description, java.time.Duration defaultValue) {
             this.key = key;
             this.description = description;
             this.defaultValue = defaultValue;
@@ -90,11 +89,11 @@ public abstract class Options {
         public String getDescription() {
             return this.description;
         }
-        public Duration getValue() {
+        public java.time.Duration getValue() {
             return this.defaultValue;
         }
     }
-    public enum NotionDefaultBooleans implements Option<Boolean>  {
+    public enum NotionBooleans implements Option<Boolean>  {
 
         ConnectionContainer_Check_ResultSet("com.notion.connectionMain.checkResultSet", "Order a check of all ResultSets before closing when cleanupAfterGC() had not been called, until the connection had been closed", true),
         ConnectionPool_Use("com.notion.pool.usePool", "Should pool connections", true),
@@ -104,7 +103,7 @@ public abstract class Options {
         private final String key;
         private final String description;
         private final Boolean defaultValue;
-        NotionDefaultBooleans(String key, String description, Boolean defaultValue) {
+        NotionBooleans(String key, String description, Boolean defaultValue) {
             this.key = key;
             this.description = description;
             this.defaultValue = defaultValue;
@@ -129,7 +128,7 @@ public abstract class Options {
         }
     }
 
-    public Options(Option<String>[] stringOptionsLoad, Option<Integer>[] integerOptionsLoad, Option<Boolean>[] booleanOptionsLoad, Option<Duration>[] durationOptionsLoad) {
+    public Options(Option<String>[] stringOptionsLoad, Option<Integer>[] integerOptionsLoad, Option<Boolean>[] booleanOptionsLoad, Option<java.time.Duration>[] durationOptionsLoad) {
         if (stringOptionsLoad != null) {
             this.setDefaultValues(stringOptionsLoad);
         }
@@ -140,19 +139,19 @@ public abstract class Options {
             this.setDefaultValues(integerOptionsLoad);
         }
         else {
-            this.setDefaultValues(NotionDefaultIntegers.values());
+            this.setDefaultValues(NotionIntegers.values());
         }
         if (booleanOptionsLoad != null) {
             this.setDefaultValues(booleanOptionsLoad);
         }
         else {
-            this.setDefaultValues(NotionDefaultBooleans.values());
+            this.setDefaultValues(NotionBooleans.values());
         }
         if (durationOptionsLoad != null) {
             this.setDefaultValues(durationOptionsLoad);
         }
         else {
-            this.setDefaultValues(NotionDefaultDuration.values());
+            this.setDefaultValues(NotionDuration.values());
         }
     }
 

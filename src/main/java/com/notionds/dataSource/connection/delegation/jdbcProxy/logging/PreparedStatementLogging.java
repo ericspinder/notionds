@@ -1,5 +1,6 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
+import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
@@ -10,7 +11,7 @@ public abstract class PreparedStatementLogging<G extends InvokeAggregator, D> ex
     public static class Default<D> extends PreparedStatementLogging<InvokeAggregator.Default_intoLog, D> {
 
         public Default(String sql) {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE, sql);
+            super(NotionDs.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE, sql);
         }
 
         @Override

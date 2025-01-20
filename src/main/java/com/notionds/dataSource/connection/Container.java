@@ -20,23 +20,18 @@ import java.util.UUID;
 public class Container implements Comparable<Container> {
 
     private static final Logger log = LogManager.getLogger(Container.class);
-
-    private final Options options;
     public final UUID containerId = UUID.randomUUID();
     public final Instant createInstant = Instant.now();
     private final Advice exceptionAdvice;
     private final AbstractConnectionWrapperFactory connectionWrapper;
     private final Cleanup cleanup;
     public volatile State currentState;
-    private SoftReference<ConnectionArtifact_I> connectionSoftReference;
-    private Map<SoftReference<ConnectionArtifact_I>, Instant> connectionChildren = new HashMap<>();
 
-    public Container(Options options, Advice exceptionAdvice, AbstractConnectionWrapperFactory connectionWrapper, Cleanup cleanup) {
-        this.options = options;
+    public Container(Advice exceptionAdvice, AbstractConnectionWrapperFactory connectionWrapper, Cleanup cleanup) {
         this.exceptionAdvice = exceptionAdvice;
         this.connectionWrapper = connectionWrapper;
-        this.cleanup = cleanup;
         this.currentState = State.New_Needs_Connection;
+        this.cleanup = cleanup;
     }
 
     @SuppressWarnings("unchecked")

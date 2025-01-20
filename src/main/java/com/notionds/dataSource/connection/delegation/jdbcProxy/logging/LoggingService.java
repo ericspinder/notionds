@@ -1,13 +1,13 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import com.notionds.dataSource.EvictByLowCountMap;
+import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class LoggingService<O extends Options, G extends InvokeAggregator, X extends ObjectProxyLogging<?,?>, S extends StatementLogging<?,?>, P extends PreparedStatementLogging<?,?>> {
@@ -17,7 +17,7 @@ public abstract class LoggingService<O extends Options, G extends InvokeAggregat
         public static final Logger log = LogManager.getLogger();
 
         public Default() {
-            super(Options.DEFAULT_OPTIONS_INSTANCE);
+            super(NotionDs.DEFAULT_OPTIONS_INSTANCE);
         }
 
         @Override
@@ -71,8 +71,8 @@ public abstract class LoggingService<O extends Options, G extends InvokeAggregat
     @SuppressWarnings("unchecked")
     public LoggingService(O options) {
         this.options = options;
-        sqlExceptionAggregators = new EvictByLowCountMap<>((Integer) options.get(Options.NotionDefaultIntegers.Advice_Exception_Aggregator_Map_Max_Size.getKey()).getValue());
-        nominalOperationAggregators = new EvictByLowCountMap<>((Integer) options.get(Options.NotionDefaultIntegers.Advice_Nominal_Aggregator_Map_Max_Size.getKey()).getValue());
+        sqlExceptionAggregators = new EvictByLowCountMap<>((Integer) options.get(Options.NotionIntegers.Advice_Exception_Aggregator_Map_Max_Size.getKey()).getValue());
+        nominalOperationAggregators = new EvictByLowCountMap<>((Integer) options.get(Options.NotionIntegers.Advice_Nominal_Aggregator_Map_Max_Size.getKey()).getValue());
     }
 
     public final Map getSqlExceptionAggregators() {

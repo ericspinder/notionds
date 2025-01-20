@@ -20,7 +20,6 @@ public class Cleanup implements Runnable {
 
     private static final Logger log = LogManager.getLogger(Cleanup.class);
 
-    protected final Options options;
     protected final Consumer<ConnectionArtifact_I> returnConnectionFutureConsumer;
     private final Consumer<Boolean> failoverConsumer;
     protected boolean doCleanup = true;
@@ -28,8 +27,7 @@ public class Cleanup implements Runnable {
     public final Map<Container, Instant> timeoutCleanup = Collections.synchronizedMap(new WeakHashMap<>());
 
 
-    public Cleanup(Options options, Consumer<ConnectionArtifact_I> returnConnectionFutureConsumer, Consumer<Boolean> failoverConsumer) {
-        this.options = options;
+    public Cleanup(Consumer<ConnectionArtifact_I> returnConnectionFutureConsumer, Consumer<Boolean> failoverConsumer) {
         this.returnConnectionFutureConsumer = returnConnectionFutureConsumer;
         this.failoverConsumer = failoverConsumer;
     }
@@ -43,7 +41,7 @@ public class Cleanup implements Runnable {
             if (expireTime != null && expireTime.isAfter(Instant.now())) {
                 Container container = containerInstantEntry.getKey();
                 container.closeDelegate(container.getConnection());
-                log.error("Timeout for ConnectionId=" + container.containerId);
+                log.info("Timeout for ConnectionId = " + container.containerId);
             }
         }
     }

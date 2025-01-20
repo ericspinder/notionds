@@ -1,5 +1,6 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
+import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.Container;
@@ -22,7 +23,7 @@ public class ConnectionWrapperFactory extends AbstractConnectionWrapperFactory {
 
     private static Logger logger = LogManager.getLogger(ConnectionWrapperFactory.class);
 
-    public static final ConnectionWrapperFactory DEFAULT_INSTANCE = new ConnectionWrapperFactory(Options.DEFAULT_OPTIONS_INSTANCE);
+    public static final ConnectionWrapperFactory DEFAULT_INSTANCE = new ConnectionWrapperFactory(NotionDs.DEFAULT_OPTIONS_INSTANCE);
 
     public ConnectionWrapperFactory(Options options) {
         super(options);

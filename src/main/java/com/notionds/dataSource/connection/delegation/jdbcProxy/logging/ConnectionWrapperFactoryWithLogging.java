@@ -1,5 +1,6 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
+import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.Container;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.ConnectionWrapperFactory;
@@ -18,7 +19,7 @@ public class ConnectionWrapperFactoryWithLogging<DL extends ObjectProxyLogging<?
         public static final ConnectionWrapperFactoryWithLogging.Default INSTANCE = new ConnectionWrapperFactoryWithLogging.Default();
 
         public Default() {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE);
+            super(NotionDs.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE);
         }
     }
 
@@ -33,7 +34,7 @@ public class ConnectionWrapperFactoryWithLogging<DL extends ObjectProxyLogging<?
     @Override
     @SuppressWarnings("unchecked")
     public <D> ProxyConnectionArtifact<D> createProxyMember(Container container, D delegate, Object[] args) {
-        Options.Option<Boolean> logNonExecute = this.options.get(Options.NotionDefaultBooleans.LogNonExecuteProxyMembers.getKey());
+        Options.Option<Boolean> logNonExecute = this.options.get(Options.NotionBooleans.LogNonExecuteProxyMembers.getKey());
         if (delegate instanceof PreparedStatement) {
             return new ProxyWithLoggingConnectionArtifact<D, PL>(container, delegate, (PL) this.loggingService.newPreparedStatementLogging((String) args[0]));
         }

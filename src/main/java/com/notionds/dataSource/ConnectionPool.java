@@ -15,28 +15,26 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
 
-import static com.notionds.dataSource.Options.NotionDefaultDuration.*;
-import static com.notionds.dataSource.Options.NotionDefaultIntegers.*;
-import static com.notionds.dataSource.Options.*;
-public abstract class ConnectionPool {
+import static com.notionds.dataSource.Options.NotionDuration.*;
+import static com.notionds.dataSource.Options.NotionIntegers.*;
+
+public class ConnectionPool {
 
     @SuppressWarnings("unchecked")
     public static class Default extends ConnectionPool {
         public Default(Executor connectionFuture, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
             super(
-                    DEFAULT_OPTIONS_INSTANCE,
                     connectionFuture,
-                    (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionMaxLifetime.getKey()).getValue(),
-                    (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionTimeoutOnLoan.getKey()).getValue(),
-                    (Duration) DEFAULT_OPTIONS_INSTANCE.get(ConnectionTimeoutInPool.getKey()).getValue(),
-                    (int) DEFAULT_OPTIONS_INSTANCE.get(Connection_Max_Queue_Size.getKey()).getValue(),
-                    (int) DEFAULT_OPTIONS_INSTANCE.get(Connections_Min_Active.getKey()).getValue(),
+                    (Duration) NotionDs.DEFAULT_OPTIONS_INSTANCE.get(ConnectionMaxLifetime.getKey()).getValue(),
+                    (Duration) NotionDs.DEFAULT_OPTIONS_INSTANCE.get(ConnectionTimeoutOnLoan.getKey()).getValue(),
+                    (Duration) NotionDs.DEFAULT_OPTIONS_INSTANCE.get(ConnectionTimeoutInPool.getKey()).getValue(),
+                    (int) NotionDs.DEFAULT_OPTIONS_INSTANCE.get(Connection_Max_Queue_Size.getKey()).getValue(),
+                    (int) NotionDs.DEFAULT_OPTIONS_INSTANCE.get(Connections_Min_Active.getKey()).getValue(),
                     connectionSuppliers
             );
         }
     }
     private static final Logger log = LogManager.getLogger();
-    protected final Options options;
     private final Executor connectionFutures;
 
     private final Cleanup cleanup;
@@ -52,7 +50,7 @@ public abstract class ConnectionPool {
      * This is the length of time a client will wait for a connection before erring out
      * The Duration is split into TimeUnits for efficient use in the poll method
      */
-    private long connection_retrieve_millis;
+    private final long connection_retrieve_millis;
     private final TimeUnit connection_retrieve_time_unit = TimeUnit.MILLISECONDS;
     /**
      * Max number of connections allowed, this is not a hard limit
@@ -74,8 +72,7 @@ public abstract class ConnectionPool {
     private volatile NotionDs.ConnectionSupplier_I connectionSupplier;
     private final Queue<NotionDs.ConnectionSupplier_I> failoverConnectionSuppliers = new ConcurrentLinkedQueue<>();
 
-    public ConnectionPool(Options options, Executor connectionFutures, Duration maxConnectionLifetime, Duration timeoutOnLoan_default, Duration connection_retrieve, int maxTotalAllowedConnections, int minActiveConnections, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
-        this.options = options;
+    public ConnectionPool(Executor connectionFutures, Duration maxConnectionLifetime, Duration timeoutOnLoan_default, Duration connection_retrieve, int maxTotalAllowedConnections, int minActiveConnections, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
         this.connectionFutures = connectionFutures;
         this.maxConnectionLifetime = maxConnectionLifetime;
         this.timeoutOnLoan_default = timeoutOnLoan_default;
@@ -84,7 +81,7 @@ public abstract class ConnectionPool {
         this.minActiveConnections = minActiveConnections;
         this.connectionSupplier = connectionSuppliers.poll();
         this.failoverConnectionSuppliers.addAll(connectionSuppliers);
-        this.cleanup = new Cleanup(options, this::returnConnectionFuture, this::doFailover);
+        this.cleanup = new Cleanup(this::returnConnectionFuture, this::doFailover);
     }
     protected ConnectionArtifact_I populateConnectionContainer(Container container) {
         try {

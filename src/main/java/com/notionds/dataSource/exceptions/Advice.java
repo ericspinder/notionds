@@ -19,7 +19,7 @@ public abstract class Advice {
         private static final Logger logger = LogManager.getLogger(Default_H2.class);
 
         public Default_H2() {
-            super(Options.DEFAULT_OPTIONS_INSTANCE);
+            super(NotionDs.DEFAULT_OPTIONS_INSTANCE);
         }
 
         @Override

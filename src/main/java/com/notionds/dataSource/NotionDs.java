@@ -21,9 +21,8 @@ import java.util.logging.Logger;
 
 public abstract class NotionDs implements DataSource {
 
+    public static final Options.Default DEFAULT_OPTIONS_INSTANCE = new Options.Default();
     private final Options options;
-    private final AbstractConnectionWrapperFactory delegation;
-    private final Advice advice;
     private final ConnectionPool connectionPool;
     private final StampedLock connectionGate = new StampedLock();
 
@@ -31,25 +30,16 @@ public abstract class NotionDs implements DataSource {
     public interface ConnectionSupplier_I {
         Connection getConnection() throws SQLException;
     }
-
-    public static final class Default extends NotionDs {
-
-        public Default(Queue<ConnectionSupplier_I> connectionSuppliers) {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, ConnectionWrapperFactory.DEFAULT_INSTANCE, new ConnectionPool.Default(new ForkJoinPool(10), connectionSuppliers), new Advice.Default_H2<>());
-        }
-    }
     public static final class Default_withLogging extends NotionDs {
 
         public Default_withLogging(Queue<ConnectionSupplier_I> connectionSuppliers) {
-            super(Options.DEFAULT_OPTIONS_INSTANCE, ConnectionWrapperFactoryWithLogging.DEFAULT_INSTANCE, new ConnectionPool.Default(new ForkJoinPool(10), connectionSuppliers), new Advice.Default_H2<>());
+            super(DEFAULT_OPTIONS_INSTANCE, ConnectionWrapperFactoryWithLogging.DEFAULT_INSTANCE, new ConnectionPool.Default(new ForkJoinPool(10), connectionSuppliers), new Advice.Default_H2<>());
         }
     }
 
     public NotionDs(Options options, AbstractConnectionWrapperFactory delegation, ConnectionPool connectionPool, Advice advice) {
         this.options = options;
-        this.delegation = delegation;
         this.connectionPool = connectionPool;
-        this.advice = advice;
     }
 
     /**
@@ -72,9 +62,9 @@ public abstract class NotionDs implements DataSource {
 
     /**
      * The
-     * @param duration
-     * @return
-     * @throws SQLException
+     * @param duration the time to keep a connection active
+     * @return the wrapped connection
+     * @throws SQLException as a wrap for any Exceptions thrown
      */
     @SuppressWarnings("unchecked")
     public Connection getConnection(Duration duration) throws SQLException {
@@ -84,6 +74,9 @@ public abstract class NotionDs implements DataSource {
             wrapped.getContainer().checkoutFromPool(duration);
             return (Connection) wrapped.getContainer().getConnection();
         }
+        catch (Exception e) {
+            throw new SQLException(e);
+        }
         finally {
             connectionGate.unlockRead(readLock);
         }
@@ -91,7 +84,7 @@ public abstract class NotionDs implements DataSource {
 
     @SuppressWarnings("unchecked")
     private ConnectionArtifact_I newConnectionContainer() {
-        return this.connectionPool.populateConnectionContainer(new Container(this.options, this.advice, this.delegation, this.connectionPool.getCleanup()));
+        return this.connectionPool.populateConnectionContainer();
     }
 
     public ConnectionPool getConnectionPool() {
@@ -100,7 +93,7 @@ public abstract class NotionDs implements DataSource {
 
     @Override
     public Connection getConnection() throws SQLException {
-        return this.getConnection(null);
+        return this.getConnection((Duration) options.get(Options.NotionDuration.ConnectionMaxLifetime.getKey()).getValue());
     }
 
     @Override
@@ -120,7 +113,7 @@ public abstract class NotionDs implements DataSource {
 
     @Override
     public void setLoginTimeout(int seconds) throws SQLException {
-        this.connectionPool.setConnection_retrieveTimeout(Duration.ofSeconds(seconds));
+        this.connectionPool.setConnection_retrieveTimeout(java.time.Duration.ofSeconds(seconds));
     }
 
     @Override
@@ -146,5 +139,6 @@ public abstract class NotionDs implements DataSource {
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException("getParentLogger() is unsupported");
     }
+
 }
 

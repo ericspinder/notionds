@@ -21,7 +21,7 @@ public abstract class Management<O extends Options> {
         public static final Default_Unavailable INSTANCE = new Default_Unavailable();
 
         public Default_Unavailable() {
-            super(Options.DEFAULT_OPTIONS_INSTANCE);
+            super(NotionDs.DEFAULT_OPTIONS_INSTANCE);
         }
 
         @Override
@@ -36,7 +36,7 @@ public abstract class Management<O extends Options> {
 
         private MBeanInfo mBeanInfo = null;
         public Default_JMX() {
-            super(Options.DEFAULT_OPTIONS_INSTANCE);
+            super(NotionDs.DEFAULT_OPTIONS_INSTANCE);
 
         }
 

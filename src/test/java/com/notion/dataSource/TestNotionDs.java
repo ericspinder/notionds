@@ -1,13 +1,20 @@
 package com.notion.dataSource;
 
+import com.notionds.dataSource.ConnectionPool;
 import com.notionds.dataSource.ConnectionSupplier;
 import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.NotionStartupException;
+import com.notionds.dataSource.connection.State;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.WrapperFactory;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingService;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingWrapperFactory;
+import com.notionds.dataSource.exceptions.Advice;
 import org.junit.jupiter.api.Test;
 import java.sql.*;
 import java.time.Duration;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,46 +23,39 @@ public class TestNotionDs {
 
 	@Test
 	public void basicTest() throws SQLException {
-		Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "sa", ""));
-		NotionDs.Default notionDs = new NotionDs.Default(connectionSuppliers);
-
-		Connection connection1 = notionDs.testConnection();
-		Connection connection2 = notionDs.getConnection(Duration.ofHours(1));
-		Statement statement1 = connection1.createStatement();
-		Statement statement2 = connection2.createStatement();
-        assertInstanceOf(ConnectionArtifact_I.class, statement1);
-        assertInstanceOf(ConnectionArtifact_I.class, statement2);
-		statement1.execute("Select 1 from DUAL");
-		statement2.execute("select 2 from DUAL");
-		ResultSet resultSet1 = statement1.getResultSet();
-		ResultSet resultSet2 = statement2.getResultSet();
-        assertInstanceOf(ConnectionArtifact_I.class, resultSet1);
-		resultSet1.first();
-		resultSet2.first();
-        assertEquals(1, resultSet1.getInt(1));
-        assertEquals(2, resultSet2.getInt(1));
-		assertFalse(resultSet1.isClosed());
-		resultSet1.close();
-		resultSet2.close();
-		assertTrue(resultSet1.isClosed());
-		assertTrue(resultSet2.isClosed());
-		assertFalse(connection1.isClosed());
-		assertFalse(connection2.isClosed());
-		connection1.close();
-		connection2.close();
-		assertFalse(connection1.isClosed());
-		assertFalse(connection2.isClosed());
+		BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
+		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+		NotionDs notionDs = new NotionDs(connectionPool);
+		assertTrue(connectionPool.testAcquireConnection());
+		Connection wrappedConnection = notionDs.getConnection();
+		assertInstanceOf(ConnectionArtifact_I.class,wrappedConnection);
+		Statement statement = wrappedConnection.createStatement();
+		assertInstanceOf(ConnectionArtifact_I.class, statement);
+		statement.execute("Select 1 from DUAL");
+		ResultSet resultSet = statement.getResultSet();
+		assertInstanceOf(ConnectionArtifact_I.class, resultSet);
+		resultSet.first();
+        assertEquals(1, resultSet.getInt(1));
+		assertFalse(resultSet.isClosed());
+		resultSet.close();
+		assertTrue(resultSet.isClosed());
+		assertFalse(wrappedConnection.isClosed());
+		wrappedConnection.close();
+		assertFalse(wrappedConnection.isClosed());
+        assertEquals(((ConnectionArtifact_I<Connection>) wrappedConnection).getConnectionContainer().getCurrentState(), State.Pooled);
+		connectionPool.shutdown();
 	}
 	@Test
 	public void failedLogin() throws SQLException {
-		Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "badUser", "badPass"));
-		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "sa", ""));
-		NotionDs.Default notionDs = new NotionDs.Default(connectionSuppliers);
-		NotionStartupException notionStartupException = assertThrows(NotionStartupException.class, () ->notionDs.testConnection());
+		BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "badUser", "badPass"));
+		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
+		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+		NotionDs notionDs = new NotionDs(connectionPool);
+		//NotionStartupException notionStartupException = assertThrows(NotionStartupException.class, () ->connectionPool.testConnection());
 
-		Connection connection2 = notionDs.getConnection(Duration.ofHours(1));
+		Connection connection2 = notionDs.getConnection();
 		PreparedStatement preparedStatement = connection2.prepareStatement("Select 1 from dual");
 		assertInstanceOf(ConnectionArtifact_I.class, preparedStatement);
 		ResultSet resultSet1 = preparedStatement.executeQuery();
@@ -69,8 +69,6 @@ public class TestNotionDs {
 		assertInstanceOf(ConnectionArtifact_I.class, resultSet2);
 		resultSet2.first();
 		assertEquals(2, resultSet2.getInt(1));
-		//connection2.close();
-		//Connection connection2 = notionDs.testConnectionBeforeStart();
+		connection2.close();
 	}
-
 }

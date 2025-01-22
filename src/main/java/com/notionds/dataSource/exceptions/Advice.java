@@ -14,7 +14,7 @@ public abstract class Advice {
 
     private static final Logger logger = LogManager.getLogger(Advice.class);
 
-    public static class Default_H2<S extends NotionDs.ConnectionSupplier_I> extends Advice {
+    public static class Default_H2 extends Advice {
 
         private static final Logger logger = LogManager.getLogger(Default_H2.class);
 
@@ -24,7 +24,6 @@ public abstract class Advice {
 
         @Override
         protected Recommendation parseSQLException(SQLException sqlException) {
-            logger.error(sqlException.getMessage());
             if (sqlException.getSQLState().equals("28000")) {
                 return Recommendation.Authentication_Failover;
             }
@@ -33,19 +32,22 @@ public abstract class Advice {
 
         @Override
         protected Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
-            logger.error(sqlClientInfoException.getMessage());
             return Recommendation.Close_Closable;
         }
 
         @Override
         protected Recommendation parseIOException(IOException ioException) {
-            logger.error(ioException.getMessage());
             return Recommendation.Close_Closable;
         }
 
         @Override
         protected Recommendation parseException(Exception exception) {
-            logger.error(exception.getMessage());
+            return Recommendation.Close_Closable;
+        }
+
+        @Override
+        protected Recommendation parseThrowable(Throwable throwable) {
+            logger.error(throwable.getMessage());
             return Recommendation.Close_Closable;
         }
     }
@@ -60,14 +62,15 @@ public abstract class Advice {
     protected abstract Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException);
     protected abstract Recommendation parseIOException(IOException ioException);
     protected abstract Recommendation parseException(Exception exception);
+    protected abstract Recommendation parseThrowable(Throwable throwable);
 
-    public SqlExceptionWrapper adviseSqlException(SQLException sqlException, ConnectionArtifact_I connectionArtifact) {
+    public SqlExceptionWrapper adviseSqlException(SQLException sqlException, ConnectionArtifact_I<?> connectionArtifact) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped SQLException, recommendation=");
         try {
             Recommendation recommendation = this.parseSQLException(sqlException);
             s.append(recommendation);
-            return new SqlExceptionWrapper(s.toString(), sqlException, recommendation);
+            return new SqlExceptionWrapper(s.toString(), sqlException, connectionArtifact, recommendation);
         }
         finally {
             System.out.println("dude");
@@ -77,13 +80,13 @@ public abstract class Advice {
             }
         }
     }
-    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, ConnectionArtifact_I connectionArtifact) {
+    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, ConnectionArtifact_I<?> connectionArtifact) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped SQLClientInfoException, recommendation=");
         try {
             Recommendation recommendation = this.parseSQLClientInfoException(sqlClientInfoException);
             s.append(recommendation);
-            return new SqlClientInfoExceptionWrapper(s.toString(), recommendation, sqlClientInfoException);
+            return new SqlClientInfoExceptionWrapper(s.toString(), recommendation, connectionArtifact,sqlClientInfoException);
         }
         finally {
             if (logger.isDebugEnabled()) {
@@ -92,13 +95,13 @@ public abstract class Advice {
             }
         }
     }
-    public IoExceptionWrapper adviseIoException(IOException ioException, ConnectionArtifact_I connectionArtifact) {
+    public IoExceptionWrapper adviseIoException(IOException ioException, ConnectionArtifact_I<?> connectionArtifact) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped IOException, recommendation=");
         try {
             Recommendation recommendation = this.parseIOException(ioException);
             s.append(recommendation);
-            return new IoExceptionWrapper(s.toString(), recommendation, ioException);
+            return new IoExceptionWrapper(s.toString(), recommendation, connectionArtifact, ioException);
         }
         finally {
             if (logger.isDebugEnabled()) {
@@ -107,19 +110,41 @@ public abstract class Advice {
             }
         }
     }
-    public ExceptionWrapper adviseException(Exception exception, ConnectionArtifact_I connectionArtifact) {
+    public ExceptionWrapper adviseException(Exception exception, ConnectionArtifact_I<?> connectionArtifact) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped Exception, recommendation=");
         try {
             Recommendation recommendation = this.parseException(exception);
             s.append(recommendation);
-            return new ExceptionWrapper(s.toString(), recommendation, exception);
+            return new ExceptionWrapper(s.toString(), recommendation, connectionArtifact, exception);
         }
         finally {
             if (logger.isDebugEnabled()) {
                 s.append('\n').append(exception);
                 logger.debug(s.toString());
             }
+        }
+    }
+    public ThrowableWrapper adviseThrowable(Throwable throwable, ConnectionArtifact_I<?> connectionArtifact) {
+        StringBuilder s = new StringBuilder();
+        s.append("NotionDs wrapped Exception, recommendation=");
+        try {
+            Recommendation recommendation = this.parseThrowable(throwable);
+            s.append(recommendation);
+            return new ThrowableWrapper(s.toString(), recommendation, connectionArtifact, throwable);
+        }
+        finally {
+            if (logger.isDebugEnabled()) {
+                s.append('\n').append(throwable);
+                logger.debug(s.toString());
+            }
+        }
+    }
+    public static void PrintCause(Throwable t, StringBuilder stringBuilder) {
+        stringBuilder.append(t.getMessage());
+        if (t.getCause() != null) {
+            stringBuilder.append("\n caused by: ");
+            PrintCause(t.getCause(), stringBuilder);
         }
     }
 }

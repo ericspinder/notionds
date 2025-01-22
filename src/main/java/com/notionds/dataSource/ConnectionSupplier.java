@@ -3,9 +3,12 @@ package com.notionds.dataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
 
+    private final UUID uuid = UUID.randomUUID();
     private final String url;
     private final String username;
     private final String password;
@@ -17,9 +20,15 @@ public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
         try {
             Class.forName(driverClassName);
         } catch (ClassNotFoundException classNotFoundException) {
-            classNotFoundException.printStackTrace();
+            throw new RuntimeException(classNotFoundException);
         }
     }
+
+    @Override
+    public UUID getUUID() {
+        return uuid;
+    }
+
     @Override
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(url, username, password);

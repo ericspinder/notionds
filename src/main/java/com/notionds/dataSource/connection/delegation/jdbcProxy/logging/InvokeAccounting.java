@@ -22,8 +22,6 @@ public final class InvokeAccounting {
         return this.duration;
     }
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(", startTime=").append(this.startTime).append(", duration=").append(this.duration);
-        return stringBuilder.toString();
+        return ", startTime=" + this.startTime + ", duration=" + this.duration;
     }
 }

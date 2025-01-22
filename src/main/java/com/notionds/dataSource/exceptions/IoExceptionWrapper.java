@@ -1,14 +1,18 @@
 package com.notionds.dataSource.exceptions;
 
+import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
+
 import java.io.IOException;
 
 public class IoExceptionWrapper extends IOException implements NotionExceptionWrapper {
 
     private final Recommendation recommendation;
+    private final ConnectionArtifact_I<?> connectionArtifact;
 
-    public IoExceptionWrapper(String message, Recommendation recommendation, IOException cause) {
+    public IoExceptionWrapper(String message, Recommendation recommendation, ConnectionArtifact_I<?> connectionArtifact, IOException cause) {
         super(message, cause);
         this.recommendation = recommendation;
+        this.connectionArtifact = connectionArtifact;
     }
     /**
      * Use of 'this' as the return prevents a stack trace from being registered.
@@ -25,4 +29,8 @@ public class IoExceptionWrapper extends IOException implements NotionExceptionWr
         return this.recommendation;
     }
 
+    @Override
+    public ConnectionArtifact_I<?> getConnectionArtifact() {
+        return connectionArtifact;
+    }
 }

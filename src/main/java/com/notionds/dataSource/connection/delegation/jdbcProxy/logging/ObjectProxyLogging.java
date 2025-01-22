@@ -1,52 +1,44 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
+import com.notionds.dataSource.ConnectionPool;
 import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
 
-import static com.notionds.dataSource.Options.NotionDefaultString.*;
+import static com.notionds.dataSource.Options.Strings.*;
 
-public abstract class ObjectProxyLogging<G extends InvokeAggregator, D> {
+public class ObjectProxyLogging {
 
-    public static class Default<D> extends ObjectProxyLogging<InvokeAggregator.Default_intoLog, D> {
-
-        public Default() {
-            super(NotionDs.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE);
-        }
-        @Override
-        public InvokeAccounting startInvoke(Method m, Object[] args) {
-            if (m.getName().matches((String) options.get(Logging_Method_REGEX.getKey()).getValue())) {
-                return  loggingService.newInvokeAccounting();
-            }
-            return null;
-        }
-
-        @Override
-        public void exception(NotionExceptionWrapper notionExceptionWrapper, String description, Method method, InvokeAccounting invokeAccounting) {
-            loggingService.populateException(notionExceptionWrapper, description, method, invokeAccounting);
-        }
-
-        @Override
-        public void endInvoke(Method m, String description, InvokeAccounting invokeAccounting) {
-            invokeAccounting.setFinishTime(Instant.now());
-            loggingService.populateExecution(m,  description, invokeAccounting);
-        }
-    }
-
+    private final Logger logger = LogManager.getLogger(ObjectProxyLogging.class);
     protected final Options options;
-    protected final LoggingService<?,?,?,?,?> loggingService;
+    protected final LoggingService loggingService;
 
-    public ObjectProxyLogging(Options options, LoggingService<?,?,?,?,?> loggingService) {
+    public ObjectProxyLogging(Options options, LoggingService loggingService) {
         this.options = options;
         this.loggingService = loggingService;
     }
-    abstract InvokeAccounting startInvoke(Method m, Object[] args);
+    public InvokeAccounting startInvoke(Method m, Object[] args) {
+        logger.trace("start invoke.Accounting for - " + m.getName());
+        if (m.getName().matches((String) options.get(Logging_Method_REGEX.getKey()))) {
+            return  loggingService.newInvokeAccounting();
+        }
+        logger.trace("startInvoke did not match - " + m.getName());
+        return null;
+    }
 
-    abstract void exception(NotionExceptionWrapper notionExceptionWrapper, String description, Method m, InvokeAccounting invokeAccounting);
+    public void exception(NotionExceptionWrapper notionExceptionWrapper, String description, Method method, InvokeAccounting invokeAccounting) {
+        loggingService.populateException(notionExceptionWrapper, description, method, invokeAccounting);
+    }
 
-    abstract void endInvoke(Method m, String description, InvokeAccounting invokeAccounting);
+    public void endInvoke(Method m, String description, InvokeAccounting invokeAccounting) {
+        logger.trace("end invoke - " + m.getName() + " description: " + description + invokeAccounting);
+        invokeAccounting.setFinishTime(Instant.now());
+        loggingService.populateExecution(m,  description, invokeAccounting);
+    }
 
 }

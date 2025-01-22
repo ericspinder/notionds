@@ -1,20 +1,22 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.Container;
+import com.notionds.dataSource.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.UUID;
 
-public class OutputStreamConnectionArtifact extends OutputStream implements ConnectionArtifact_I {
+public class OutputStreamConnectionArtifact extends OutputStream implements ConnectionArtifact_I<OutputStream> {
 
     private UUID uuid = UUID.randomUUID();
+    private final Instant createInstant = Instant.now();
     protected final OutputStream delegate;
-    protected final Container container;
+    protected final ConnectionContainer connectionContainer;
 
-    public OutputStreamConnectionArtifact(Container container, OutputStream delegate) {
-        this.container = container;
+    public OutputStreamConnectionArtifact(ConnectionContainer connectionContainer, OutputStream delegate) {
+        this.connectionContainer = connectionContainer;
         this.delegate = delegate;
     }
     @Override
@@ -22,19 +24,23 @@ public class OutputStreamConnectionArtifact extends OutputStream implements Conn
         return this.uuid;
     }
     @Override
-    public Container getContainer() {
-        return this.container;
+    public ConnectionContainer getConnectionContainer() {
+        return this.connectionContainer;
     }
 
     @Override
-    public Object getDelegate() {
-        return this.delegate;
+    public void setConnectionContainer(ConnectionContainer connectionContainer) {
+
     }
 
     @Override
-    public void close() throws IOException {
-        this.flush();
-        this.container.closeDelegate(this);
+    public OutputStream getDelegate() {
+        return delegate;
+    }
+
+    @Override
+    public Instant getCreateInstant() {
+        return createInstant;
     }
 
     @Override
@@ -43,7 +49,7 @@ public class OutputStreamConnectionArtifact extends OutputStream implements Conn
             delegate.write(b);
         }
         catch(IOException ioe) {
-            throw container.handleIoException(ioe, this);
+            throw connectionContainer.getConnectionPool().getAdvice().adviseIoException(ioe, this);
         }
     }
 
@@ -53,7 +59,7 @@ public class OutputStreamConnectionArtifact extends OutputStream implements Conn
             delegate.flush();
         }
         catch(IOException ioe) {
-            throw container.handleIoException(ioe, this);
+            throw connectionContainer.getConnectionPool().getAdvice().adviseIoException(ioe, this);
         }
     }
     @Override

@@ -7,35 +7,9 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class InvokeAggregator implements EvictByLowCountMap.EvictionByLowCountMember, Comparable {
+public class InvokeAggregator implements EvictByLowCountMap.EvictionByLowCountMember {
 
-    public static class Default_intoLog extends InvokeAggregator {
-
-        private static final Logger logger = LogManager.getLogger();
-
-        public Default_intoLog(Method method, String message) {
-            super(method, message);
-        }
-
-        @Override
-        public void addInvokeAccounting(InvokeAccounting invokeAccounting) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("\n\t").append(this.description).append(" : ");
-            if (invokeAccounting.getDuration() != null) {
-                stringBuilder.append("seconds=").append(invokeAccounting.getDuration().getSeconds()).append('.').append(invokeAccounting.getDuration().getNano());
-            }
-            else {
-
-            }
-            stringBuilder.append(" count=").append(count.incrementAndGet());
-            logger.info(stringBuilder.toString());
-        }
-
-        @Override
-        public int compareTo(Object o) {
-            return 0;
-        }
-    }
+    private static final Logger logger = LogManager.getLogger();
 
     protected AtomicLong count = new AtomicLong();
     protected final Method method;
@@ -46,12 +20,20 @@ public abstract class InvokeAggregator implements EvictByLowCountMap.EvictionByL
         this.description = description;
     }
 
+    public void addInvokeAccounting(InvokeAccounting invokeAccounting) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("\n\t").append(this.description).append(" : ");
+        if (invokeAccounting.getDuration() != null) {
+            stringBuilder.append("seconds=").append(invokeAccounting.getDuration().getSeconds()).append('.').append(invokeAccounting.getDuration().getNano());
+        }
+        else {
+
+        }
+        stringBuilder.append(" count=").append(count.incrementAndGet());
+        logger.info(stringBuilder.toString());
+    }
     public long getCount() {
         return this.count.get();
     }
 
-    public void addInvokeAccounting(InvokeAccounting invokeAccounting) {
-        this.count.incrementAndGet();
-
-    }
 }

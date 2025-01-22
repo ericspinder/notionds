@@ -1,52 +1,74 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.connection.Cleanup;
-import com.notionds.dataSource.connection.Container;
+import com.notionds.dataSource.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
+import java.io.Closeable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.SQLClientInfoException;
-import java.sql.SQLException;
+import java.sql.Connection;
+import java.time.Instant;
 import java.util.UUID;
 
-public class ProxyConnectionArtifact<D> implements InvocationHandler, ConnectionArtifact_I {
+public class ProxyConnectionArtifact<D> implements InvocationHandler, ConnectionArtifact_I<D> {
 
-    private UUID artifactId = UUID.randomUUID();
+    private static final Logger logger = LogManager.getLogger(ProxyConnectionArtifact.class);
+    private final UUID uuid = UUID.randomUUID();
+    private final Instant createTime = Instant.now();
     protected final D delegate;
-    protected final Container container;
+    protected ConnectionContainer connectionContainer;
 
-    public ProxyConnectionArtifact(Container container, D delegate) {
-        this.container = container;
+    /**
+     *
+     * @param connectionContainer will be null if delegate is a 'top level' connection, must be not null otherwise
+     * @param delegate the interface delegate to be wrapped
+     */
+    public ProxyConnectionArtifact(ConnectionContainer connectionContainer, D delegate) {
+        this.connectionContainer = connectionContainer;
         this.delegate = delegate;
     }
     @Override
     public UUID getArtifactId() {
-        return this.artifactId;
+        return this.uuid;
     }
     @Override
-    public Container getContainer() {
-        return this.container;
+    public ConnectionContainer getConnectionContainer() {
+        return this.connectionContainer;
+    }
+    @Override
+    public D getDelegate() {
+        return delegate;
     }
 
     @Override
-    public Object getDelegate() {
-        return this.delegate;
+    public Instant getCreateInstant() {
+        return createTime;
     }
 
-    @Override
+    public void setConnectionContainer(ConnectionContainer connectionContainer) {
+        if (this.connectionContainer == null) this.connectionContainer = connectionContainer;
+    }
+
     @SuppressWarnings("unchecked")
+    @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
+        logger.trace("ProxyConnectionArtifact " + m.getName() + " delegateClass: " + delegate.getClass());
         switch (m.getName()) {
             case "close":
-                if (container.getConnection().equals(this)) {
-                    this.container.getCleanup().getReturnConnectionFutureConsumer().accept(this);
+                if (connectionContainer.get().equals(this)) {
+                    this.connectionContainer.getConnectionPool().returnConnection((ConnectionArtifact_I<Connection>) this);
                     return Void.TYPE;
                 }
+                else if (this.delegate instanceof AutoCloseable) {
+                    ((AutoCloseable) this.delegate).close();
+                }
             case "free":
-                this.container.closeDelegate(this);
+                if (this.delegate instanceof Closeable) {
+                    ((Closeable) this.delegate).close();
+                }
                 return Void.TYPE;
             case "isWrapperFor":
                 return ((Class<?>) args[0]).isInstance(delegate);
@@ -55,18 +77,25 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
                     return delegate;
                 }
                 return null;
-            case "getContainer":
-                return getContainer();
+            case "getConnectionContainer":
+                return getConnectionContainer();
             case "getArtifactId":
                 return getArtifactId();
             case "equals":
                 return equals(args[0]);
+            case "setConnectionContainer":
+                logger.trace("setting connectionContainer");
+                this.connectionContainer = (ConnectionContainer) args[0];
+                return Void.TYPE;
+            case "execute":
+                logger.trace("execute");
+                return m.invoke(delegate,args);
         }
         if (m.getReturnType().equals(Void.TYPE)) {
             try {
                 m.invoke(delegate, args);
             } catch (InvocationTargetException ite) {
-                this.throwCause(ite.getCause());
+                this.connectionContainer.getConnectionPool().throwBackProcessedException(ite.getCause(), this);
                 throw ite;
             }
             return Void.TYPE;
@@ -75,61 +104,27 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
             try {
                 return m.invoke(delegate, args);
             } catch (InvocationTargetException ite) {
-                this.throwCause(ite.getCause());
+                this.getConnectionContainer().getConnectionPool().throwBackProcessedException(ite.getCause(),this);
                 throw ite;
             }
         }
         try {
             Object object = m.invoke(delegate, args);
-            String maybeSql = (args != null && args[0] instanceof String) ? (String) args[0] : null;
-            ConnectionArtifact_I connectionMember = container.wrap(object, m.getReturnType(), args);
+            //String maybeSql = (args != null && args[0] instanceof String) ? (String) args[0] : null;
+            ConnectionArtifact_I<?> connectionMember = createNewConnectionArtifact(connectionContainer,object, m.getReturnType());
             if (connectionMember != null) {
+                logger.trace("connectionMember = " + this.getArtifactId() + " class: " + m.getReturnType());
                 return connectionMember;
             }
             return object;
         } catch (InvocationTargetException ite) {
-            this.throwCause(ite.getCause());
+            this.getConnectionContainer().getConnectionPool().throwBackProcessedException(ite.getCause(),this);
             throw ite;
         }
     }
 
-    /**
-     * Handles the exception, then rethrows the 'real' exception
-     * @param cause
-     * @throws Throwable
-     */
-    protected void throwCause(Throwable cause) throws Throwable {
-        if (cause != null) {
-            if (cause instanceof SQLClientInfoException) {
-                container.handleSQLClientInfoException((SQLClientInfoException) cause, this);
-            } else if (cause instanceof SQLException) {
-                container.handleSQLException((SQLException) cause, this);
-            } else if (cause instanceof IOException) {
-                container.handleIoException((IOException) cause, this);
-            } else if (cause instanceof Exception) {
-                container.handleException((Exception) cause, this);
-            }
-            throw cause;
-        }
-    }
-    @Override
-    public final boolean equals(final Object that) {
-        if (this == that) {
-            return true;
-        }
-        if (that == null) {
-            return false;
-        }
-        if (!(that instanceof ConnectionArtifact_I other)) {
-            return false;
-        }
-        if (this.getArtifactId() == null) {
-            if (other.getArtifactId() != null) {
-                return false;
-            }
-        } else if (!this.getArtifactId().equals(other.getArtifactId())) {
-            return false;
-        }
-        return true;
+    @SuppressWarnings("unchecked")
+    private <T> ConnectionArtifact_I<T> createNewConnectionArtifact(ConnectionContainer connectionContainer,T delegate,Class<?> delegateClass) {
+        return this.connectionContainer.getConnectionWrapper().getDelegate(connectionContainer,delegate,(Class<T>) delegateClass);
     }
 }

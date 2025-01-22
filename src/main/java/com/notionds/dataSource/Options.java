@@ -3,10 +3,12 @@ package com.notionds.dataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.security.KeyStore;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.locks.StampedLock;
 
 public abstract class Options {
@@ -14,19 +16,20 @@ public abstract class Options {
     private static final Logger logger = LogManager.getLogger(Options.class);
 
 
-    public interface Option<O> {
+    public interface Option<V> {
         String getKey();
-        O getValue();
+        V getDefaultValue();
         String getDescription();
     }
-    public enum NotionDefaultString implements Option<String>  {
+
+    public enum Strings implements Option<String>  {
         Management_JMX("com.notionds.jmx.management", "JMX management mBean Implementation", "com.notionds.dataSource.jmx.NotionDsBean"),
         Logging_Method_REGEX("com.notionds.logging.method_regex", "The regex for the method or methods (how clever is your regex?) which need have an InvokeAccounting created", "^execute")
         ;
         private final String key;
         private final String description;
         private final String defaultValue;
-        NotionDefaultString(String key, String description, String defaultValue) {
+        Strings(String key, String description, String defaultValue) {
             this.key = key;
             this.description = description;
             this.defaultValue = defaultValue;
@@ -37,11 +40,37 @@ public abstract class Options {
         public String getDescription() {
             return this.description;
         }
-        public String getValue() {
+        public String getDefaultValue() {
             return this.defaultValue;
         }
     }
-    public enum NotionIntegers implements Option<Integer>  {
+    public enum Longs implements Option<Long> {
+
+        ;
+        private final String key;
+        private final String description;
+        private final Long defaultValue;
+        Longs(String key, String description, long defaultValue) {
+            this.key = key;
+            this.description = description;
+            this.defaultValue = defaultValue;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
+        }
+
+        public Long getDefaultValue() {
+            return defaultValue;
+        }
+    }
+    public enum Integers implements Option<Integer>  {
         Advice_Exception_Aggregator_Map_Max_Size("com.notionds.advice.exception.aggregatorMap.maxSize", "The number of ", 1000),
         Advice_Nominal_Aggregator_Map_Max_Size("com.notionds.advice.nominal.aggregatorMap.maxSize", "The number of ", 1000),
         //ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5),
@@ -49,11 +78,12 @@ public abstract class Options {
         Connection_Max_Wait_On_Create("com.notion.connection.max_weight_on_create", "The maximum amount of time in milliseconds until a RuntimeException is thrown to end", 1000),
         Connection_Max_Queue_Size("com.notion.connection.Max_Queue_Size", "Max Connection Queue size", 50),
         Connections_Min_Active("com.notion.connection.min_queue_size", "",10),
+        Timeout_Retrieve_Connection("com.notionds.datasource.ConnectionPool.timeout_retrieve_connection","Login timeout in seconds", 60);
         ;
         private final String key;
         private final String description;
         private final Integer defaultValue;
-        NotionIntegers(String key, String description, Integer defaultValue) {
+        Integers(String key, String description, Integer defaultValue) {
             this.key = key;
             this.description = description;
             this.defaultValue = defaultValue;
@@ -64,21 +94,22 @@ public abstract class Options {
         public String getDescription() {
             return this.description;
         }
-        public Integer getValue() {
+        public Integer getDefaultValue() {
             return this.defaultValue;
         }
     }
-    public enum NotionDuration implements Option<Duration> {
+    public enum Durations implements Option<Duration> {
 
         ConnectionTimeoutInPool("com.notionds.connections_timeout_in_pool", "Amount of time connections will wait in the pool before reaping excess of the number of active in pool connections", java.time.Duration.of(20, ChronoUnit.MINUTES)),
         ConnectionTimeoutInPool_Cool_Down("com.notionds.connections_timeout_in_pool_cool_down","Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections", java.time.Duration.of(60, ChronoUnit.SECONDS)),
-        ConnectionTimeoutOnLoan("com.notionds.connection_timeout_on_loan","Default max time before connection is automatically closed, breaking loaned connections. Anything but a positive amount disables that function", java.time.Duration.of(3, ChronoUnit.MINUTES)),
-        ConnectionMaxLifetime("com.notionds.connection_timeout_max_lifetime","Max lifetime of a connection", java.time.Duration.of(2, ChronoUnit.HOURS))
+        ConnectionTimeoutOnLoan("com.notionds.connection_timeout_on_loan","Default max time before connection is automatically closed, breaking loaned connections", java.time.Duration.of(360, ChronoUnit.MINUTES)),
+        ConnectionMaxLifetime("com.notionds.connection_timeout_max_lifetime","Max lifetime of a connection", java.time.Duration.of(2, ChronoUnit.HOURS)),
+        ConnectionChildTimeout("com.notionds.connection_child_timeout", "The max time an object created by the connection will live, such as a Statement, Prepared Statement, Reader, InputStream or OutputStream", java.time.Duration.of(360, ChronoUnit.MINUTES))
         ;
         private final String key;
         private final String description;
         private final java.time.Duration defaultValue;
-        NotionDuration(String key, String description, java.time.Duration defaultValue) {
+        Durations(String key, String description, java.time.Duration defaultValue) {
             this.key = key;
             this.description = description;
             this.defaultValue = defaultValue;
@@ -89,11 +120,12 @@ public abstract class Options {
         public String getDescription() {
             return this.description;
         }
-        public java.time.Duration getValue() {
+        public java.time.Duration getDefaultValue() {
             return this.defaultValue;
         }
     }
-    public enum NotionBooleans implements Option<Boolean>  {
+
+    public enum Booleans implements Option<Boolean>  {
 
         ConnectionContainer_Check_ResultSet("com.notion.connectionMain.checkResultSet", "Order a check of all ResultSets before closing when cleanupAfterGC() had not been called, until the connection had been closed", true),
         ConnectionPool_Use("com.notion.pool.usePool", "Should pool connections", true),
@@ -103,7 +135,7 @@ public abstract class Options {
         private final String key;
         private final String description;
         private final Boolean defaultValue;
-        NotionBooleans(String key, String description, Boolean defaultValue) {
+        Booleans(String key, String description, Boolean defaultValue) {
             this.key = key;
             this.description = description;
             this.defaultValue = defaultValue;
@@ -114,67 +146,67 @@ public abstract class Options {
         public String getDescription() {
             return this.description;
         }
-        public Boolean getValue() {
+        public Boolean getDefaultValue() {
             return this.defaultValue;
         }
     }
 
     protected StampedLock gate = new StampedLock();
-    protected final Map<String, Option<?>> allOptions = new HashMap<>();
+    protected final Map<String,Object> allOptions = new HashMap<>();
 
     public static final class Default extends Options {
         public Default() {
-            super(null, null, null, null);
+            super(null);
         }
     }
 
-    public Options(Option<String>[] stringOptionsLoad, Option<Integer>[] integerOptionsLoad, Option<Boolean>[] booleanOptionsLoad, Option<java.time.Duration>[] durationOptionsLoad) {
-        if (stringOptionsLoad != null) {
-            this.setDefaultValues(stringOptionsLoad);
-        }
-        else {
-            this.setDefaultValues(NotionDefaultString.values());
-        }
-        if (integerOptionsLoad != null) {
-            this.setDefaultValues(integerOptionsLoad);
-        }
-        else {
-            this.setDefaultValues(NotionIntegers.values());
-        }
-        if (booleanOptionsLoad != null) {
-            this.setDefaultValues(booleanOptionsLoad);
-        }
-        else {
-            this.setDefaultValues(NotionBooleans.values());
-        }
-        if (durationOptionsLoad != null) {
-            this.setDefaultValues(durationOptionsLoad);
-        }
-        else {
-            this.setDefaultValues(NotionDuration.values());
-        }
+    public Options(Properties overrideValues) {
+        this.setOpeningValues(overrideValues, Strings.values(), Integers.values(), Longs.values(),Booleans.values(),Durations.values());
     }
 
     @SuppressWarnings("unchecked")
-    public <D> Option<D> get(String key) {
+    public Object get(String key) {
         if (this.allOptions.containsKey(key)) {
-            try {
-                return (Option<D>) this.allOptions.get(key);
-            }
-            catch(ClassCastException castException) {
-                castException.printStackTrace();
-                throw new NotionStartupException(NotionStartupException.Type.BadCastToGeneric, Options.class);
-            }
+            return this.allOptions.get(key);
         }
         throw new NotionStartupException(NotionStartupException.Type.MissingDefaultValue, Options.class);
     }
-    public final <D> void setDefaultValues(Option<D>[] optionsLoad) {
+    private void setOpeningValues(Properties overrideProperties, Option<?>[]... defaultValues) {
         logger.info("loading default values");
         long stamp = gate.writeLock();
         try {
-            for (Option<D> option: optionsLoad) {
-                allOptions.put(option.getKey(), option);
+            for (Option<?>[] optionEnums: defaultValues) {
+                for (Option<?> option: optionEnums) {
+                    if (overrideProperties != null) {
+                        Object overrideValue = overrideProperties.get(option.getKey());
+                        if (overrideValue != null) {
+                            allOptions.put(option.getKey(), overrideValue);
+                            overrideProperties.remove(option.getKey());
+                        } else {
+                            allOptions.put(option.getKey(), option.getDefaultValue());
+                        }
+                    }
+                    else {
+                        allOptions.put(option.getKey(), option.getDefaultValue());
+                    }
+                }
             }
+            if (overrideProperties != null && !overrideProperties.isEmpty()) {
+                for (Map.Entry<Object, Object> entry: overrideProperties.entrySet()) {
+                    this.allOptions.put((String) entry.getKey(),entry.getValue());
+                }
+            }
+        }
+        finally {
+            gate.unlockWrite(stamp);
+        }
+        logger.info("finished   loading default values");
+    }
+    public void setValue(String key, Object value) {
+        logger.info("Changing value for " + key);
+        long stamp = gate.writeLock();
+        try {
+            this.allOptions.put(key,value);
         }
         finally {
             gate.unlockWrite(stamp);

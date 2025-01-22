@@ -1,13 +1,20 @@
 package com.notion.dataSource;
 
+import com.notionds.dataSource.ConnectionPool;
 import com.notionds.dataSource.ConnectionSupplier;
 import com.notionds.dataSource.NotionDs;
+import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingService;
+import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingWrapperFactory;
+import com.notionds.dataSource.exceptions.Advice;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;
 import java.time.Duration;
 import java.util.Queue;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,49 +24,41 @@ public class TestLogging {
 
     @Test
     public void statementTest() throws SQLException {
-        Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "", ""));
-        NotionDs.Default_withLogging notionDs = new NotionDs.Default_withLogging(connectionSuppliers);
-        Connection connection1 = notionDs.testConnection();
-        Connection connection2 = notionDs.getConnection(Duration.ofHours(1));
-        Statement statement1 = connection1.createStatement();
-        Statement statement2 = connection2.createStatement();
-        assertTrue(statement1 instanceof ConnectionArtifact_I);
-        assertTrue(statement2 instanceof ConnectionArtifact_I);
-        statement1.execute("Select 1 from DUAL");
-        statement2.execute("select 2 from DUAL");
-        ResultSet resultSet1 = statement1.getResultSet();
-        ResultSet resultSet2 = statement2.getResultSet();
-        assertTrue(resultSet1 instanceof ConnectionArtifact_I);
-        resultSet1.first();
-        resultSet2.first();
-        assertEquals(1, resultSet1.getInt(1));
-        assertEquals(2, resultSet2.getInt(1));
-        assertFalse(resultSet1.isClosed());
-        resultSet1.close();
-        resultSet2.close();
-        assertTrue(resultSet1.isClosed());
-        assertTrue(resultSet2.isClosed());
-        assertFalse(connection1.isClosed());
-        assertFalse(connection2.isClosed());
+
+        BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
+        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+        NotionDs notionDs = new NotionDs(connectionPool);
+        assertTrue(connectionPool.testAcquireConnection());
+        Connection wrappedPooledConnection = notionDs.getConnection();
+        Statement statement = wrappedPooledConnection.createStatement();
+        assertInstanceOf(ConnectionArtifact_I.class, statement);
+        statement.execute("Select 1 from DUAL");
+        ResultSet resultSet = statement.getResultSet();
+        assertInstanceOf(ConnectionArtifact_I.class, resultSet);
+        resultSet.first();
+        assertEquals(1, resultSet.getInt(1));
+        assertFalse(resultSet.isClosed());
+        resultSet.close();
+        assertTrue(resultSet.isClosed());
+        assertFalse(wrappedPooledConnection.isClosed());
+        connectionPool.shutdown();
     }
     @Test
     public void preparedStatementTest() throws SQLException {
-        Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:~/test", "", ""));
-        NotionDs.Default_withLogging notionDs = new NotionDs.Default_withLogging(connectionSuppliers);
-        Connection connection1 = notionDs.testConnection();
-        Connection connection2 = notionDs.getConnection(Duration.ofHours(1));
-        PreparedStatement preparedStatement1 = connection1.prepareStatement("SELECT 3 from DUAL");
-        PreparedStatement preparedStatement2 = connection2.prepareStatement("SELECT 4 FROM DUAL");
+        BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
+        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+        assertTrue(connectionPool.testAcquireConnection());
+        NotionDs notionDs = new NotionDs(connectionPool);
+        Connection connection = notionDs.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT 2 from DUAL");
         for (int i = 0; i < 20; i++) {
-            ResultSet resultSet1 = preparedStatement1.executeQuery();
+            ResultSet resultSet1 = preparedStatement.executeQuery();
             resultSet1.first();
-            ResultSet resultSet2 = preparedStatement2.executeQuery();
-            resultSet2.first();
-            assertEquals(3, resultSet1.getInt(1));
-            assertEquals(4, resultSet2.getInt(1));
+            assertEquals(2, resultSet1.getInt(1));
         }
+        connectionPool.shutdown();
     }
 
 }

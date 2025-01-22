@@ -1,91 +1,35 @@
 package com.notionds.dataSource;
 
-import com.notionds.dataSource.connection.Container;
-import com.notionds.dataSource.connection.delegation.AbstractConnectionWrapperFactory;
-import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
-import com.notionds.dataSource.connection.delegation.jdbcProxy.ConnectionWrapperFactory;
-import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.ConnectionWrapperFactoryWithLogging;
-import com.notionds.dataSource.exceptions.Advice;
+
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Queue;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.StampedLock;
-import java.util.logging.Logger;
+import java.util.UUID;
 
-public abstract class NotionDs implements DataSource {
-
-    public static final Options.Default DEFAULT_OPTIONS_INSTANCE = new Options.Default();
-    private final Options options;
-    private final ConnectionPool connectionPool;
-    private final StampedLock connectionGate = new StampedLock();
-
+public class NotionDs implements DataSource {
 
     public interface ConnectionSupplier_I {
+
+        UUID getUUID();
         Connection getConnection() throws SQLException;
     }
-    public static final class Default_withLogging extends NotionDs {
 
-        public Default_withLogging(Queue<ConnectionSupplier_I> connectionSuppliers) {
-            super(DEFAULT_OPTIONS_INSTANCE, ConnectionWrapperFactoryWithLogging.DEFAULT_INSTANCE, new ConnectionPool.Default(new ForkJoinPool(10), connectionSuppliers), new Advice.Default_H2<>());
-        }
-    }
+    public static final Options.Default DEFAULT_OPTIONS_INSTANCE = new Options.Default();
+    private final ConnectionPool connectionPool;
 
-    public NotionDs(Options options, AbstractConnectionWrapperFactory delegation, ConnectionPool connectionPool, Advice advice) {
-        this.options = options;
+
+    public NotionDs(ConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
+        Thread cleaningThread = new Thread(this.connectionPool.getCleanup());
+        cleaningThread.start();
     }
 
-    /**
-     * A connection test which will lock out the normal 'acquireConnection' method
-     * @return
-     */
-    public Connection testConnection() {
-        long writeLock = connectionGate.writeLock();
-        try {
-            ConnectionArtifact_I connection = newConnectionContainer();
-            if (connection != null) {
-                return (Connection) connection;
-            }
-            throw new NotionStartupException(NotionStartupException.Type.TEST_CONNECTION_FAILURE, NotionDs.class);
-        }
-        finally {
-            connectionGate.unlockWrite(writeLock);
-        }
-    }
-
-    /**
-     * The
-     * @param duration the time to keep a connection active
-     * @return the wrapped connection
-     * @throws SQLException as a wrap for any Exceptions thrown
-     */
-    @SuppressWarnings("unchecked")
-    public Connection getConnection(Duration duration) throws SQLException {
-        long readLock = connectionGate.readLock();
-        try {
-            ConnectionArtifact_I wrapped = connectionPool.getConnection(this::newConnectionContainer);
-            wrapped.getContainer().checkoutFromPool(duration);
-            return (Connection) wrapped.getContainer().getConnection();
-        }
-        catch (Exception e) {
-            throw new SQLException(e);
-        }
-        finally {
-            connectionGate.unlockRead(readLock);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private ConnectionArtifact_I newConnectionContainer() {
-        return this.connectionPool.populateConnectionContainer();
-    }
 
     public ConnectionPool getConnectionPool() {
         return connectionPool;
@@ -93,7 +37,7 @@ public abstract class NotionDs implements DataSource {
 
     @Override
     public Connection getConnection() throws SQLException {
-        return this.getConnection((Duration) options.get(Options.NotionDuration.ConnectionMaxLifetime.getKey()).getValue());
+        return this.connectionPool.getConnection();
     }
 
     @Override
@@ -113,12 +57,12 @@ public abstract class NotionDs implements DataSource {
 
     @Override
     public void setLoginTimeout(int seconds) throws SQLException {
-        this.connectionPool.setConnection_retrieveTimeout(java.time.Duration.ofSeconds(seconds));
+        this.connectionPool.getOptions().setValue(Options.Integers.Timeout_Retrieve_Connection.getKey(), seconds);
     }
 
     @Override
     public int getLoginTimeout() throws SQLException {
-        return Math.toIntExact(this.connectionPool.getConnection_retrieveTimeout().get(ChronoUnit.SECONDS));
+        return (int) this.connectionPool.getOptions().get(Options.Integers.Timeout_Retrieve_Connection.getKey());
     }
 
     @Override
@@ -136,7 +80,7 @@ public abstract class NotionDs implements DataSource {
     }
 
     @Override
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException("getParentLogger() is unsupported");
     }
 

@@ -1,5 +1,6 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
+import com.notionds.dataSource.ConnectionPool;
 import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
@@ -7,16 +8,9 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import java.lang.reflect.Method;
 
 
-public class StatementLogging<G extends InvokeAggregator, D> extends ObjectProxyLogging<G, D> {
+public class StatementLogging extends ObjectProxyLogging {
 
-    public static class Default<D> extends StatementLogging<InvokeAggregator.Default_intoLog, D> {
-
-        public Default() {
-            super(NotionDs.DEFAULT_OPTIONS_INSTANCE, LoggingService.Default.INSTANCE);
-        }
-    }
-
-    public StatementLogging(Options options, LoggingService<?,?,?,?,?> loggingService) {
+    public StatementLogging(Options options, LoggingService loggingService) {
         super(options, loggingService);
     }
 
@@ -28,11 +22,6 @@ public class StatementLogging<G extends InvokeAggregator, D> extends ObjectProxy
         else {
             return null;
         }
-    }
-
-    @Override
-    public void exception(NotionExceptionWrapper notionExceptionWrapper, String description, Method method, InvokeAccounting invokeAccounting) {
-        this.loggingService.populateException(notionExceptionWrapper, description, method, invokeAccounting);
     }
 
     @Override

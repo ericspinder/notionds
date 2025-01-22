@@ -15,11 +15,8 @@ public class NotionDsMBean extends NotificationBroadcasterSupport implements Dyn
 
 
     List<String> allowedClassNamesForInvoke = new ArrayList<>();
-    private Management management;
+    private final Management management;
 
-    public NotionDsMBean() {
-        this.management = new Management.Default_JMX();
-    }
     public NotionDsMBean(Management management) {
         this.management = management;
     }
@@ -51,9 +48,9 @@ public class NotionDsMBean extends NotificationBroadcasterSupport implements Dyn
     public AttributeList getAttributes(String[] attributeNames) {
         if (attributeNames == null || attributeNames.length == 0) throw new RuntimeOperationsException( new IllegalArgumentException("attributeNames[] cannot be null or empty"), "Cannot invoke a getter of " + dClassName);
         AttributeList resultList = new AttributeList();
-        for (int i = 0; i < attributeNames.length; i++) {
+        for (String attributeName : attributeNames) {
             try {
-                resultList.add(new Attribute(attributeNames[i], getAttribute(attributeNames[i])));
+                resultList.add(new Attribute(attributeName, getAttribute(attributeName)));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -64,8 +61,8 @@ public class NotionDsMBean extends NotificationBroadcasterSupport implements Dyn
     public AttributeList setAttributes(AttributeList attributes) {
         if (attributes == null || attributes.isEmpty()) throw new RuntimeOperationsException( new IllegalArgumentException("AttributeList attributes cannot be null or empty"),"Cannot invoke a setter of " + dClassName);
         AttributeList resultList = new AttributeList();
-        for (Iterator i = attributes.iterator(); i.hasNext(); ) {
-            Attribute attr = (Attribute) i.next();
+        for (Object attribute : attributes) {
+            Attribute attr = (Attribute) attribute;
             try {
                 setAttribute(attr);
                 String name = attr.getName();
@@ -77,7 +74,7 @@ public class NotionDsMBean extends NotificationBroadcasterSupport implements Dyn
         return resultList;
     }
 
-    public Object invoke(String operationName, Object params[], String signatures[])  throws MBeanException, ReflectionException {
+    public Object invoke(String operationName, Object[] params, String[] signatures)  throws MBeanException, ReflectionException {
         if (operationName == null || operationName.isBlank()) throw new RuntimeOperationsException( new IllegalArgumentException("Operation name cannot be null or blank"), "Cannot invoke a null operation in " + dClassName);
         for (String signature: signatures) {
             if (signature == null || signature.isBlank()) {
@@ -170,16 +167,16 @@ public class NotionDsMBean extends NotificationBroadcasterSupport implements Dyn
     private int nbChanges = 0;
     private int nbResets = 0;
 
-    private String dClassName = this.getClass().getName();
+    private final String dClassName = this.getClass().getName();
     private String dDescription = "Simple implementation of a dynamic MBean.";
 
-    private MBeanAttributeInfo[] dAttributes =
+    private final MBeanAttributeInfo[] dAttributes =
             new MBeanAttributeInfo[2];
-    private MBeanConstructorInfo[] dConstructors =
+    private final MBeanConstructorInfo[] dConstructors =
             new MBeanConstructorInfo[1];
-    private MBeanNotificationInfo[] dNotifications =
+    private final MBeanNotificationInfo[] dNotifications =
             new MBeanNotificationInfo[1];
-    private MBeanOperationInfo[] dOperations =
+    private final MBeanOperationInfo[] dOperations =
             new MBeanOperationInfo[1];
     private MBeanInfo dMBeanInfo = null;
 

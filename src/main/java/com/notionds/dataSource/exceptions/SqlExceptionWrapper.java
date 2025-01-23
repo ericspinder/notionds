@@ -7,12 +7,10 @@ import java.sql.SQLException;
 public class SqlExceptionWrapper extends SQLException implements NotionExceptionWrapper {
 
     private final Recommendation recommendation;
-    private final ConnectionArtifact_I<?> connectionArtifact;
 
-    public SqlExceptionWrapper(String message, SQLException cause, ConnectionArtifact_I<?> connectionArtifact, Recommendation recommendation) {
+    public SqlExceptionWrapper(String message, SQLException cause, Recommendation recommendation) {
         super(message, cause);
         this.recommendation = recommendation;
-        this.connectionArtifact = connectionArtifact;
     }
     /**
      * Use of 'this' as the return prevents a stack trace from being registered.
@@ -27,10 +25,5 @@ public class SqlExceptionWrapper extends SQLException implements NotionException
     @Override
     public Recommendation getRecommendation() {
         return recommendation;
-    }
-
-    @Override
-    public ConnectionArtifact_I<?> getConnectionArtifact() {
-        return connectionArtifact;
     }
 }

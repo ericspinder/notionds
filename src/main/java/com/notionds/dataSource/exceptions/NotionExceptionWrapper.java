@@ -7,7 +7,6 @@ public interface NotionExceptionWrapper {
 
     String getMessage();
     Recommendation getRecommendation();
-    ConnectionArtifact_I<?> getConnectionArtifact();
     Throwable getCause();
 
 }

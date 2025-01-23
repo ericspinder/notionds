@@ -78,6 +78,8 @@ public abstract class Options {
         Connection_Max_Wait_On_Create("com.notion.connection.max_weight_on_create", "The maximum amount of time in milliseconds until a RuntimeException is thrown to end", 1000),
         Connection_Max_Queue_Size("com.notion.connection.Max_Queue_Size", "Max Connection Queue size", 50),
         Connections_Min_Active("com.notion.connection.min_queue_size", "",10),
+        Connections_Max_Loaned_Out_Refill("com.notionds.connection.max_connections_loaned_out_refill","this number of lent connections activates a refill between min and max", 5),
+        Connections_Refill_Count("com.notionds.connection.refill_count", "this is the number of connections created when needed", 3),
         Timeout_Retrieve_Connection("com.notionds.datasource.ConnectionPool.timeout_retrieve_connection","Login timeout in seconds", 60);
         ;
         private final String key;

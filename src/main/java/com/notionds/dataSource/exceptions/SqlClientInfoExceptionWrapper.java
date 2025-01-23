@@ -7,12 +7,10 @@ import java.sql.SQLClientInfoException;
 public class SqlClientInfoExceptionWrapper extends SQLClientInfoException implements NotionExceptionWrapper {
 
     private final Recommendation recommendation;
-    private final ConnectionArtifact_I<?> connectionArtifact;
 
-    public SqlClientInfoExceptionWrapper(String message, Recommendation recommendation, ConnectionArtifact_I<?> connectionArtifact, SQLClientInfoException cause) {
+    public SqlClientInfoExceptionWrapper(String message, Recommendation recommendation, SQLClientInfoException cause) {
         super(message, cause.getFailedProperties(), cause);
         this.recommendation = recommendation;
-        this.connectionArtifact = connectionArtifact;
     }
     /**
      * Use of 'this' as the return prevents a stack trace from being registered.
@@ -27,10 +25,5 @@ public class SqlClientInfoExceptionWrapper extends SQLClientInfoException implem
     @Override
     public Recommendation getRecommendation() {
         return this.recommendation;
-    }
-
-    @Override
-    public ConnectionArtifact_I<?> getConnectionArtifact() {
-        return connectionArtifact;
     }
 }

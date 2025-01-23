@@ -64,13 +64,13 @@ public abstract class Advice {
     protected abstract Recommendation parseException(Exception exception);
     protected abstract Recommendation parseThrowable(Throwable throwable);
 
-    public SqlExceptionWrapper adviseSqlException(SQLException sqlException, ConnectionArtifact_I<?> connectionArtifact) {
+    public SqlExceptionWrapper adviseSqlException(SQLException sqlException) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped SQLException, recommendation=");
         try {
             Recommendation recommendation = this.parseSQLException(sqlException);
             s.append(recommendation);
-            return new SqlExceptionWrapper(s.toString(), sqlException, connectionArtifact, recommendation);
+            return new SqlExceptionWrapper(s.toString(), sqlException, recommendation);
         }
         finally {
             System.out.println("dude");
@@ -80,13 +80,13 @@ public abstract class Advice {
             }
         }
     }
-    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException, ConnectionArtifact_I<?> connectionArtifact) {
+    public SqlClientInfoExceptionWrapper adviseSQLClientInfoException(SQLClientInfoException sqlClientInfoException) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped SQLClientInfoException, recommendation=");
         try {
             Recommendation recommendation = this.parseSQLClientInfoException(sqlClientInfoException);
             s.append(recommendation);
-            return new SqlClientInfoExceptionWrapper(s.toString(), recommendation, connectionArtifact,sqlClientInfoException);
+            return new SqlClientInfoExceptionWrapper(s.toString(), recommendation,sqlClientInfoException);
         }
         finally {
             if (logger.isDebugEnabled()) {
@@ -95,13 +95,13 @@ public abstract class Advice {
             }
         }
     }
-    public IoExceptionWrapper adviseIoException(IOException ioException, ConnectionArtifact_I<?> connectionArtifact) {
+    public IoExceptionWrapper adviseIoException(IOException ioException) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped IOException, recommendation=");
         try {
             Recommendation recommendation = this.parseIOException(ioException);
             s.append(recommendation);
-            return new IoExceptionWrapper(s.toString(), recommendation, connectionArtifact, ioException);
+            return new IoExceptionWrapper(s.toString(), recommendation, ioException);
         }
         finally {
             if (logger.isDebugEnabled()) {
@@ -110,13 +110,13 @@ public abstract class Advice {
             }
         }
     }
-    public ExceptionWrapper adviseException(Exception exception, ConnectionArtifact_I<?> connectionArtifact) {
+    public ExceptionWrapper adviseException(Exception exception) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped Exception, recommendation=");
         try {
             Recommendation recommendation = this.parseException(exception);
             s.append(recommendation);
-            return new ExceptionWrapper(s.toString(), recommendation, connectionArtifact, exception);
+            return new ExceptionWrapper(s.toString(), recommendation, exception);
         }
         finally {
             if (logger.isDebugEnabled()) {
@@ -125,13 +125,13 @@ public abstract class Advice {
             }
         }
     }
-    public ThrowableWrapper adviseThrowable(Throwable throwable, ConnectionArtifact_I<?> connectionArtifact) {
+    public ThrowableWrapper adviseThrowable(Throwable throwable) {
         StringBuilder s = new StringBuilder();
         s.append("NotionDs wrapped Exception, recommendation=");
         try {
             Recommendation recommendation = this.parseThrowable(throwable);
             s.append(recommendation);
-            return new ThrowableWrapper(s.toString(), recommendation, connectionArtifact, throwable);
+            return new ThrowableWrapper(s.toString(), recommendation, throwable);
         }
         finally {
             if (logger.isDebugEnabled()) {

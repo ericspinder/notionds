@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.*;
 import java.time.Duration;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -27,7 +28,6 @@ public class TestNotionDs {
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
 		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
 		NotionDs notionDs = new NotionDs(connectionPool);
-		assertTrue(connectionPool.testAcquireConnection());
 		Connection wrappedConnection = notionDs.getConnection();
 		assertInstanceOf(ConnectionArtifact_I.class,wrappedConnection);
 		Statement statement = wrappedConnection.createStatement();
@@ -44,16 +44,15 @@ public class TestNotionDs {
 		wrappedConnection.close();
 		assertFalse(wrappedConnection.isClosed());
         assertEquals(((ConnectionArtifact_I<Connection>) wrappedConnection).getConnectionContainer().getCurrentState(), State.Pooled);
-		connectionPool.shutdown();
 	}
 	@Test
 	public void failedLogin() throws SQLException {
 		BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "badUser", "badPass"));
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
+		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "badUser2", "badPass"));
 		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
 		NotionDs notionDs = new NotionDs(connectionPool);
-		//NotionStartupException notionStartupException = assertThrows(NotionStartupException.class, () ->connectionPool.testConnection());
 
 		Connection connection2 = notionDs.getConnection();
 		PreparedStatement preparedStatement = connection2.prepareStatement("Select 1 from dual");
@@ -62,6 +61,37 @@ public class TestNotionDs {
 		assertInstanceOf(ConnectionArtifact_I.class, resultSet1);
 		resultSet1.first();
 		assertEquals(1, resultSet1.getInt(1));
+
+		connectionPool.addFailover(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "badUser3", ""));
+		connectionPool.addFailover(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
+
+		CallableStatement callableStatement = connection2.prepareCall("select * from (Select 2 from dual) d");
+		assertInstanceOf(ConnectionArtifact_I.class, callableStatement);
+		ResultSet resultSet2 = callableStatement.executeQuery();
+		assertInstanceOf(ConnectionArtifact_I.class, resultSet2);
+		resultSet2.first();
+		assertEquals(2, resultSet2.getInt(1));
+		connection2.close();
+	}
+	@Test
+	public void expiredPasswordLogin() throws SQLException {
+		BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+		MutableConnectionSupplier mutableConnectionSupplier = new MutableConnectionSupplier("org.h2.Driver","jdbc:h2:mem:foo_db", "", "","SELECT 1 FROM DUAL");
+		connectionSuppliers.add(mutableConnectionSupplier);
+		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
+		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+		NotionDs notionDs = new NotionDs(connectionPool);
+
+		Connection connection2 = notionDs.getConnection();
+		PreparedStatement preparedStatement = connection2.prepareStatement("Select 1 from dual");
+		assertInstanceOf(ConnectionArtifact_I.class, preparedStatement);
+		ResultSet resultSet1 = preparedStatement.executeQuery();
+		assertInstanceOf(ConnectionArtifact_I.class, resultSet1);
+		resultSet1.first();
+		assertEquals(1, resultSet1.getInt(1));
+
+		//simulate expiration of password by changing it
+		mutableConnectionSupplier.setPassword("bad Password");
 
 		CallableStatement callableStatement = connection2.prepareCall("Select 2 from dual");
 		assertInstanceOf(ConnectionArtifact_I.class, callableStatement);

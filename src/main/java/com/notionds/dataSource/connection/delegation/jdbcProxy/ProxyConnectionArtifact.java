@@ -55,7 +55,7 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
     @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-        logger.trace("ProxyConnectionArtifact " + m.getName() + " delegateClass: " + delegate.getClass());
+        logger.trace("ProxyConnectionArtifact - method = " + m.getName() + ", delegateClass: " + delegate.getClass());
         switch (m.getName()) {
             case "close":
                 if (connectionContainer.get().equals(this)) {
@@ -84,12 +84,8 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
             case "equals":
                 return equals(args[0]);
             case "setConnectionContainer":
-                logger.trace("setting connectionContainer");
                 this.connectionContainer = (ConnectionContainer) args[0];
                 return Void.TYPE;
-            case "execute":
-                logger.trace("execute");
-                return m.invoke(delegate,args);
         }
         if (m.getReturnType().equals(Void.TYPE)) {
             try {

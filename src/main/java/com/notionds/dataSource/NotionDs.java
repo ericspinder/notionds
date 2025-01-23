@@ -2,9 +2,6 @@ package com.notionds.dataSource;
 
 
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -18,6 +15,7 @@ public class NotionDs implements DataSource {
 
         UUID getUUID();
         Connection getConnection() throws SQLException;
+        String getTestSQL();
     }
 
     public static final Options.Default DEFAULT_OPTIONS_INSTANCE = new Options.Default();
@@ -26,7 +24,8 @@ public class NotionDs implements DataSource {
 
     public NotionDs(ConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
-        Thread cleaningThread = new Thread(this.connectionPool.getCleanup());
+        this.connectionPool.warmPool();
+        Thread cleaningThread = new Thread(this.connectionPool.getCleanupPrepare());
         cleaningThread.start();
     }
 

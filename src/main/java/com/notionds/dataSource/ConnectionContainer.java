@@ -16,21 +16,25 @@ import java.util.WeakHashMap;
 
 public class ConnectionContainer extends SoftReference<ConnectionArtifact_I<Connection>> implements Comparable<ConnectionContainer> {
 
-    private static final Logger logger = LogManager.getLogger(ConnectionContainer.class);
     public final UUID containerId = UUID.randomUUID();
     public final Instant createInstant = Instant.now();
     private final WrapperFactory_I connectionWrapper;
     private final ConnectionPool connectionPool;
     protected volatile State currentState;
-    private final Duration connectionChildTimeout;
-    private final Map<Object,Instant> connectionChildren = new WeakHashMap<>();
+    private final UUID getConnectionSupplierUUID;
 
-    public ConnectionContainer(ConnectionArtifact_I<Connection> connection, ConnectionPool connectionPool, WrapperFactory_I connectionWrapper, Duration connectionChildTimeout) {
-        super(connection,connectionPool.getCleanup().getConnectionReferenceQueue());
+    public ConnectionContainer(UUID connectionSupplierUUID, ConnectionArtifact_I<Connection> connection, ConnectionPool connectionPool, WrapperFactory_I connectionWrapper) {
+        super(connection,connectionPool.getCleanupPrepare().getConnectionReferenceQueue());
+        this.getConnectionSupplierUUID = connectionSupplierUUID;
         this.connectionPool = connectionPool;
         this.connectionWrapper = connectionWrapper;
-        this.connectionChildTimeout = connectionChildTimeout;
         this.currentState = State.Pooled;
+    }
+    public UUID getContainerId() {
+        return containerId;
+    }
+    public UUID getGetConnectionSupplierUUID() {
+        return getConnectionSupplierUUID;
     }
     public ConnectionPool getConnectionPool() {
         return connectionPool;

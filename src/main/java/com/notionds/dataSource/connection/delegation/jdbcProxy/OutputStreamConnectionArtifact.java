@@ -2,6 +2,7 @@ package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
 import com.notionds.dataSource.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
+import com.notionds.dataSource.exceptions.IoExceptionWrapper;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,7 +50,7 @@ public class OutputStreamConnectionArtifact extends OutputStream implements Conn
             delegate.write(b);
         }
         catch(IOException ioe) {
-            throw connectionContainer.getConnectionPool().getAdvice().adviseIoException(ioe, this);
+            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe,this);
         }
     }
 
@@ -59,7 +60,7 @@ public class OutputStreamConnectionArtifact extends OutputStream implements Conn
             delegate.flush();
         }
         catch(IOException ioe) {
-            throw connectionContainer.getConnectionPool().getAdvice().adviseIoException(ioe, this);
+            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe,this);
         }
     }
     @Override

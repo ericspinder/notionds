@@ -33,4 +33,12 @@ public enum Recommendation {
     public boolean isFailoverToNextConnectionSupplier() {
         return this.failoverToNextConnectionSupplier;
     }
+
+    @Override
+    public String toString() {
+        return "Recommendation{" + "description='" + description + '\'' +
+                ", shouldCloseExisting=" + shouldCloseExisting +
+                ", failoverToNextConnectionSupplier=" + failoverToNextConnectionSupplier +
+                '}';
+    }
 }

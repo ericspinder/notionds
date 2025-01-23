@@ -13,14 +13,20 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
 
-public class Cleanup implements Runnable {
+public class CleanupPrepare implements Runnable {
 
-    private static final Logger logger = LogManager.getLogger(Cleanup.class);
+    private static final Logger logger = LogManager.getLogger(CleanupPrepare.class);
     protected boolean doCleanup = true;
     private final ReferenceQueue<ConnectionArtifact_I<Connection>> connectionReferenceQueue = new ReferenceQueue<>();
-    public final Map<ConnectionContainer, Instant> timeoutCleanup = Collections.synchronizedMap(new WeakHashMap<>());
+    protected final Map<ConnectionContainer, Instant> timeoutCleanup = Collections.synchronizedMap(new WeakHashMap<>());
 
+    protected final ConnectionPool connectionPool;
+
+    public CleanupPrepare(ConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
+    }
     /**
      * Patrol ConnectionContainer timeouts
      */
@@ -29,14 +35,14 @@ public class Cleanup implements Runnable {
         for (Map.Entry<ConnectionContainer, Instant> containerInstantEntry: timeoutCleanup.entrySet()) {
             ConnectionContainer connectionContainer = containerInstantEntry.getKey();
             ConnectionArtifact_I<Connection> connectionArtifact = connectionContainer.get();
-            if (connectionArtifact == null) {
+            if (connectionArtifact == null || connectionArtifact.getDelegate() == null) {
                 logger.info("Removing dead ConnectionContainer id = " + connectionContainer.containerId);
                 timeoutCleanup.remove(connectionContainer);
             }
             Instant expireTime = containerInstantEntry.getValue();
             if (expireTime != null && expireTime.isAfter(Instant.now()) && connectionContainer.getCurrentState().equals(State.Pooled)) {
                 try {
-                    connectionContainer.get().getDelegate().close();
+                    connectionArtifact.getDelegate().close();
                 } catch (SQLException e) {
                     logger.error("problem on close" + e.getMessage());
                 }
@@ -59,6 +65,15 @@ public class Cleanup implements Runnable {
             }
         }
     }
+    protected void patrolPoolUsage() {
+        int totalSpaceAvailableFromMax = (int) connectionPool.getOptions().get(Options.Integers.Connection_Max_Queue_Size.getKey()) - connectionPool.loanedConnections.size() + connectionPool.connectionQueue.size();
+        logger.trace("totalSpaceAvailableFromMax = " + totalSpaceAvailableFromMax + ", loanedConnection.size = " + connectionPool.loanedConnections.size() + ", connectionQueue = " + connectionPool.connectionQueue.size());
+        if ((connectionPool.connectionQueue.size() < (int) connectionPool.getOptions().get(Options.Integers.Connections_Min_Active.getKey()) ||
+                (connectionPool.loanedConnections.size() > (int) connectionPool.getOptions().get(Options.Integers.Connections_Max_Loaned_Out_Refill.getKey()) && connectionPool.connectionQueue.size() < (int) connectionPool.getOptions().get(Options.Integers.Connections_Min_Active.getKey()) )) &&
+                totalSpaceAvailableFromMax > 0) {
+            CompletableFuture.allOf(connectionPool.addConnectionFutures((int) connectionPool.getOptions().get(Options.Integers.Connections_Refill_Count.getKey())));
+        }
+    }
     public ReferenceQueue<ConnectionArtifact_I<Connection>> getConnectionReferenceQueue() {
         return this.connectionReferenceQueue;
     }
@@ -69,6 +84,7 @@ public class Cleanup implements Runnable {
                 logger.debug("doCleanup");
                 sortGarbage();
                 patrolTimeouts();
+                patrolPoolUsage();
                 logger.debug("finished cleanup");
             }
         }

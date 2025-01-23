@@ -5,12 +5,10 @@ import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 public class ExceptionWrapper extends Exception implements NotionExceptionWrapper {
 
     private final Recommendation recommendation;
-    private final ConnectionArtifact_I<?> connectionArtifact;
 
-    public ExceptionWrapper(String message, Recommendation recommendation, ConnectionArtifact_I<?> connectionArtifact, Exception cause) {
+    public ExceptionWrapper(String message, Recommendation recommendation, Exception cause) {
         super(message, cause, false, false);
         this.recommendation = recommendation;
-        this.connectionArtifact = connectionArtifact;
     }
 
     /**
@@ -26,10 +24,5 @@ public class ExceptionWrapper extends Exception implements NotionExceptionWrappe
     @Override
     public Recommendation getRecommendation() {
         return this.recommendation;
-    }
-
-    @Override
-    public ConnectionArtifact_I<?> getConnectionArtifact() {
-        return connectionArtifact;
     }
 }

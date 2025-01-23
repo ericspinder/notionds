@@ -1,20 +1,21 @@
-package com.notionds.dataSource;
+package com.notion.dataSource;
+
+import com.notionds.dataSource.NotionDs;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.function.Supplier;
 
-public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
+class MutableConnectionSupplier implements NotionDs.ConnectionSupplier_I {
 
     private final UUID uuid = UUID.randomUUID();
-    private final String url;
-    private final String username;
-    private final String password;
-    private final String testSQL;
+    private String url;
+    private String username;
+    private String password;
+    private String testSQL;
 
-    public ConnectionSupplier(String driverClassName, String url, String username, String password, String testSQL) {
+    public MutableConnectionSupplier(String driverClassName, String url, String username, String password, String testSQL) {
         this.url = url;
         this.username = username;
         this.password = password;
@@ -41,10 +42,19 @@ public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
         return testSQL;
     }
 
-    public static class H2 extends ConnectionSupplier {
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-        public H2(String url, String userName, String password) {
-                super("org.h2.Driver", url, userName, password,"SELECT 1 FROM DUAL");
-        }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setTestSQL(String testSQL) {
+        this.testSQL = testSQL;
     }
 }

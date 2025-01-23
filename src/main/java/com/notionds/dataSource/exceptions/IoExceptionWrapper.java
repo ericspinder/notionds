@@ -7,12 +7,10 @@ import java.io.IOException;
 public class IoExceptionWrapper extends IOException implements NotionExceptionWrapper {
 
     private final Recommendation recommendation;
-    private final ConnectionArtifact_I<?> connectionArtifact;
 
-    public IoExceptionWrapper(String message, Recommendation recommendation, ConnectionArtifact_I<?> connectionArtifact, IOException cause) {
+    public IoExceptionWrapper(String message, Recommendation recommendation, IOException cause) {
         super(message, cause);
         this.recommendation = recommendation;
-        this.connectionArtifact = connectionArtifact;
     }
     /**
      * Use of 'this' as the return prevents a stack trace from being registered.
@@ -27,10 +25,5 @@ public class IoExceptionWrapper extends IOException implements NotionExceptionWr
     @Override
     public Recommendation getRecommendation() {
         return this.recommendation;
-    }
-
-    @Override
-    public ConnectionArtifact_I<?> getConnectionArtifact() {
-        return connectionArtifact;
     }
 }

@@ -5,7 +5,6 @@ import javax.management.modelmbean.*;
 import java.awt.font.OpenType;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public abstract class NotionDescriptor implements Descriptor {
 

@@ -2,7 +2,6 @@ package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.UUID;
 
 public final class InvokeAccounting {
     private final Instant startTime;

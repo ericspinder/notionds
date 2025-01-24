@@ -2,7 +2,6 @@ package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
 import com.notionds.dataSource.ConnectionContainer;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
-import com.notionds.dataSource.exceptions.IoExceptionWrapper;
 
 import java.io.IOException;
 import java.io.OutputStream;

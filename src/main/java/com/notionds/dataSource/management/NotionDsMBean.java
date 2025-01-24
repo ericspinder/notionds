@@ -3,11 +3,10 @@ package com.notionds.dataSource.management;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.management.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import javax.management.*;
 
 public class NotionDsMBean extends NotificationBroadcasterSupport implements DynamicMBean {
 

@@ -1,7 +1,5 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
-
 import java.sql.SQLClientInfoException;
 
 public class SqlClientInfoExceptionWrapper extends SQLClientInfoException implements NotionExceptionWrapper {

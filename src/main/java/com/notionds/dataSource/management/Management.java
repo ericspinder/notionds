@@ -1,15 +1,15 @@
 package com.notionds.dataSource.management;
 
-import com.notionds.dataSource.ConnectionPool;
-import com.notionds.dataSource.NotionDs;
-import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.Options;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class Management {

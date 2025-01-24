@@ -2,7 +2,6 @@ package com.notionds.dataSource.exceptions;
 
 import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
-import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

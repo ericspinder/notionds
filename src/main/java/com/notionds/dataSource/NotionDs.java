@@ -25,8 +25,11 @@ public class NotionDs implements DataSource {
     public NotionDs(ConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
         this.connectionPool.warmPool();
+
         Thread cleaningThread = new Thread(this.connectionPool.getCleanupPrepare());
+        cleaningThread.setName("Cleaning thread " + UUID.randomUUID());
         cleaningThread.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(connectionPool::shutdown));
     }
 
 

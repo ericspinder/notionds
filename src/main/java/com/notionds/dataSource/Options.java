@@ -3,7 +3,6 @@ package com.notionds.dataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.security.KeyStore;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -73,14 +72,10 @@ public abstract class Options {
     public enum Integers implements Option<Integer>  {
         Advice_Exception_Aggregator_Map_Max_Size("com.notionds.advice.exception.aggregatorMap.maxSize", "The number of ", 1000),
         Advice_Nominal_Aggregator_Map_Max_Size("com.notionds.advice.nominal.aggregatorMap.maxSize", "The number of ", 1000),
-        //ConnectionAnalysis_Max_Exceptions("com.notion.connectionAnalysis.maxExceptions", "The maximum number of noncritical sql Exceptions before a connection will terminate", 5),
-        //ConnectionAnalysis_Max_Normal_Seconds("com.notion.connectionAnalysis.maxNormalSeconds", "The maximum time of an operation before it's reported as abnormal", 10),
         Connection_Max_Wait_On_Create("com.notion.connection.max_weight_on_create", "The maximum amount of time in milliseconds until a RuntimeException is thrown to end", 1000),
         Connection_Max_Queue_Size("com.notion.connection.Max_Queue_Size", "Max Connection Queue size", 50),
-        Connections_Min_Active("com.notion.connection.min_queue_size", "",10),
-        Connections_Max_Loaned_Out_Refill("com.notionds.connection.max_connections_loaned_out_refill","this number of lent connections activates a refill between min and max", 5),
-        Connections_Refill_Count("com.notionds.connection.refill_count", "this is the number of connections created when needed", 3),
-        Timeout_Retrieve_Connection("com.notionds.datasource.ConnectionPool.timeout_retrieve_connection","Login timeout in seconds", 60);
+        Connections_Min_Active("com.notion.connection.min_queue_size", "",5),
+        Timeout_Retrieve_Connection("com.notionds.datasource.ConnectionPool.timeout_retrieve_connection","Login timeout in seconds", 10);
         ;
         private final String key;
         private final String description;

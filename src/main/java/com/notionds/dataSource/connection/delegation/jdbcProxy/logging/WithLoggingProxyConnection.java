@@ -1,7 +1,7 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
-import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.ConnectionContainer;
+import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.ProxyConnectionArtifact;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 

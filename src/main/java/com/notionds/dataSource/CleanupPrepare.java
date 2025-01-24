@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class CleanupPrepare implements Runnable {
 
@@ -26,12 +27,12 @@ public class CleanupPrepare implements Runnable {
 
     public CleanupPrepare(ConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
+        logger.info("CleanupPrepare");
     }
     /**
      * Patrol ConnectionContainer timeouts
      */
     protected void patrolTimeouts() {
-        logger.info("patrolTimeouts");
         for (Map.Entry<ConnectionContainer, Instant> containerInstantEntry: timeoutCleanup.entrySet()) {
             ConnectionContainer connectionContainer = containerInstantEntry.getKey();
             ConnectionArtifact_I<Connection> connectionArtifact = connectionContainer.get();
@@ -56,24 +57,29 @@ public class CleanupPrepare implements Runnable {
      * Check if any 'top level' Connection instances have been found in garbage collection
      */
     protected void sortGarbage() throws InterruptedException {
-        logger.debug("Sort Garbage");
-        Reference<?> reference = connectionReferenceQueue.remove();
+        Reference<?> reference = connectionReferenceQueue.poll();
         if (reference instanceof ConnectionContainer connectionContainer) {
             ConnectionArtifact_I<Connection> artifact = connectionContainer.get();
             if (artifact != null) {
-                artifact.getConnectionContainer().getConnectionPool().returnConnection(artifact);
+                if (artifact.getConnectionContainer().getConnectionPool().returnConnection(artifact)) {
+                    logger.trace("returning connection, artifactId = " + artifact.getArtifactId());
+                }
+                else {
+                    logger.info("DID NOT return connection, artifactId = " + artifact.getArtifactId());
+                }
             }
         }
     }
-    protected void patrolPoolUsage() {
-        int totalSpaceAvailableFromMax = (int) connectionPool.getOptions().get(Options.Integers.Connection_Max_Queue_Size.getKey()) - connectionPool.loanedConnections.size() + connectionPool.connectionQueue.size();
-        logger.trace("totalSpaceAvailableFromMax = " + totalSpaceAvailableFromMax + ", loanedConnection.size = " + connectionPool.loanedConnections.size() + ", connectionQueue = " + connectionPool.connectionQueue.size());
-        if ((connectionPool.connectionQueue.size() < (int) connectionPool.getOptions().get(Options.Integers.Connections_Min_Active.getKey()) ||
-                (connectionPool.loanedConnections.size() > (int) connectionPool.getOptions().get(Options.Integers.Connections_Max_Loaned_Out_Refill.getKey()) && connectionPool.connectionQueue.size() < (int) connectionPool.getOptions().get(Options.Integers.Connections_Min_Active.getKey()) )) &&
-                totalSpaceAvailableFromMax > 0) {
-            CompletableFuture.allOf(connectionPool.addConnectionFutures((int) connectionPool.getOptions().get(Options.Integers.Connections_Refill_Count.getKey())));
+    protected void patrolPoolUsage() throws InterruptedException, ExecutionException {
+        Thread.sleep(1000);
+        boolean maxConnectionNotHitYet = connectionPool.loanedConnections.size() + connectionPool.connectionQueue.size() < (int) connectionPool.getOptions().get(Options.Integers.Connection_Max_Queue_Size.getKey());
+        boolean availableConnectionsBelowMinNeeded = connectionPool.connectionQueue.size() < (int) connectionPool.getOptions().get(Options.Integers.Connections_Min_Active.getKey());
+        //logger.trace("loanedConnection.size = " + connectionPool.loanedConnections.size() + ", connectionQueue = " + connectionPool.connectionQueue.size() + ", maxConnectionNotHitYet = " + maxConnectionNotHitYet + ", availableConnectionsBelowMinNeeded" + availableConnectionsBelowMinNeeded);
+        if (maxConnectionNotHitYet && availableConnectionsBelowMinNeeded) {
+            CompletableFuture.allOf(connectionPool.addConnectionFutures(1)).get();
         }
     }
+
     public ReferenceQueue<ConnectionArtifact_I<Connection>> getConnectionReferenceQueue() {
         return this.connectionReferenceQueue;
     }
@@ -81,15 +87,13 @@ public class CleanupPrepare implements Runnable {
     public void run() {
         try {
             while (doCleanup) {
-                logger.debug("doCleanup");
                 sortGarbage();
                 patrolTimeouts();
                 patrolPoolUsage();
-                logger.debug("finished cleanup");
             }
         }
-        catch (InterruptedException ie) {
-            return;
+        catch (InterruptedException | ExecutionException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 

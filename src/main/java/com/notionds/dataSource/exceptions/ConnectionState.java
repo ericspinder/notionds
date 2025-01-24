@@ -306,9 +306,9 @@ public enum ConnectionState {
         Warning("01", "warning", Recommendation.Nominal_Operation),
         NoData("02", "no data"),
         DynamicSqlError("07", "dynamic SQL error"),
-        ConnectionException("08","connection exception"),
+        ConnectionException("08","connection exception", Recommendation.Authentication_Failover),
         TriggeredActionException("09", "triggered action exception"),
-        FeatureNotSupported("0A","feature not supported", Recommendation.Version_Fail),
+        FeatureNotSupported("0A","feature not supported"),
         InvalidTargetTypeSpecification("0D","invalid target type specification"),
         InvalidSchemaNameListSpecification("0E","invalid schema name list specification"),
         LocatorException("0F","locator exception"),
@@ -379,6 +379,9 @@ public enum ConnectionState {
         }
         public final String getDescription() {
             return this.description;
+        }
+        public final Recommendation getRecommendation() {
+            return this.recommendation;
         }
     }
     private final String code;

@@ -1,9 +1,7 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy;
 
-import com.notionds.dataSource.NotionDs;
-import com.notionds.dataSource.NotionStartupException;
-import com.notionds.dataSource.Options;
 import com.notionds.dataSource.ConnectionContainer;
+import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.WrapperFactory_I;
 import org.apache.logging.log4j.LogManager;
@@ -13,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.Proxy;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

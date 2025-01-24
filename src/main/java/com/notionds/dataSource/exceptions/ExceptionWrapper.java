@@ -1,7 +1,5 @@
 package com.notionds.dataSource.exceptions;
 
-import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
-
 public class ExceptionWrapper extends Exception implements NotionExceptionWrapper {
 
     private final Recommendation recommendation;

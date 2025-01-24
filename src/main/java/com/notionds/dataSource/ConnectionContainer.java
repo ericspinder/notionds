@@ -3,16 +3,11 @@ package com.notionds.dataSource;
 import com.notionds.dataSource.connection.State;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.WrapperFactory_I;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.lang.ref.SoftReference;
-import java.sql.*;
-import java.time.Duration;
+import java.sql.Connection;
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
 public class ConnectionContainer extends SoftReference<ConnectionArtifact_I<Connection>> implements Comparable<ConnectionContainer> {
 

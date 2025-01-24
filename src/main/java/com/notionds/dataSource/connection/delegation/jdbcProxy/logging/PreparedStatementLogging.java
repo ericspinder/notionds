@@ -1,7 +1,5 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
-import com.notionds.dataSource.ConnectionPool;
-import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 

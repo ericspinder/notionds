@@ -1,11 +1,8 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
-import com.notionds.dataSource.ConnectionPool;
 import com.notionds.dataSource.EvictByLowCountMap;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.Map;

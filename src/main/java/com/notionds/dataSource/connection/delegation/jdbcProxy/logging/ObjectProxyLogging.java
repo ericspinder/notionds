@@ -1,7 +1,5 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
-import com.notionds.dataSource.ConnectionPool;
-import com.notionds.dataSource.NotionDs;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import org.apache.logging.log4j.LogManager;
@@ -10,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.Method;
 import java.time.Instant;
 
-import static com.notionds.dataSource.Options.Strings.*;
+import static com.notionds.dataSource.Options.Strings.Logging_Method_REGEX;
 
 public class ObjectProxyLogging {
 

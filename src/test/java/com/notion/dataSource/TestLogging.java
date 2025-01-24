@@ -3,7 +3,6 @@ package com.notion.dataSource;
 import com.notionds.dataSource.ConnectionPool;
 import com.notionds.dataSource.ConnectionSupplier;
 import com.notionds.dataSource.NotionDs;
-import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingService;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingWrapperFactory;
@@ -11,14 +10,10 @@ import com.notionds.dataSource.exceptions.Advice;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;
-import java.time.Duration;
-import java.util.Queue;
-import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestLogging {
 

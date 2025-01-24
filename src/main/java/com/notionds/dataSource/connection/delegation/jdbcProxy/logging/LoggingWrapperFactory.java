@@ -1,8 +1,6 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
 import com.notionds.dataSource.ConnectionContainer;
-import com.notionds.dataSource.NotionDs;
-import com.notionds.dataSource.Options;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.WrapperFactory;
 import org.apache.logging.log4j.LogManager;

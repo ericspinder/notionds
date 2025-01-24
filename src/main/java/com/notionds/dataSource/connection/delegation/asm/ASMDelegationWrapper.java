@@ -13,12 +13,12 @@ import java.util.concurrent.locks.StampedLock;
  * <a href="https://www.baeldung.com/java-asm">ASM tutorial</a>
  *
  */
-public class ASMDelegationWrapperI implements WrapperFactory_I {
+public class ASMDelegationWrapper implements WrapperFactory_I {
 
     private Map<Class<?>, Class<ConnectionArtifact_I<?>>> cache = new HashMap<>();
     private StampedLock creationGate = new StampedLock();
 
-    public ASMDelegationWrapperI() {
+    public ASMDelegationWrapper() {
     }
 
     @Override

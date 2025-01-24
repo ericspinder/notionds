@@ -35,7 +35,7 @@ public abstract class Management {
         /*
          * Duration split into TimeUnits for efficient use in the poll method
          */
-        Supplier<Integer> connectionRetrieve_getter = () -> (Integer) this.options.get(Options.Integers.Connection_Max_Wait_On_Create.getKey());
+        Supplier<Integer> connectionRetrieve_getter = () -> (Integer) this.options.get(Options.Integers.Timeout_Retrieve_Connection.getKey());
         Consumer<Integer> connectionRetrieve_setter = (Integer connection_retrieve_millis) -> this.options.setValue(Options.Integers.Timeout_Retrieve_Connection.getKey(), connection_retrieve_millis);
         /*
          * Max number of connections allowed, this is not a hard limit

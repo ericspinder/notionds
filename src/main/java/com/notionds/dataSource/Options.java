@@ -22,8 +22,8 @@ public abstract class Options {
     }
 
     public enum Strings implements Option<String>  {
-        Management_JMX("com.notionds.jmx.management", "JMX management mBean Implementation", "com.notionds.dataSource.jmx.NotionDsBean"),
-        Logging_Method_REGEX("com.notionds.logging.method_regex", "The regex for the method or methods (how clever is your regex?) which need have an InvokeAccounting created", "^execute")
+//        Management_JMX("com.notionds.jmx.management", "JMX management mBean Implementation", "com.notionds.dataSource.jmx.NotionDsBean"),
+//        Logging_Method_REGEX("com.notionds.logging.method_regex", "The regex for the method or methods (how clever is your regex?) which need have an InvokeAccounting created", "^execute")
         ;
         private final String key;
         private final String description;
@@ -72,9 +72,8 @@ public abstract class Options {
     public enum Integers implements Option<Integer>  {
         Advice_Exception_Aggregator_Map_Max_Size("com.notionds.advice.exception.aggregatorMap.maxSize", "The number of ", 1000),
         Advice_Nominal_Aggregator_Map_Max_Size("com.notionds.advice.nominal.aggregatorMap.maxSize", "The number of ", 1000),
-        Connection_Max_Wait_On_Create("com.notion.connection.max_weight_on_create", "The maximum amount of time in milliseconds until a RuntimeException is thrown to end", 1000),
-        Connection_Max_Queue_Size("com.notion.connection.Max_Queue_Size", "Max Connection Queue size", 50),
-        Connections_Min_Active("com.notion.connection.min_queue_size", "",5),
+        Connection_Max_Queue_Size("com.notionds.connection.Max_Queue_Size", "Max Connection Queue size", 50),
+        Connections_Min_Active("com.notionds.connection.min_queue_size", "",5),
         Timeout_Retrieve_Connection("com.notionds.datasource.ConnectionPool.timeout_retrieve_connection","Login timeout in seconds", 10);
         ;
         private final String key;
@@ -101,7 +100,6 @@ public abstract class Options {
         ConnectionTimeoutInPool_Cool_Down("com.notionds.connections_timeout_in_pool_cool_down","Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections", java.time.Duration.of(60, ChronoUnit.SECONDS)),
         ConnectionTimeoutOnLoan("com.notionds.connection_timeout_on_loan","Default max time before connection is automatically closed, breaking loaned connections", java.time.Duration.of(360, ChronoUnit.MINUTES)),
         ConnectionMaxLifetime("com.notionds.connection_timeout_max_lifetime","Max lifetime of a connection", java.time.Duration.of(2, ChronoUnit.HOURS)),
-        ConnectionChildTimeout("com.notionds.connection_child_timeout", "The max time an object created by the connection will live, such as a Statement, Prepared Statement, Reader, InputStream or OutputStream", java.time.Duration.of(360, ChronoUnit.MINUTES))
         ;
         private final String key;
         private final String description;
@@ -124,10 +122,8 @@ public abstract class Options {
 
     public enum Booleans implements Option<Boolean>  {
 
-        ConnectionContainer_Check_ResultSet("com.notion.connectionMain.checkResultSet", "Order a check of all ResultSets before closing when cleanupAfterGC() had not been called, until the connection had been closed", true),
-        ConnectionPool_Use("com.notion.pool.usePool", "Should pool connections", true),
-        Logging("com.notion.connection.delegation.jdbcProxy.logging.UseLogging", "Use ProxyV1 logging", false),
-        LogNonExecuteProxyMembers("com.notion.connection.delegation.jdbcProxy.logging.LogNonExecuteProxyMembers", "Use a proxy wrapper for even non-execute proxy member classes, when logging is turned on", false),
+//        Logging("com.notion.connection.delegation.jdbcProxy.logging.UseLogging", "Use ProxyV1 logging", false),
+//        LogNonExecuteProxyMembers("com.notion.connection.delegation.jdbcProxy.logging.LogNonExecuteProxyMembers", "Use a proxy wrapper for even non-execute proxy member classes, when logging is turned on", false),
         ;
         private final String key;
         private final String description;

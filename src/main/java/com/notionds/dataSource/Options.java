@@ -14,7 +14,6 @@ public abstract class Options {
 
     private static final Logger logger = LogManager.getLogger(Options.class);
 
-
     public interface Option<V> {
         String getKey();
         V getDefaultValue();

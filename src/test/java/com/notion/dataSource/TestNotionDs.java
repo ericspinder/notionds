@@ -21,7 +21,7 @@ public class TestNotionDs {
 	public void basicTest() throws SQLException {
 		BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
-		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
 		NotionDs notionDs = new NotionDs(connectionPool);
 		Connection wrappedConnection = notionDs.getConnection();
 		assertInstanceOf(ConnectionArtifact_I.class,wrappedConnection);
@@ -46,7 +46,7 @@ public class TestNotionDs {
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "badUser", "badPass"));
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "badUser2", "badPass"));
-		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
 		NotionDs notionDs = new NotionDs(connectionPool);
 
 		Connection connection2 = notionDs.getConnection();

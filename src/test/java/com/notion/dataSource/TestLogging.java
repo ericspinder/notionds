@@ -22,7 +22,7 @@ public class TestLogging {
 
         BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
         connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
-        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
         Connection wrappedPooledConnection = notionDs.getConnection();
         Statement statement = wrappedPooledConnection.createStatement();
@@ -41,7 +41,7 @@ public class TestLogging {
     public void preparedStatementTest() throws SQLException {
         BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
         connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
-        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
         Connection connection = notionDs.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT 2 from DUAL");

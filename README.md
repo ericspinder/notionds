@@ -39,3 +39,26 @@ A pooling JDBC datasource wrapper with automatic failover, which tests the conne
     com.notionds.connections_timeout_in_pool_cool_down - Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections. Default is java.time.Duration.of(60, ChronoUnit.SECONDS)),
     com.notionds.connection_timeout_on_loan - Default max time before connection is automatically closed, breaking loaned connections. Default is java.time.Duration.of(360, ChronoUnit.MINUTES)),
     com.notionds.connection_timeout_max_lifetime - Max lifetime of a connection. Default is java.time.Duration.of(2, ChronoUnit.HOURS)),
+
+Typical usage (from unit test)
+
+        BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+        connectionSuppliers.add(new ConnectionSupplier.Default("jdbc:h2:mem:foo_db", "", ""));
+        ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+        NotionDs notionDs = new NotionDs(connectionPool);
+        Connection wrappedConnection = notionDs.getConnection();
+        assertInstanceOf(ConnectionArtifact_I.class,wrappedConnection);
+        Statement statement = wrappedConnection.createStatement();
+        assertInstanceOf(ConnectionArtifact_I.class, statement);
+        statement.execute("Select 1 from DUAL");
+        ResultSet resultSet = statement.getResultSet();
+        assertInstanceOf(ConnectionArtifact_I.class, resultSet);
+        resultSet.first();
+        assertEquals(1, resultSet.getInt(1));
+        assertFalse(resultSet.isClosed());
+        resultSet.close();
+        assertTrue(resultSet.isClosed());
+        assertFalse(wrappedConnection.isClosed());
+        wrappedConnection.close();
+        assertFalse(wrappedConnection.isClosed());
+        assertEquals(((ConnectionArtifact_I<Connection>) wrappedConnection).getConnectionContainer().getCurrentState(), State.Pooled);

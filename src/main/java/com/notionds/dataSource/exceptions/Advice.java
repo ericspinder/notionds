@@ -13,11 +13,11 @@ public abstract class Advice {
 
     private static final Logger logger = LogManager.getLogger(Advice.class);
 
-    public static class Default_H2 extends Advice {
+    public static class Default extends Advice {
 
-        private static final Logger logger = LogManager.getLogger(Default_H2.class);
+        private static final Logger logger = LogManager.getLogger(Default.class);
 
-        public Default_H2() {
+        public Default() {
             super(NotionDs.DEFAULT_OPTIONS_INSTANCE);
         }
 

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.StampedLock;
 
-public abstract class Options {
+public class Options {
 
     private static final Logger logger = LogManager.getLogger(Options.class);
 
@@ -152,7 +152,7 @@ public abstract class Options {
         }
     }
 
-    public Options(Properties overrideValues) {
+    public Options(Map<String,Object> overrideValues) {
         this.setOpeningValues(overrideValues, Strings.values(), Integers.values(), Longs.values(),Booleans.values(),Durations.values());
     }
 
@@ -163,7 +163,7 @@ public abstract class Options {
         }
         throw new NotionStartupException(NotionStartupException.Type.MissingDefaultValue, Options.class);
     }
-    private void setOpeningValues(Properties overrideProperties, Option<?>[]... defaultValues) {
+    private void setOpeningValues(Map<String,Object> overrideProperties, Option<?>[]... defaultValues) {
         logger.info("loading default values");
         long stamp = gate.writeLock();
         try {
@@ -184,9 +184,7 @@ public abstract class Options {
                 }
             }
             if (overrideProperties != null && !overrideProperties.isEmpty()) {
-                for (Map.Entry<Object, Object> entry: overrideProperties.entrySet()) {
-                    this.allOptions.put((String) entry.getKey(),entry.getValue());
-                }
+                this.allOptions.putAll(overrideProperties);
             }
         }
         finally {

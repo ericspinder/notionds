@@ -3,12 +3,13 @@ package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 import com.notionds.dataSource.Options;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 
 
 public class StatementLogging extends ObjectProxyLogging {
 
-    public StatementLogging(Options options, LoggingService loggingService) {
-        super(options, loggingService);
+    public StatementLogging(LoggingService loggingService) {
+        super(loggingService);
     }
 
     @Override
@@ -23,6 +24,7 @@ public class StatementLogging extends ObjectProxyLogging {
 
     @Override
     public void endInvoke(Method m, String description, InvokeAccounting invokeAccounting) {
+        invokeAccounting.setFinishTime(Instant.now());
         this.loggingService.populateExecution(m, description, invokeAccounting);
     }
 }

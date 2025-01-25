@@ -22,10 +22,11 @@ A pooling JDBC datasource wrapper with automatic failover, which tests the conne
 
 #### com.notionds.dataSource.connection.delegation.WrapperFactory_I wraps all of the database objects into a com.notionds.dataSource.connection.delegation.ConnectionArtifact_I
         com.notionds.dataSource.connection.delegation.jdbcProxy.WrapperFactory is the Java proxy implementation of it, currently used as the defualt
+        
         com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingWrapperFactory is the logging version of the same desgin
-            Note that logging is not yet tested in the released Alpha version
+            Note that logging is not yet released, the implemention isn't yet working as expected.
 
-#### com.notion.datasource.Options is the mutable property options container, note that they expect exact objects to work. Adding the keys and appropriate objects into the java properties created for it's constructor will enable an override as well as changing the value while running (not yet tested) 
+#### com.notion.datasource.Options is the mutable property options container. Adding the keys and appropriate objects into the java properties created for it's constructor will enable an override as well as changing the value while running (not yet tested) 
         Integer:
     com.notionds.advice.exception.aggregatorMap.maxSize - The number of exceptions to keep in the logging aggregator default is 1000
     com.notionds.advice.nominal.aggregatorMap.maxSize - The number of nomial logging entries to hold in memory, deault is 1000),

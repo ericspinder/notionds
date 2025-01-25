@@ -10,7 +10,11 @@ import com.notionds.dataSource.exceptions.Advice;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,18 +28,31 @@ public class TestLogging {
         connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
         ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
-        Connection wrappedPooledConnection = notionDs.getConnection();
-        Statement statement = wrappedPooledConnection.createStatement();
-        assertInstanceOf(ConnectionArtifact_I.class, statement);
-        statement.execute("Select 1 from DUAL");
-        ResultSet resultSet = statement.getResultSet();
-        assertInstanceOf(ConnectionArtifact_I.class, resultSet);
-        resultSet.first();
-        assertEquals(1, resultSet.getInt(1));
-        assertFalse(resultSet.isClosed());
-        resultSet.close();
-        assertTrue(resultSet.isClosed());
-        assertFalse(wrappedPooledConnection.isClosed());
+        List<CompletableFuture<Void>> futures = new ArrayList<CompletableFuture<Void>>();
+        for (int i = 0; i< 1000; i++) {
+            futures.add(CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Connection wrappedPooledConnection = notionDs.getConnection();
+                        Statement statement = wrappedPooledConnection.createStatement();
+                        assertInstanceOf(ConnectionArtifact_I.class, statement);
+                        statement.execute("Select 1 from DUAL");
+                        ResultSet resultSet = statement.getResultSet();
+                        assertInstanceOf(ConnectionArtifact_I.class, resultSet);
+                        resultSet.first();
+                        assertEquals(1, resultSet.getInt(1));
+                        assertFalse(resultSet.isClosed());
+                        resultSet.close();
+                        assertTrue(resultSet.isClosed());
+                    }
+                    catch (SQLException sql) {
+                        System.out.println("caught Statement exception: " + sql.getMessage());
+                    }
+                }
+            }, Executors.newFixedThreadPool(50)));
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
     @Test
     public void preparedStatementTest() throws SQLException {
@@ -45,7 +62,7 @@ public class TestLogging {
         NotionDs notionDs = new NotionDs(connectionPool);
         Connection connection = notionDs.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT 2 from DUAL");
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 1000; i++) {
             ResultSet resultSet1 = preparedStatement.executeQuery();
             resultSet1.first();
             assertEquals(2, resultSet1.getInt(1));

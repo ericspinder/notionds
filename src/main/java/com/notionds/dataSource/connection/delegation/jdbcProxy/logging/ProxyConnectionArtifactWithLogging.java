@@ -4,15 +4,18 @@ import com.notionds.dataSource.ConnectionContainer;
 import com.notionds.dataSource.NotionStartupException;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.ProxyConnectionArtifact;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 
-public class WithLoggingProxyConnection<D> extends ProxyConnectionArtifact<D> {
+public class ProxyConnectionArtifactWithLogging<D> extends ProxyConnectionArtifact<D> {
 
+    private static final Logger logger = LogManager.getLogger(ProxyConnectionArtifactWithLogging.class);
     private final ObjectProxyLogging dbLogging;
     private String description = "No description";
 
-    public WithLoggingProxyConnection(ConnectionContainer connectionContainer, D delegate, ObjectProxyLogging dbLogging) {
+    public ProxyConnectionArtifactWithLogging(ConnectionContainer connectionContainer, D delegate, ObjectProxyLogging dbLogging) {
         super(connectionContainer, delegate);
         this.dbLogging = dbLogging;
     }
@@ -22,19 +25,18 @@ public class WithLoggingProxyConnection<D> extends ProxyConnectionArtifact<D> {
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
         InvokeAccounting invokeAccounting = this.getDbLogging().startInvoke(m, args);
         try {
-            switch (m.getName()) {
-                case "getDbLogging":
-                    return this.getDbLogging();
-                case "getDescription":
-                    return this.getDescription();
-                case "setDescription":
+            return switch (m.getName()) {
+                case "getDbLogging" -> this.getDbLogging();
+                case "getDescription" -> this.getDescription();
+                case "setDescription" -> {
                     if (args[0] instanceof String) {
-                        this.setDescription((String)args[0]);
-                        return Void.TYPE;
+                        this.setDescription((String) args[0]);
+                        yield Void.TYPE;
                     }
                     throw new NotionStartupException(NotionStartupException.Type.ReflectiveOperationFailed, this.getClass());
-            }
-            return super.invoke(proxy, m, args);
+                }
+                default -> super.invoke(proxy, m, args);
+            };
         }
         catch (Throwable throwable) {
             if (invokeAccounting != null && throwable instanceof NotionExceptionWrapper) {
@@ -48,7 +50,7 @@ public class WithLoggingProxyConnection<D> extends ProxyConnectionArtifact<D> {
                     this.getDbLogging().endInvoke(m, (String)args[0], invokeAccounting);
                 }
                 else {
-                    this.getDbLogging().endInvoke(m, description, invokeAccounting);
+                    this.getDbLogging().endInvoke(m,"-", invokeAccounting);
                 }
             }
         }

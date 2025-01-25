@@ -12,4 +12,5 @@ public interface WrapperFactory_I {
      * @return
      */
     <D> ConnectionArtifact_I<D> getDelegate(ConnectionContainer connectionContainer, D delegate, Class<D> delegateClassCreated, Object... args);
+
 }

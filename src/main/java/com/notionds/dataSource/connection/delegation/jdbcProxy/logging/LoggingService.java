@@ -43,16 +43,16 @@ public class LoggingService {
         return new InvokeAccounting();
     }
 
-    protected ObjectProxyLogging newObjectProxyLogging(Options options) {
-        return new ObjectProxyLogging(options,this);
+    protected ObjectProxyLogging newObjectProxyLogging() {
+        return new ObjectProxyLogging(this);
     }
 
-    protected StatementLogging newStatementLogging(Options options) {
-        return new StatementLogging(options,this);
+    protected StatementLogging newStatementLogging() {
+        return new StatementLogging(this);
     }
 
-    protected PreparedStatementLogging newPreparedStatementLogging(Options options, String sql) {
-        return new PreparedStatementLogging(options,this ,sql);
+    protected PreparedStatementLogging newPreparedStatementLogging(String sql) {
+        return new PreparedStatementLogging(this ,sql);
     }
 
     public final Map<String, InvokeAggregator> getSqlExceptionAggregators() {

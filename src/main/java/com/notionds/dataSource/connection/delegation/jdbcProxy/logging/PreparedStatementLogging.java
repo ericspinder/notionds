@@ -4,13 +4,14 @@ import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 
 public class PreparedStatementLogging extends ObjectProxyLogging {
 
     protected final String sql;
 
-    public PreparedStatementLogging(Options options, LoggingService loggingService, String sql) {
-        super(options, loggingService);
+    public PreparedStatementLogging(LoggingService loggingService, String sql) {
+        super(loggingService);
         this.sql = sql;
     }
     @Override
@@ -20,6 +21,7 @@ public class PreparedStatementLogging extends ObjectProxyLogging {
 
     @Override
     public void endInvoke(Method m, String description, InvokeAccounting invokeAccounting) {
+        invokeAccounting.setFinishTime(Instant.now());
         this.loggingService.populateExecution(m, sql, invokeAccounting);
     }
     public String getSql() {

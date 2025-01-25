@@ -105,9 +105,8 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
         try {
             Object object = m.invoke(delegate, args);
             //String maybeSql = (args != null && args[0] instanceof String) ? (String) args[0] : null;
-            ConnectionArtifact_I<?> connectionMember = createNewConnectionArtifact(connectionContainer,object, m.getReturnType());
+            ConnectionArtifact_I<?> connectionMember = createNewConnectionArtifact(connectionContainer,object, m.getReturnType(),args);
             if (connectionMember != null) {
-                logger.trace("connectionMember = " + this.getArtifactId() + " class: " + m.getReturnType());
                 return connectionMember;
             }
             return object;
@@ -118,7 +117,7 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
     }
 
     @SuppressWarnings("unchecked")
-    private <T> ConnectionArtifact_I<T> createNewConnectionArtifact(ConnectionContainer connectionContainer,T delegate,Class<?> delegateClass) {
-        return this.connectionContainer.getConnectionWrapper().getDelegate(connectionContainer,delegate,(Class<T>) delegateClass);
+    private <T> ConnectionArtifact_I<T> createNewConnectionArtifact(ConnectionContainer connectionContainer,T delegate,Class<?> delegateClass,Object... args) {
+        return this.connectionContainer.getConnectionWrapper().getDelegate(connectionContainer,delegate,(Class<T>) delegateClass,args);
     }
 }

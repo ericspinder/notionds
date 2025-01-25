@@ -27,7 +27,7 @@ public class WrapperFactory implements WrapperFactory_I {
 
     @Override
     @SuppressWarnings("unchecked")
-    public final <D> ConnectionArtifact_I<D> getDelegate(ConnectionContainer connectionContainer, D delegate, Class<D> delegateClassCreated, Object... args) {
+    public <D> ConnectionArtifact_I<D> getDelegate(ConnectionContainer connectionContainer, D delegate, Class<D> delegateClassCreated, Object... args) {
         logger.trace("Creating JavaProxy delegate class for " + delegate.getClass());
         if (delegateClassCreated.isInterface()) {
             Class<D>[] interfaces = (Class<D>[]) this.getConnectionMemberInterfaces(delegateClassCreated);
@@ -52,7 +52,7 @@ public class WrapperFactory implements WrapperFactory_I {
 
     @SuppressWarnings("unchecked")
     protected <D> ConnectionArtifact_I<D> getProxyMember(Class<?>[] interfaces, ConnectionContainer connectionContainer, D delegate, Object[] args) {
-        return (ConnectionArtifact_I<D>) Proxy.newProxyInstance(WrapperFactory.class.getClassLoader(), interfaces, new ProxyConnectionArtifact<>(connectionContainer, delegate));
+        return (ConnectionArtifact_I<D>) Proxy.newProxyInstance(WrapperFactory.class.getClassLoader(), interfaces, new ProxyConnectionArtifact<>(connectionContainer,delegate));
     }
 
     protected ConnectionArtifact_I<InputStream> createInputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, Object[] args) {
@@ -67,7 +67,7 @@ public class WrapperFactory implements WrapperFactory_I {
         return new ReaderConnectionArtifact(connectionContainer, delegate);
     }
 
-    protected <D> ConnectionArtifact_I<D> createProxyMember(ConnectionContainer connectionContainer, D delegate, Object[] args) {
+    protected <D> ProxyConnectionArtifact<D> createProxyMember(ConnectionContainer connectionContainer, D delegate, Object[] args) {
         return new ProxyConnectionArtifact<>(connectionContainer, delegate);
     }
 

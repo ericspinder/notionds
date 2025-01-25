@@ -24,12 +24,10 @@ public class InvokeAggregator implements EvictByLowCountMap.EvictionByLowCountMe
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("\n\t").append(this.description).append(" : ");
         if (invokeAccounting.getDuration() != null) {
-            stringBuilder.append("seconds=").append(invokeAccounting.getDuration().getSeconds()).append('.').append(invokeAccounting.getDuration().getNano());
+            stringBuilder.append("seconds = ").append(invokeAccounting.getDuration().getSeconds()).append('.').append(invokeAccounting.getDuration().getNano());
         }
-        else {
-
-        }
-        stringBuilder.append(" count=").append(count.incrementAndGet());
+        else stringBuilder.append("no duration available");
+        stringBuilder.append(" count = ").append(count.incrementAndGet());
         logger.info(stringBuilder.toString());
     }
     public long getCount() {

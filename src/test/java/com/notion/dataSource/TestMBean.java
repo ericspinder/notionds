@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 public class TestMBean {
 
 
-    @Test
+    //@Test
     public void testMBean() {
 
     }

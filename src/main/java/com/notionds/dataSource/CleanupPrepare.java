@@ -20,7 +20,7 @@ public class CleanupPrepare implements Runnable {
 
     private static final Logger logger = LogManager.getLogger(CleanupPrepare.class);
     protected boolean doCleanup = true;
-    private final ReferenceQueue<ConnectionArtifact_I<Connection>> connectionReferenceQueue = new ReferenceQueue<>();
+    private final ReferenceQueue<ConnectionArtifact_I<?>> connectionReferenceQueue = new ReferenceQueue<>();
     protected final Map<ConnectionContainer, Instant> timeoutCleanup = Collections.synchronizedMap(new WeakHashMap<>());
 
     protected final ConnectionPool connectionPool;
@@ -35,7 +35,7 @@ public class CleanupPrepare implements Runnable {
     protected void patrolTimeouts() {
         for (Map.Entry<ConnectionContainer, Instant> containerInstantEntry: timeoutCleanup.entrySet()) {
             ConnectionContainer connectionContainer = containerInstantEntry.getKey();
-            ConnectionArtifact_I<Connection> connectionArtifact = connectionContainer.get();
+            ConnectionArtifact_I<?> connectionArtifact = connectionContainer.get();
             if (connectionArtifact == null || connectionArtifact.getDelegate() == null) {
                 logger.info("Removing dead ConnectionContainer id = " + connectionContainer.containerId);
                 timeoutCleanup.remove(connectionContainer);
@@ -43,7 +43,8 @@ public class CleanupPrepare implements Runnable {
             Instant expireTime = containerInstantEntry.getValue();
             if (expireTime != null && expireTime.isAfter(Instant.now()) && connectionContainer.getCurrentState().equals(State.Pooled)) {
                 try {
-                    connectionArtifact.getDelegate().close();
+                    assert connectionArtifact != null;
+                    ((Connection)connectionArtifact.getDelegate()).close();
                 } catch (SQLException e) {
                     logger.error("problem on close" + e.getMessage());
                 }
@@ -59,7 +60,7 @@ public class CleanupPrepare implements Runnable {
     protected void sortGarbage() throws InterruptedException {
         Reference<?> reference = connectionReferenceQueue.poll();
         if (reference instanceof ConnectionContainer connectionContainer) {
-            ConnectionArtifact_I<Connection> artifact = connectionContainer.get();
+            ConnectionArtifact_I<?> artifact = connectionContainer.get();
             if (artifact != null) {
                 if (artifact.getConnectionContainer().getConnectionPool().returnConnection(artifact)) {
                     logger.trace("returning connection, artifactId = " + artifact.getArtifactId());
@@ -80,7 +81,7 @@ public class CleanupPrepare implements Runnable {
         }
     }
 
-    public ReferenceQueue<ConnectionArtifact_I<Connection>> getConnectionReferenceQueue() {
+    public ReferenceQueue<ConnectionArtifact_I<?>> getConnectionReferenceQueue() {
         return this.connectionReferenceQueue;
     }
 

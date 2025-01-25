@@ -19,10 +19,30 @@ target/
 # Gradle
 build/
 .gradle
-gradle/
-gradlew
-gradlew.bat
+/build/
+# Ignore Gradle GUI config
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
 
 # Android
 local.properties
 /bin/
+
+### Java ###
+*.class
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+

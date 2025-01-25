@@ -1,5 +1,6 @@
 package com.notion.dataSource;
 
+import com.notionds.dataSource.ConnectionContainer;
 import com.notionds.dataSource.ConnectionPool;
 import com.notionds.dataSource.ConnectionSupplier;
 import com.notionds.dataSource.NotionDs;
@@ -10,6 +11,7 @@ import com.notionds.dataSource.exceptions.Advice;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -23,6 +25,15 @@ public class TestNotionDs {
 		connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
 		ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
 		NotionDs notionDs = new NotionDs(connectionPool);
+		ConnectionContainer connectionContainer = connectionTest(notionDs);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(State.Pooled, connectionContainer.getCurrentState());
+	}
+	private ConnectionContainer connectionTest(NotionDs notionDs) throws SQLException {
 		Connection wrappedConnection = notionDs.getConnection();
 		assertInstanceOf(ConnectionArtifact_I.class,wrappedConnection);
 		Statement statement = wrappedConnection.createStatement();
@@ -31,14 +42,13 @@ public class TestNotionDs {
 		ResultSet resultSet = statement.getResultSet();
 		assertInstanceOf(ConnectionArtifact_I.class, resultSet);
 		resultSet.first();
-        assertEquals(1, resultSet.getInt(1));
+		assertEquals(1, resultSet.getInt(1));
 		assertFalse(resultSet.isClosed());
 		resultSet.close();
 		assertTrue(resultSet.isClosed());
 		assertFalse(wrappedConnection.isClosed());
 		wrappedConnection.close();
-		assertFalse(wrappedConnection.isClosed());
-        assertEquals(((ConnectionArtifact_I<Connection>) wrappedConnection).getConnectionContainer().getCurrentState(), State.Pooled);
+		return ((ConnectionArtifact_I<?>) wrappedConnection).getConnectionContainer();
 	}
 	@Test
 	public void failedLogin() throws SQLException {

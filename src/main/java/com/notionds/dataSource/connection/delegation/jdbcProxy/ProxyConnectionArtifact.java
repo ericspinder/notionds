@@ -10,6 +10,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -59,9 +61,9 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
         logger.trace("ProxyConnectionArtifact - method = " + m.getName() + ", delegateClass: " + delegate.getClass());
         switch (m.getName()) {
             case "close":
-                if (Objects.equals(connectionContainer.get(), this)) {
+                if (delegate instanceof Connection) {
                     logger.trace("returning connection on close()");
-                    this.connectionContainer.getConnectionPool().returnConnection((ConnectionArtifact_I<Connection>) this);
+                    this.connectionContainer.getConnectionPool().returnConnection(this);
                     return Void.TYPE;
                 }
                 else if (this.delegate instanceof AutoCloseable) {
@@ -85,7 +87,7 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
             case "getArtifactId":
                 return getArtifactId();
             case "equals":
-                return equals(args[0]);
+                return delegate.equals(args[0]);
             case "setConnectionContainer":
                 this.connectionContainer = (ConnectionContainer) args[0];
                 return Void.TYPE;

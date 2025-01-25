@@ -18,7 +18,7 @@ public class ASMDelegationWrapper implements WrapperFactory_I {
     private Map<Class<?>, Class<ConnectionArtifact_I<?>>> cache = new HashMap<>();
     private StampedLock creationGate = new StampedLock();
 
-    public ASMDelegationWrapper() {
+    public ASMDelegationWrapper(Class<ConnectionArtifact_I<?>> connectionArtifactIClass) {
     }
 
     @Override

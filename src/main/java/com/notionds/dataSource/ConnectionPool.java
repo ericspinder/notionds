@@ -31,12 +31,12 @@ public class ConnectionPool {
     /**
      * Holds the ready connection objects, wrapped and active
      */
-    protected final BlockingQueue<ConnectionArtifact_I<Connection>> connectionQueue = new LinkedBlockingQueue<>();
+    protected final BlockingQueue<ConnectionArtifact_I<?>> connectionQueue = new LinkedBlockingQueue<>();
     /**
      * The loaned connections are held weakly and will drop out when garbage collected. They will be sent to a
      * referenceQueue in the Cleanup class when ready
      */
-    protected final WeakHashMap<ConnectionArtifact_I<Connection>, Instant> loanedConnections = new WeakHashMap<>();
+    protected final WeakHashMap<ConnectionArtifact_I<?>, Instant> loanedConnections = new WeakHashMap<>();
     protected volatile NotionDs.ConnectionSupplier_I activeConnectionSupplier;
     private final Queue<NotionDs.ConnectionSupplier_I> failoverConnectionSuppliers = new ConcurrentLinkedQueue<>();
     public ConnectionPool(WrapperFactory_I wrapperFactoryI, Advice advice, Options options, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
@@ -78,7 +78,7 @@ public class ConnectionPool {
     public Connection getConnection() {
         long stamp = connectionGate.readLock();
         try {
-            ConnectionArtifact_I<Connection> connectionArtifact = connectionQueue.poll((int) options.get(Options.Integers.Timeout_Retrieve_Connection.getKey()), TimeUnit.SECONDS);
+            ConnectionArtifact_I<?> connectionArtifact = connectionQueue.poll((int) options.get(Options.Integers.Timeout_Retrieve_Connection.getKey()), TimeUnit.SECONDS);
             assert connectionArtifact != null;
             connectionArtifact.getConnectionContainer().currentState = State.Loaned;
             loanedConnections.put(connectionArtifact, Instant.now().plus((Duration) options.get(Options.Durations.ConnectionTimeoutOnLoan.getKey())));
@@ -90,11 +90,12 @@ public class ConnectionPool {
         }
 
     }
-    public boolean returnConnection(ConnectionArtifact_I<Connection> connection) {
+    public boolean returnConnection(ConnectionArtifact_I<?> connection) {
+        logger.trace("returning connection, artifactId " + connection.getArtifactId());
         this.loanedConnections.remove(connection);
         if (connection.getConnectionContainer().getCurrentState().equals(State.Empty)) {
             try {
-                connection.getDelegate().close();
+                ((Connection) connection.getDelegate()).close();
             } catch (SQLException e) {
                 logger.error("Problem closing a connection which had currentState set to close, ignoring - ArtifactId = " + connection.getArtifactId());
             }

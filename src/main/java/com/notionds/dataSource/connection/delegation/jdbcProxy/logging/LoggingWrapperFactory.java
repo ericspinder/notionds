@@ -24,7 +24,6 @@ public class LoggingWrapperFactory extends WrapperFactory {
     @Override
     @SuppressWarnings("unchecked")
     protected <D> ConnectionArtifact_I<D> getProxyMember(Class<?>[] interfaces, ConnectionContainer connectionContainer, D delegate, Object[] args) {
-        logger.trace("creating proxy member for " + delegate.getClass());
         if (delegate instanceof PreparedStatement) {
             PreparedStatementLogging proxy = this.loggingService.newPreparedStatementLogging((String) args[0]);
             return (ConnectionArtifact_I<D>) Proxy.newProxyInstance(LoggingService.class.getClassLoader(), interfaces, new ProxyConnectionArtifactWithLogging<>(connectionContainer, delegate, proxy));

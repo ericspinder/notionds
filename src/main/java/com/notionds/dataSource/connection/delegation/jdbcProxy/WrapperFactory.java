@@ -28,7 +28,6 @@ public class WrapperFactory implements WrapperFactory_I {
     @Override
     @SuppressWarnings("unchecked")
     public <D> ConnectionArtifact_I<D> getDelegate(ConnectionContainer connectionContainer, D delegate, Class<D> delegateClassCreated, Object... args) {
-        logger.trace("Creating JavaProxy delegate class for " + delegate.getClass());
         if (delegateClassCreated.isInterface()) {
             Class<D>[] interfaces = (Class<D>[]) this.getConnectionMemberInterfaces(delegateClassCreated);
             if (interfaces != null) {

@@ -11,7 +11,6 @@ import com.notionds.dataSource.exceptions.Advice;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 

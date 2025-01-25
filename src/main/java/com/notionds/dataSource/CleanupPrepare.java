@@ -20,7 +20,7 @@ public class CleanupPrepare implements Runnable {
 
     private static final Logger logger = LogManager.getLogger(CleanupPrepare.class);
     protected boolean doCleanup = true;
-    private final ReferenceQueue<ConnectionArtifact_I<?>> connectionReferenceQueue = new ReferenceQueue<>();
+    private final ReferenceQueue<ConnectionArtifact_I<Connection>> connectionReferenceQueue = new ReferenceQueue<>();
     protected final Map<ConnectionContainer, Instant> timeoutCleanup = Collections.synchronizedMap(new WeakHashMap<>());
 
     protected final ConnectionPool connectionPool;
@@ -62,7 +62,7 @@ public class CleanupPrepare implements Runnable {
         if (reference instanceof ConnectionContainer connectionContainer) {
             ConnectionArtifact_I<?> artifact = connectionContainer.get();
             if (artifact != null) {
-                if (artifact.getConnectionContainer().getConnectionPool().returnConnection(artifact)) {
+                if (connectionContainer.getConnectionPool().returnConnection(connectionContainer)) {
                     logger.trace("returning connection, artifactId = " + artifact.getArtifactId());
                 }
                 else {
@@ -81,7 +81,7 @@ public class CleanupPrepare implements Runnable {
         }
     }
 
-    public ReferenceQueue<ConnectionArtifact_I<?>> getConnectionReferenceQueue() {
+    public ReferenceQueue<ConnectionArtifact_I<Connection>> getConnectionReferenceQueue() {
         return this.connectionReferenceQueue;
     }
 

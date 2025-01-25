@@ -31,12 +31,12 @@ public class ConnectionPool {
     /**
      * Holds the ready connection objects, wrapped and active
      */
-    protected final BlockingQueue<ConnectionArtifact_I<?>> connectionQueue = new LinkedBlockingQueue<>();
+    protected final BlockingQueue<ConnectionArtifact_I<Connection>> connectionQueue = new LinkedBlockingQueue<>();
     /**
      * The loaned connections are held weakly and will drop out when garbage collected. They will be sent to a
      * referenceQueue in the Cleanup class when ready
      */
-    protected final WeakHashMap<ConnectionArtifact_I<?>, Instant> loanedConnections = new WeakHashMap<>();
+    protected final WeakHashMap<ConnectionArtifact_I<Connection>, Instant> loanedConnections = new WeakHashMap<>();
     protected volatile NotionDs.ConnectionSupplier_I activeConnectionSupplier;
     private final Queue<NotionDs.ConnectionSupplier_I> failoverConnectionSuppliers = new ConcurrentLinkedQueue<>();
     public ConnectionPool(WrapperFactory_I wrapperFactoryI, Advice advice, Options options, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
@@ -57,9 +57,6 @@ public class ConnectionPool {
 
     }
 
-    public Advice getAdvice() {
-        return advice;
-    }
     protected void warmPool() {
         logger.trace("warm pool");
         long stamp = connectionGate.writeLock();
@@ -78,7 +75,7 @@ public class ConnectionPool {
     public Connection getConnection() {
         long stamp = connectionGate.readLock();
         try {
-            ConnectionArtifact_I<?> connectionArtifact = connectionQueue.poll((int) options.get(Options.Integers.Timeout_Retrieve_Connection.getKey()), TimeUnit.SECONDS);
+            ConnectionArtifact_I<Connection> connectionArtifact = connectionQueue.poll((int) options.get(Options.Integers.Timeout_Retrieve_Connection.getKey()), TimeUnit.SECONDS);
             assert connectionArtifact != null;
             connectionArtifact.getConnectionContainer().currentState = State.Loaned;
             loanedConnections.put(connectionArtifact, Instant.now().plus((Duration) options.get(Options.Durations.ConnectionTimeoutOnLoan.getKey())));
@@ -90,21 +87,27 @@ public class ConnectionPool {
         }
 
     }
-    public boolean returnConnection(ConnectionArtifact_I<?> connection) {
-        logger.trace("returning connection, artifactId " + connection.getArtifactId());
-        this.loanedConnections.remove(connection);
-        if (connection.getConnectionContainer().getCurrentState().equals(State.Empty)) {
-            try {
-                ((Connection) connection.getDelegate()).close();
-            } catch (SQLException e) {
-                logger.error("Problem closing a connection which had currentState set to close, ignoring - ArtifactId = " + connection.getArtifactId());
+    public boolean returnConnection(ConnectionContainer connectionContainer) {
+        try {
+            ConnectionArtifact_I<Connection> connection = Objects.requireNonNull(connectionContainer.get());
+            logger.trace("returning connection, artifactId " + connection.getArtifactId() + ", reuse = " + connectionContainer.addReUse());
+            this.loanedConnections.remove(connection);
+            if (connection.getConnectionContainer().getCurrentState().equals(State.Empty)) {
+                try {
+                    connection.getDelegate().close();
+                } catch (SQLException e) {
+                    logger.error("Problem closing a connection which had currentState set to close, ignoring - ArtifactId = " + connection.getArtifactId());
+                }
+                return false;
             }
-            return false;
+            if (connection.getConnectionContainer().getCurrentState().equals(State.Loaned)) {
+                connection.getConnectionContainer().currentState = State.Pooled;
+                this.connectionQueue.add(connection);
+                return true;
+            }
         }
-        if (connection.getConnectionContainer().getCurrentState().equals(State.Loaned)) {
-            connection.getConnectionContainer().currentState = State.Pooled;
-            this.connectionQueue.add(connection);
-            return true;
+        catch (NullPointerException npe) {
+            logger.info("Missing connection from ConnectionContainer = " + connectionContainer.containerId);
         }
         return false;
     }
@@ -203,9 +206,7 @@ public class ConnectionPool {
         List<CompletableFuture<?>> completableFutures = new ArrayList<>();
         if (number > 0) {
             for (int i = 0; i < number; i++) {
-                completableFutures.add(CompletableFuture.runAsync(() -> {
-                    this.addConnection(this.activeConnectionSupplier);
-                }));
+                completableFutures.add(CompletableFuture.runAsync(() -> this.addConnection(this.activeConnectionSupplier)));
             }
         }
         else {

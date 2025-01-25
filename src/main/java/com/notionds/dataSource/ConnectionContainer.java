@@ -8,6 +8,7 @@ import java.lang.ref.SoftReference;
 import java.sql.Connection;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnectionContainer extends SoftReference<ConnectionArtifact_I<Connection>> implements Comparable<ConnectionContainer> {
 
@@ -17,6 +18,7 @@ public class ConnectionContainer extends SoftReference<ConnectionArtifact_I<Conn
     private final ConnectionPool connectionPool;
     protected volatile State currentState;
     private final UUID getConnectionSupplierUUID;
+    private final AtomicInteger count = new AtomicInteger();
 
     public ConnectionContainer(UUID connectionSupplierUUID, ConnectionArtifact_I<Connection> connection, ConnectionPool connectionPool, WrapperFactory_I connectionWrapper) {
         super(connection,connectionPool.getCleanupPrepare().getConnectionReferenceQueue());
@@ -51,6 +53,10 @@ public class ConnectionContainer extends SoftReference<ConnectionArtifact_I<Conn
     }
     public State getCurrentState() {
         return this.currentState;
+    }
+
+    public int addReUse() {
+        return this.count.addAndGet(1);
     }
 
 

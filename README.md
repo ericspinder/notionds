@@ -17,16 +17,16 @@ A pooling JDBC datasource wrapper with automatic failover, which tests the conne
         protected abstract Recommendation parseThrowable(Throwable throwable);
 
 
-#### com.notionds.datasource.ConnectionSupplier_I interface allows for a custom database connection classes to be implemented as needed.
+#### com.notionds.datasource.ConnectionSupplier_I interface allows for a custom database connection classes to be implemented as needed. Taken as a queue, the first entry is polled at startup and used as the active connection, the rest are kept in order and kept as failover connections. You may also add failover connections ad hoc and all of them are tested, both on entry and upon first use. One may also manually induce a failover by a public method on the ConnectionPool.
        the com.notionds.datasource.ConnectionSupplier class is an immutable implementation which handles typical JDBC database configuration (driver class, username, password, test SQL)
 
 #### com.notionds.dataSource.connection.delegation.WrapperFactory_I wraps all of the database objects into a com.notionds.dataSource.connection.delegation.ConnectionArtifact_I
         com.notionds.dataSource.connection.delegation.jdbcProxy.WrapperFactory is the Java proxy implementation of it, currently used as the defualt
         
         com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingWrapperFactory is the logging version of the same desgin
-            Note that logging is not yet released, the implemention isn't yet working as expected.
+            Note that logging is not yet released, the implemention isn't fully tested but is generally running.
 
-#### com.notion.datasource.Options is the mutable property options container. Adding the keys and appropriate objects into the java properties created for it's constructor will enable an override as well as changing the value while running (not yet tested) 
+#### com.notion.datasource.Options is the mutable property options container. Adding the keys and appropriate objects into the java properties created for it's constructor will enable an override as well as changing the value while running 
         Integer:
     com.notionds.advice.exception.aggregatorMap.maxSize - The number of exceptions to keep in the logging aggregator default is 1000
     com.notionds.advice.nominal.aggregatorMap.maxSize - The number of nomial logging entries to hold in memory, deault is 1000),
@@ -43,7 +43,7 @@ A pooling JDBC datasource wrapper with automatic failover, which tests the conne
 
 Typical usage (from unit test)
 
-        BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+        Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
         connectionSuppliers.add(new ConnectionSupplier.Default("jdbc:h2:mem:foo_db", "", ""));
         ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);

@@ -40,10 +40,4 @@ public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
         return testSQL;
     }
 
-    public static class H2 extends ConnectionSupplier {
-
-        public H2(String url, String userName, String password) {
-                super("org.h2.Driver", url, userName, password,"SELECT 1 FROM DUAL");
-        }
-    }
 }

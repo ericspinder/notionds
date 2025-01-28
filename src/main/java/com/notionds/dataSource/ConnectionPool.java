@@ -8,7 +8,6 @@ import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,6 +44,9 @@ public class ConnectionPool {
         this.options = options;
         this.cleanupPrepare = new CleanupPrepare(this);
         connectionSuppliers.removeIf(connectionSupplierI -> !testAcquireConnection(connectionSupplierI));
+        if (connectionSuppliers.isEmpty()) {
+            throw new RuntimeException("Connection suppliers is empty");
+        }
         this.activeConnectionSupplier = connectionSuppliers.poll();
         this.failoverConnectionSuppliers.addAll(connectionSuppliers);
     }
@@ -57,23 +59,24 @@ public class ConnectionPool {
 
     }
 
-    protected void warmPool() {
+    protected boolean warmPool() {
         logger.trace("warm pool");
         long stamp = connectionGate.writeLock();
         try {
             if (testConnectionSupplier(activeConnectionSupplier)) {
                 CompletableFuture.allOf(addConnectionFutures((int) options.get(Options.Integers.Connections_Min_Active.getKey()))).get();
                 logger.info("ConnectionQueue size = " + connectionQueue.size());
+                return true;
             }
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
             connectionGate.unlockWrite(stamp);
         }
+        return false;
     }
 
-    public Connection getConnection() {
-        long stamp = connectionGate.readLock();
+    public synchronized Connection getConnection() {
         try {
             ConnectionArtifact_I<Connection> connectionArtifact = connectionQueue.poll((int) options.get(Options.Integers.Timeout_Retrieve_Connection.getKey()), TimeUnit.SECONDS);
             assert connectionArtifact != null;
@@ -82,8 +85,6 @@ public class ConnectionPool {
             return (Connection) connectionArtifact;
         } catch (InterruptedException e) {
             throw new NotionStartupException(NotionStartupException.Type.WAITED_TOO_LONG_FOR_CONNECTION, ConnectionPool.class);
-        } finally {
-            connectionGate.unlockRead(stamp);
         }
 
     }
@@ -127,18 +128,11 @@ public class ConnectionPool {
     }
     public void processException(NotionExceptionWrapper wrappedException, ConnectionArtifact_I<?> connectionArtifact) {
         logger.error("process exception - " + wrappedException.getMessage() + " cause - " + wrappedException.getCause().getMessage() + ", recommendation = " + wrappedException.getRecommendation().toString());
-        if (wrappedException.getRecommendation().shouldClose() && connectionArtifact != null) {
-            logger.info("Close delegate");
-            try {
-                ((Closeable) connectionArtifact.getDelegate()).close();
-            }
-            catch (IOException ioe) {
-                logger.error("exception in close for ArtifactId = " + connectionArtifact.getArtifactId());
-            }
+        if (connectionArtifact != null) {
+            connectionArtifact.getConnectionContainer().currentState = State.Empty;
         }
         if (wrappedException.getRecommendation().isFailoverToNextConnectionSupplier()) {
             logger.info("failover needed for " + wrappedException.getCause().getMessage());
-            assert connectionArtifact != null;
             this.doFailover(connectionArtifact.getConnectionContainer().getGetConnectionSupplierUUID(),false);
         }
     }
@@ -237,6 +231,7 @@ public class ConnectionPool {
      */
     public boolean testAcquireConnection(NotionDs.ConnectionSupplier_I connectionSupplier) {
         long writeLock = connectionGate.writeLock();
+        logger.info("testing connectionSupplier UUID = " + connectionSupplier.getUUID() + ", testSQL = " + connectionSupplier.getTestSQL());
         try {
             return testConnectionSupplier(connectionSupplier);
         }

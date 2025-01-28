@@ -27,7 +27,6 @@ public class CleanupPrepare implements Runnable {
 
     public CleanupPrepare(ConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
-        logger.info("CleanupPrepare");
     }
     /**
      * Patrol ConnectionContainer timeouts
@@ -72,7 +71,6 @@ public class CleanupPrepare implements Runnable {
         }
     }
     protected void patrolPoolUsage() throws InterruptedException, ExecutionException {
-        Thread.sleep(1000);
         boolean maxConnectionNotHitYet = connectionPool.loanedConnections.size() + connectionPool.connectionQueue.size() < (int) connectionPool.getOptions().get(Options.Integers.Connection_Max_Queue_Size.getKey());
         boolean availableConnectionsBelowMinNeeded = connectionPool.connectionQueue.size() < (int) connectionPool.getOptions().get(Options.Integers.Connections_Min_Active.getKey());
         //logger.trace("loanedConnection.size = " + connectionPool.loanedConnections.size() + ", connectionQueue = " + connectionPool.connectionQueue.size() + ", maxConnectionNotHitYet = " + maxConnectionNotHitYet + ", availableConnectionsBelowMinNeeded" + availableConnectionsBelowMinNeeded);

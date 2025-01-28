@@ -72,7 +72,6 @@ public abstract class Advice {
             return new SqlExceptionWrapper(s.toString(), sqlException, recommendation);
         }
         finally {
-            System.out.println("dude");
             if (logger.isDebugEnabled()) {
                 s.append('\n').append(sqlException);
                 logger.debug(s.toString());

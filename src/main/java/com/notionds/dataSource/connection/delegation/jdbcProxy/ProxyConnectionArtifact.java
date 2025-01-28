@@ -63,6 +63,7 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
                 else if (this.delegate instanceof AutoCloseable) {
                     ((AutoCloseable) this.delegate).close();
                 }
+                return Void.TYPE;
             case "free":
                 if (this.delegate instanceof Closeable) {
                     ((Closeable) this.delegate).close();
@@ -105,11 +106,8 @@ public class ProxyConnectionArtifact<D> implements InvocationHandler, Connection
         try {
             Object object = m.invoke(delegate, args);
             //String maybeSql = (args != null && args[0] instanceof String) ? (String) args[0] : null;
-            ConnectionArtifact_I<?> connectionMember = createNewConnectionArtifact(connectionContainer,object, m.getReturnType(),args);
-            if (connectionMember != null) {
-                return connectionMember;
-            }
-            return object;
+            return createNewConnectionArtifact(connectionContainer,object, m.getReturnType(),args);
+
         } catch (InvocationTargetException ite) {
             this.getConnectionContainer().getConnectionPool().throwBackProcessedException(ite.getCause(),this);
             throw ite;

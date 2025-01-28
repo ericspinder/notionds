@@ -1,89 +1,57 @@
 package com.notionds.dataSource.connection.delegation.jdbcProxy.logging;
 
-import com.notionds.dataSource.EvictByLowCountMap;
 import com.notionds.dataSource.Options;
 import com.notionds.dataSource.exceptions.NotionExceptionWrapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
-import java.util.Map;
+import java.time.Instant;
+import java.util.Objects;
+
+import static com.notionds.dataSource.Options.Strings.Logging_Method_REGEX;
 
 public class LoggingService {
 
+    private static final Logger logger = LogManager.getLogger(LoggingService.class);
     protected final Options options;
-    protected final Map<String, InvokeAggregator> sqlExceptionAggregators;
-    protected final Map<String, InvokeAggregator> nominalOperationAggregators;
+    protected final String loggerName;
 
     @SuppressWarnings("unchecked")
-    public LoggingService(Options options) {
+    public LoggingService(String loggerName, Options options) {
+        this.loggerName = loggerName;
         this.options = options;
-        sqlExceptionAggregators = new EvictByLowCountMap<>((Integer) options.get(Options.Integers.Advice_Exception_Aggregator_Map_Max_Size.getKey()));
-        nominalOperationAggregators = new EvictByLowCountMap<>((Integer) options.get(Options.Integers.Advice_Nominal_Aggregator_Map_Max_Size.getKey()));
-    }
-    protected InvokeAggregator newInvokeAggregator(Method method, String description) {
-        return new InvokeAggregator(method, description);
     }
 
-    protected String makeKey(Method method, String description) {
-        if (description != null && !description.isBlank()) {
-            return description.trim();
+
+    public InvokeAccounting startInvoke(Method m, Object[] args, String sql) {
+        if (m.getName().matches((String) this.options.get(Logging_Method_REGEX.getKey()))) {
+            if (args != null && args[0] instanceof String) {
+                return new InvokeAccounting(m.getName(), (String) args[0]);
+            }
+            else return new InvokeAccounting(m.getName(), Objects.requireNonNullElse(sql, "unknown sql"));
         }
-        return method.getName();
+        return null;
+    }
+    private String enableMask(String unmasked) {
+        return unmasked.replace((String) options.get(Options.Strings.Logging_Replace_Regex.getKey()),(String) options.get(Options.Strings.Logging_Mask.getKey()));
     }
 
-    protected String makeKey(NotionExceptionWrapper notionExceptionWrapper, String description) {
-        if (description != null && !description.isBlank()) {
-            return description.trim();
-        }
-        StringBuilder key = new StringBuilder();
-        key.append(notionExceptionWrapper.getMessage()).append(" : ").append(notionExceptionWrapper.getRecommendation());
-        return key.toString().trim();
-    }
-
-    public InvokeAccounting newInvokeAccounting() {
-        return new InvokeAccounting();
-    }
-
-    protected ObjectProxyLogging newObjectProxyLogging() {
-        return new ObjectProxyLogging(this);
-    }
-
-    protected StatementLogging newStatementLogging() {
-        return new StatementLogging(this);
-    }
-
-    protected PreparedStatementLogging newPreparedStatementLogging(String sql) {
-        return new PreparedStatementLogging(this ,sql);
-    }
-
-    public final Map<String, InvokeAggregator> getSqlExceptionAggregators() {
-        return this.sqlExceptionAggregators;
-    }
-    public final Map<String, InvokeAggregator> getNominalOperationAggregators() {
-        return this.nominalOperationAggregators;
-    }
-
-    public void populateExecution(Method method, String description, InvokeAccounting invokeAccounting) {
-        String key = makeKey(method, description);
-        InvokeAggregator ig;
-        if (this.nominalOperationAggregators.containsKey(key)) {
-            ig = this.nominalOperationAggregators.get(key);
+    public void populateExecution(InvokeAccounting invokeAccounting) {
+        invokeAccounting.setFinishTime(Instant.now());
+        if ((Boolean)options.get(Options.Booleans.Enable_Masking.getKey())) {
+            logger.info("[" +loggerName +  "] " + enableMask(invokeAccounting.toString()));
         }
         else {
-            ig = this.newInvokeAggregator(method, description);
-            this.nominalOperationAggregators.put(key, ig);
+            logger.info("[" +loggerName +  "] " + invokeAccounting);
         }
-        ig.addInvokeAccounting(invokeAccounting);
     }
-    public void populateException(NotionExceptionWrapper notionExceptionWrapper, String description, Method method, InvokeAccounting invokeAccounting) {
-        String key = makeKey(notionExceptionWrapper, description);
-        InvokeAggregator ig;
-        if (this.sqlExceptionAggregators.containsKey(key)) {
-            ig = this.sqlExceptionAggregators.get(key);
+    public void populateThrownException(NotionExceptionWrapper notionExceptionWrapper, InvokeAccounting invokeAccounting) {
+        invokeAccounting.setFinishTime(Instant.now());
+        String invokeString = (Boolean) options.get(Options.Booleans.Enable_Masking.getKey()) ? enableMask(invokeAccounting.toString()):invokeAccounting.toString();
+        if (notionExceptionWrapper.getCause() != null) {
+            logger.error("[" +loggerName +  "] Exception cause = " + notionExceptionWrapper.getCause().getMessage() + ", " + invokeString + ", Recommendation = " + notionExceptionWrapper.getRecommendation());
         }
-        else {
-            ig = this.newInvokeAggregator(method, description);
-            this.sqlExceptionAggregators.put(key, ig);
-        }
-        ig.addInvokeAccounting(invokeAccounting);
+        logger.info("[" +loggerName +  "] Notion Exception = " + notionExceptionWrapper.getMessage() + ", " + invokeString + ", Recommendation = " + notionExceptionWrapper.getRecommendation());
     }
 }

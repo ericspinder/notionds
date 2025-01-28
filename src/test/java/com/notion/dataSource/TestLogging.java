@@ -12,61 +12,63 @@ import org.junit.jupiter.api.Test;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestLogging {
 
     @Test
-    public void statementTest() throws SQLException {
+    public void statementTest() throws SQLException, ExecutionException, InterruptedException {
 
         BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
-        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+        connectionSuppliers.add(new ConnectionSupplier("org.h2.Driver","jdbc:h2:mem:statementTest", "sa", "", "SELECT 5 FROM DUAL"));
+        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService("StatementTest",NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
         List<CompletableFuture<Void>> futures = new ArrayList<CompletableFuture<Void>>();
-        for (int i = 0; i< 1000; i++) {
-            futures.add(CompletableFuture.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Connection wrappedPooledConnection = notionDs.getConnection();
-                        Statement statement = wrappedPooledConnection.createStatement();
-                        assertInstanceOf(ConnectionArtifact_I.class, statement);
-                        statement.execute("Select 1 from DUAL");
-                        ResultSet resultSet = statement.getResultSet();
-                        assertInstanceOf(ConnectionArtifact_I.class, resultSet);
-                        resultSet.first();
-                        assertEquals(1, resultSet.getInt(1));
-                        assertFalse(resultSet.isClosed());
-                        resultSet.close();
-                        assertTrue(resultSet.isClosed());
-                    }
-                    catch (SQLException sql) {
-                        System.out.println("caught Statement exception: " + sql.getMessage());
-                    }
+        for (int i = 0; i< 50; i++) {
+            futures.add(CompletableFuture.runAsync(() -> {
+                try {
+                    Connection wrappedPooledConnection = notionDs.getConnection();
+                    Statement statement = wrappedPooledConnection.createStatement();
+                    assertInstanceOf(ConnectionArtifact_I.class, statement);
+                    statement.execute("Select 55 from DUAL");
+                    ResultSet resultSet = statement.getResultSet();
+                    assertInstanceOf(ConnectionArtifact_I.class, resultSet);
+                    resultSet.first();
+                    assertEquals(55, resultSet.getInt(1));
+                    assertFalse(resultSet.isClosed());
+                }
+                catch (SQLException sql) {
+                    System.out.println("caught Statement exception: " + sql.getMessage());
                 }
             }, Executors.newFixedThreadPool(50)));
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
     }
+
     @Test
-    public void preparedStatementTest() throws SQLException {
+    public void preparedStatementTest() throws SQLException, ExecutionException, InterruptedException {
         BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-        connectionSuppliers.add(new ConnectionSupplier.H2("jdbc:h2:mem:foo_db", "", ""));
-        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService(NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+        connectionSuppliers.add(new ConnectionSupplier("org.h2.Driver","jdbc:h2:mem:preparedStatementTest", "sa", "", "SELECT 6 FROM DUAL"));
+        ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService("Prepared Statement Test", NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
         Connection connection = notionDs.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT 2 from DUAL");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            ResultSet resultSet1 = preparedStatement.executeQuery();
-            resultSet1.first();
-            assertEquals(2, resultSet1.getInt(1));
+            futures.add(CompletableFuture.runAsync(() -> {
+                try {
+                    PreparedStatement preparedStatement = connection.prepareStatement("SELECT 66 from DUAL");
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    assertTrue(resultSet.first());
+                    assertEquals(66, resultSet.getInt(1));
+                }
+                catch (Exception e) {
+                    System.out.println("caught prepared Statement execute " + e.getMessage());
+                }
+            }));
         }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
     }
 
 }

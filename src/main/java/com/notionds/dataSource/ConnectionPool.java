@@ -25,24 +25,21 @@ public class ConnectionPool {
     private final StampedLock connectionGate = new StampedLock();
     private final WrapperFactory_I wrapperFactoryI;
     private final Advice advice;
-    private final CleanupPrepare cleanupPrepare;
+    private final Prepare prepare;
     private final Options options;
+
     /**
      * Holds the ready connection objects, wrapped and active
      */
     protected final BlockingQueue<ConnectionArtifact_I<Connection>> connectionQueue = new LinkedBlockingQueue<>();
-    /**
-     * The loaned connections are held weakly and will drop out when garbage collected. They will be sent to a
-     * referenceQueue in the Cleanup class when ready
-     */
-    protected final WeakHashMap<ConnectionArtifact_I<Connection>, Instant> loanedConnections = new WeakHashMap<>();
+    protected final List<ConnectionContainer> activeConnectionContainers = new ArrayList<>();
     protected volatile NotionDs.ConnectionSupplier_I activeConnectionSupplier;
     private final Queue<NotionDs.ConnectionSupplier_I> failoverConnectionSuppliers = new ConcurrentLinkedQueue<>();
     public ConnectionPool(WrapperFactory_I wrapperFactoryI, Advice advice, Options options, Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers) {
         this.wrapperFactoryI = wrapperFactoryI;
         this.advice = advice;
         this.options = options;
-        this.cleanupPrepare = new CleanupPrepare(this);
+        this.prepare = new Prepare(this);
         connectionSuppliers.removeIf(connectionSupplierI -> !testAcquireConnection(connectionSupplierI));
         if (connectionSuppliers.isEmpty()) {
             throw new RuntimeException("Connection suppliers is empty");
@@ -51,12 +48,7 @@ public class ConnectionPool {
         this.failoverConnectionSuppliers.addAll(connectionSuppliers);
     }
     public void shutdown() {
-        for (ConnectionContainer connectionContainer: this.cleanupPrepare.timeoutCleanup.keySet()) {
-            connectionContainer.currentState = State.Empty;
-        }
         this.getCleanupPrepare().doCleanup = false;
-        this.cleanupPrepare.patrolTimeouts();
-
     }
 
     protected boolean warmPool() {
@@ -76,54 +68,53 @@ public class ConnectionPool {
         return false;
     }
 
-    public synchronized Connection getConnection() {
+    @SuppressWarnings("unchecked")
+    public Connection getConnection() {
         try {
-            ConnectionArtifact_I<Connection> connectionArtifact = connectionQueue.poll((int) options.get(Options.Integers.Timeout_Retrieve_Connection.getKey()), TimeUnit.SECONDS);
-            assert connectionArtifact != null;
-            connectionArtifact.getConnectionContainer().currentState = State.Loaned;
-            loanedConnections.put(connectionArtifact, Instant.now().plus((Duration) options.get(Options.Durations.ConnectionTimeoutOnLoan.getKey())));
-            return (Connection) connectionArtifact;
-        } catch (InterruptedException e) {
-            throw new NotionStartupException(NotionStartupException.Type.WAITED_TOO_LONG_FOR_CONNECTION, ConnectionPool.class);
+            Connection connection = (Connection) connectionQueue.poll((int) options.get(Options.Integers.Timeout_Retrieve_Connection.getKey()), TimeUnit.MILLISECONDS);
+            ConnectionContainer connectionContainer = ((ConnectionArtifact_I<Connection>) Objects.requireNonNull(connection)).getConnectionContainer();
+            connectionContainer.currentState = State.Loaned;
+            return connection;
+        } catch (InterruptedException | NullPointerException e) {
+            logger.info("Adding connection in process rather than failing");
+            return this.createNewConnection(this.activeConnectionSupplier);
         }
 
     }
-    public boolean returnConnection(ConnectionContainer connectionContainer) {
+
+    @SuppressWarnings("unchecked")
+    public void returnConnection(Connection connection, ConnectionContainer connectionContainer, String process) {
         try {
-            ConnectionArtifact_I<Connection> connection = Objects.requireNonNull(connectionContainer.get());
-            logger.trace("returning connection, artifactId " + connection.getArtifactId() + ", reuse = " + connectionContainer.addReUse());
-            this.loanedConnections.remove(connection);
-            if (connection.getConnectionContainer().getCurrentState().equals(State.Empty)) {
-                try {
-                    connection.getDelegate().close();
-                } catch (SQLException e) {
-                    logger.error("Problem closing a connection which had currentState set to close, ignoring - ArtifactId = " + connection.getArtifactId());
-                }
-                return false;
+            if (connectionContainer.currentState.equals(State.Pooled) || connectionContainer.getCurrentState().equals(State.Empty) || Instant.now().isAfter(connectionContainer.maxLifetimeExpireInstant) || activeConnectionContainers.size() > (Integer) options.get(Options.Integers.Connection_Max_Queue_Size.getKey()) ) {
+                activeConnectionContainers.remove(connectionContainer);
             }
-            if (connection.getConnectionContainer().getCurrentState().equals(State.Loaned)) {
-                connection.getConnectionContainer().currentState = State.Pooled;
-                this.connectionQueue.add(connection);
-                return true;
+            if (activeConnectionContainers.size() <= ((Integer)options.get(Options.Integers.Connection_Max_Queue_Size.getKey())) && connectionContainer.getCurrentState().equals(State.Loaned)) {
+                Connection wrappedConnection = this.wrapperFactoryI.getDelegate(connectionContainer, connection, Connection.class);
+                connectionContainer.currentState = State.Pooled;
+                this.connectionQueue.add((ConnectionArtifact_I<Connection>) wrappedConnection);
             }
+        } catch (NullPointerException npe) {
+            logger.info("Missing connection from ConnectionContainer = " + connectionContainer.containerId + ", process = " + process);
         }
-        catch (NullPointerException npe) {
-            logger.info("Missing connection from ConnectionContainer = " + connectionContainer.containerId);
-        }
-        return false;
     }
 
+    @SuppressWarnings("unchecked")
     private void addConnection(NotionDs.ConnectionSupplier_I connectionSupplier) {
+        this.connectionQueue.add((ConnectionArtifact_I<Connection>)createNewConnection(connectionSupplier));
+    }
+    private synchronized Connection createNewConnection(NotionDs.ConnectionSupplier_I connectionSupplier) {
         try {
             Connection rawConnection = connectionSupplier.getConnection();
-            ConnectionArtifact_I<Connection> added = wrapperFactoryI.getDelegate(null, rawConnection, Connection.class);
-            added.setConnectionContainer(new ConnectionContainer(connectionSupplier.getUUID(), added, this, this.wrapperFactoryI));
-            this.connectionQueue.add(added);
-            logger.info("ConnectionId=" + added.getArtifactId() + " was added to connection pool, queue_size =" + connectionQueue.size() + ", loaned = " + loanedConnections.size());
+            ConnectionContainer connectionContainer = new ConnectionContainer(connectionSupplier.getUUID(), this, this.wrapperFactoryI,(Duration) options.get(Options.Durations.ConnectionMaxLifetime.getKey()));
+            Connection created = wrapperFactoryI.getDelegate(connectionContainer, rawConnection, Connection.class);
+            this.activeConnectionContainers.add(connectionContainer);
+            logger.info("ConnectionContainerId=" + connectionContainer.containerId + " was added to connection pool, queue_size =" + connectionQueue.size() + ", total = " + activeConnectionContainers.size());
+            return created;
         } catch (SQLException e) {
             logger.error("Error creating ");
             this.throwBackProcessedException(e,null);
-            this.doFailover(connectionSupplier.getUUID(),false);
+            this.doFailover(connectionSupplier.getUUID());
+            throw new RuntimeException(e);
         }
     }
     public void processException(NotionExceptionWrapper wrappedException, ConnectionArtifact_I<?> connectionArtifact) {
@@ -133,7 +124,8 @@ public class ConnectionPool {
         }
         if (wrappedException.getRecommendation().isFailoverToNextConnectionSupplier()) {
             logger.info("failover needed for " + wrappedException.getCause().getMessage());
-            this.doFailover(connectionArtifact.getConnectionContainer().getGetConnectionSupplierUUID(),false);
+            assert connectionArtifact != null;
+            this.doFailover(connectionArtifact.getConnectionContainer().getGetConnectionSupplierUUID());
         }
     }
     /**
@@ -141,7 +133,7 @@ public class ConnectionPool {
      * @param cause the cause
      */
     public NotionExceptionWrapper throwBackProcessedException(Throwable cause, ConnectionArtifact_I<?> connectionArtifact) {
-        logger.error("throwback " + cause.getMessage() + ", connectionArtifact = " + ((connectionArtifact != null)?connectionArtifact.getArtifactId():"null"));
+        logger.error("throwback " + cause.getMessage() + ", connectionContainer = " + ((connectionArtifact != null)? connectionArtifact.getConnectionContainer().containerId:"null"));
         NotionExceptionWrapper wrappedException = switch (cause) {
             case SQLClientInfoException throwable -> this.advice.adviseSQLClientInfoException(throwable);
             case SQLException throwable -> this.advice.adviseSqlException(throwable);
@@ -156,24 +148,17 @@ public class ConnectionPool {
     }
     /**
      * Updates the active connection supplier
-     * @param burnPreviousConnections clears connections which may still be active from a previous connection supplier
+     * @param offendingConnectionUUID is the connection id which failed
      */
-    public void doFailover(UUID offendingConnectionUUID, Boolean burnPreviousConnections) {
+    public void doFailover(UUID offendingConnectionUUID) {
         if (offendingConnectionUUID == null || offendingConnectionUUID.equals(activeConnectionSupplier.getUUID())) {
             long stamp = connectionGate.writeLock();
-            logger.error("do failover - burn = " + burnPreviousConnections + " current login = " + activeConnectionSupplier.getUUID() + ", offending login = " + offendingConnectionUUID);
+            logger.error("do failover - current login = " + activeConnectionSupplier.getUUID() + ", offending login = " + offendingConnectionUUID);
             try {
                 if (offendingConnectionUUID == null || offendingConnectionUUID.equals(activeConnectionSupplier.getUUID())) {
                     NotionDs.ConnectionSupplier_I failoverConnection = findWorkingFailover();
                     if (failoverConnection != null) {
                         this.activeConnectionSupplier = failoverConnection;
-                        if (burnPreviousConnections) {
-                            for (ConnectionContainer connectionContainer: this.cleanupPrepare.timeoutCleanup.keySet()) {
-                                if (!connectionContainer.getGetConnectionSupplierUUID().equals(activeConnectionSupplier.getUUID())) {
-                                    connectionContainer.currentState = State.Empty;
-                                }
-                            }
-                        }
                         CompletableFuture.allOf(addConnectionFutures((int) options.get(Options.Integers.Connections_Min_Active.getKey()))).get();
                     }
                     assert failoverConnection != null;
@@ -222,8 +207,8 @@ public class ConnectionPool {
         }
     }
 
-    public CleanupPrepare getCleanupPrepare() {
-        return this.cleanupPrepare;
+    public Prepare getCleanupPrepare() {
+        return this.prepare;
     }
     /**
      * A connection test which will lock out the normal 'acquireConnection' method

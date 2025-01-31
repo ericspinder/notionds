@@ -6,11 +6,11 @@ public interface WrapperFactory_I {
 
     /**
      *
-     * @param connectionContainer
-     * @param delegate
+     * @param connectionContainer connection container
+     * @param delegate the delegated class
      * @param delegateClassCreated this is the wrapped delegate
-     * @return
+     * @return the wrapped delegate
      */
-    <D> ConnectionArtifact_I<D> getDelegate(ConnectionContainer connectionContainer, D delegate, Class<D> delegateClassCreated, Object... args);
+    <D> D getDelegate(ConnectionContainer connectionContainer, D delegate, Class<D> delegateClassCreated, Object... args);
 
 }

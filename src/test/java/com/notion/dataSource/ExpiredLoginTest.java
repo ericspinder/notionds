@@ -1,8 +1,8 @@
 package com.notion.dataSource;
 
 import com.notionds.dataSource.ConnectionPool;
-import com.notionds.dataSource.ConnectionSupplier;
 import com.notionds.dataSource.NotionDs;
+import com.notionds.dataSource.UserNamePasswordConnectionSupplier;
 import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.jdbcProxy.WrapperFactory;
 import com.notionds.dataSource.exceptions.Advice;
@@ -16,8 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ExpiredLoginTest {
     @Test
@@ -25,7 +24,7 @@ public class ExpiredLoginTest {
         BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
         MutableConnectionSupplier mutableConnectionSupplier = new MutableConnectionSupplier("org.h2.Driver", "jdbc:h2:mem:expired_login", "sa", "", "SELECT 0 FROM DUAL");
         connectionSuppliers.add(mutableConnectionSupplier);
-        connectionSuppliers.add(new ConnectionSupplier("org.h2.Driver","jdbc:h2:mem:foo_db", "sa", "", "SELECT 1 FROM DUAL"));
+        connectionSuppliers.add(new UserNamePasswordConnectionSupplier("org.h2.Driver","jdbc:h2:mem:foo_db", "sa", "", "SELECT 1 FROM DUAL"));
         ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(), new Advice.Default(), NotionDs.DEFAULT_OPTIONS_INSTANCE, connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
 
@@ -46,6 +45,7 @@ public class ExpiredLoginTest {
                     Connection connection = notionDs.getConnection();
                     CallableStatement callableStatement = connection.prepareCall("Select 22 from dual");
                     ResultSet resultSet = callableStatement.executeQuery();
+                    assertTrue(resultSet.first());
                     connection.close();
                 }
                 catch (Exception e) {
@@ -59,9 +59,9 @@ public class ExpiredLoginTest {
     @Test
     public void failedLogin() throws SQLException {
         BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-        connectionSuppliers.add(new ConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "badUser", "badPass","SELECT 2 FROM DUAL"));
-        connectionSuppliers.add(new ConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "sa", "", "SELECT 3 FROM DUAL"));
-        connectionSuppliers.add(new ConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "badUser2", "badPass", "SELECT 4 FROM DUAL"));
+        connectionSuppliers.add(new UserNamePasswordConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "badUser", "badPass","SELECT 2 FROM DUAL"));
+        connectionSuppliers.add(new UserNamePasswordConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "sa", "", "SELECT 3 FROM DUAL"));
+        connectionSuppliers.add(new UserNamePasswordConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "badUser2", "badPass", "SELECT 4 FROM DUAL"));
         ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
 
@@ -73,8 +73,8 @@ public class ExpiredLoginTest {
         resultSet1.first();
         assertEquals(33, resultSet1.getInt(1));
 
-        connectionPool.addFailover(new ConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "badUser3", "", "SELECT 1 FROM DUAL"));
-        connectionSuppliers.add(new ConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "sa", "", "SELECT 5 FROM DUAL"));
+        connectionPool.addFailover(new UserNamePasswordConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "badUser3", "", "SELECT 1 FROM DUAL"));
+        connectionSuppliers.add(new UserNamePasswordConnectionSupplier("org.h2.Driver","jdbc:h2:mem:failedLogin", "sa", "", "SELECT 5 FROM DUAL"));
 
         CallableStatement callableStatement = connection2.prepareCall("select * from (Select 44 from dual) d");
         assertInstanceOf(ConnectionArtifact_I.class, callableStatement);

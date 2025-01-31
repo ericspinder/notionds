@@ -23,7 +23,7 @@ public class Options {
         Management_JMX("com.notionds.jmx.management", "JMX management mBean Implementation", "com.notionds.dataSource.jmx.NotionDsBean"),
         Logging_Replace_Regex("com.notionds.logging.replace_regex", "a pattern to replace sensitive sql, note that this is very implementation specific. The default regex is only for testing and hides 'DUAL'","DUAL"),
         Logging_Mask("com.notionds.logging.mask", "a replacement mask", "****"),
-        Logging_Method_REGEX("com.notionds.logging.method_regex", "The regex for the method or methods which need have an InvokeAccounting created", "^execute.*")
+        Logging_Method_REGEX("com.notionds.logging.method_regex", "The regex for the method or methods which need have an InvokeAccounting created, not recommended to change", "^execute.*")
         ;
         private final String key;
         private final String description;
@@ -72,8 +72,7 @@ public class Options {
     public enum Integers implements Option<Integer>  {
         Connection_Max_Queue_Size("com.notionds.connection.Max_Queue_Size", "Max Connection Queue size", 50),
         Connections_Min_Active("com.notionds.connection.min_queue_size", "",5),
-        Timeout_Retrieve_Connection("com.notionds.datasource.ConnectionPool.timeout_retrieve_connection","Login timeout in seconds", 10);
-        ;
+        Timeout_Retrieve_Connection("com.notionds.datasource.ConnectionPool.timeout_retrieve_connection","Login timeout in milliseconds before a connection is made 'in thread'", 2000);
         private final String key;
         private final String description;
         private final Integer defaultValue;
@@ -94,9 +93,6 @@ public class Options {
     }
     public enum Durations implements Option<Duration> {
 
-        ConnectionTimeoutInPool("com.notionds.connections_timeout_in_pool", "Amount of time connections will wait in the pool before reaping excess of the number of active in pool connections", java.time.Duration.of(20, ChronoUnit.MINUTES)),
-        ConnectionTimeoutInPool_Cool_Down("com.notionds.connections_timeout_in_pool_cool_down","Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections", java.time.Duration.of(60, ChronoUnit.SECONDS)),
-        ConnectionTimeoutOnLoan("com.notionds.connection_timeout_on_loan","Default max time before connection is automatically closed, breaking loaned connections", java.time.Duration.of(360, ChronoUnit.MINUTES)),
         ConnectionMaxLifetime("com.notionds.connection_timeout_max_lifetime","Max lifetime of a connection", java.time.Duration.of(2, ChronoUnit.HOURS)),
         ;
         private final String key;
@@ -122,7 +118,6 @@ public class Options {
         Enable_Masking("com.notionds.logging.enableMask","Enables masking for sensitive parts of SQL statements, note that this is very implementation specific", true);
 //        Logging("com.notion.connection.delegation.jdbcProxy.logging.UseLogging", "Use ProxyV1 logging", false),
 //        LogNonExecuteProxyMembers("com.notion.connection.delegation.jdbcProxy.logging.LogNonExecuteProxyMembers", "Use a proxy wrapper for even non-execute proxy member classes, when logging is turned on", false),
-        ;
         private final String key;
         private final String description;
         private final Boolean defaultValue;
@@ -155,7 +150,6 @@ public class Options {
         this.setOpeningValues(overrideValues, Strings.values(), Integers.values(), Longs.values(),Booleans.values(),Durations.values());
     }
 
-    @SuppressWarnings("unchecked")
     public Object get(String key) {
         if (this.allOptions.containsKey(key)) {
             return this.allOptions.get(key);

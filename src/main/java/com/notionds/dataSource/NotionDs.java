@@ -26,7 +26,7 @@ public class NotionDs implements DataSource {
         this.connectionPool = connectionPool;
         if (this.connectionPool.warmPool()) {
             Thread cleaningThread = new Thread(this.connectionPool.getCleanupPrepare());
-            cleaningThread.setName("Cleaning thread " + UUID.randomUUID());
+            cleaningThread.setName("CleanPrepare " + UUID.randomUUID());
             cleaningThread.start();
             Runtime.getRuntime().addShutdownHook(new Thread(connectionPool::shutdown));
         }
@@ -48,7 +48,7 @@ public class NotionDs implements DataSource {
     }
 
     @Override
-    public PrintWriter getLogWriter() throws SQLException {
+    public PrintWriter getLogWriter() {
         return null;
     }
 
@@ -57,19 +57,23 @@ public class NotionDs implements DataSource {
         throw new SQLFeatureNotSupportedException("setLogWriter(PrintWriter out) is unsupported");
     }
 
+    /**
+     * Note that this is in milliseconds rather than Seconds as described by the API
+     * @param milliseconds the data source login time limit
+     */
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-        this.connectionPool.getOptions().setValue(Options.Integers.Timeout_Retrieve_Connection.getKey(), seconds);
+    public void setLoginTimeout(int milliseconds) {
+        this.connectionPool.getOptions().setValue(Options.Integers.Timeout_Retrieve_Connection.getKey(), milliseconds);
     }
 
     @Override
-    public int getLoginTimeout() throws SQLException {
-        return (int) this.connectionPool.getOptions().get(Options.Integers.Timeout_Retrieve_Connection.getKey());
+    public int getLoginTimeout() {
+        return (int) this.connectionPool.getOptions().get(Options.Integers.Timeout_Retrieve_Connection.getKey())/1000;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         if (iface.isAssignableFrom(this.getClass())) {
             return (T) this;
         }
@@ -77,7 +81,7 @@ public class NotionDs implements DataSource {
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         return false;
     }
 

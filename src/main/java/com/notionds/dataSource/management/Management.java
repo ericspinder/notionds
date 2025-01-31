@@ -27,11 +27,7 @@ public abstract class Management {
          */
         Supplier<Duration> maxConnectionLifetime_getter = () -> (Duration) this.options.get(Options.Durations.ConnectionMaxLifetime.getKey());
         Consumer<Duration> maxConnectionLifetime_setter = (Duration maxConnectionLifetime) -> this.options.setValue(Options.Durations.ConnectionMaxLifetime.getKey(), maxConnectionLifetime);
-        /*
-         * Default timeout when loaned out
-         */
-        Supplier<Duration> timeOnLoan_getter = () -> (Duration) this.options.get(Options.Durations.ConnectionTimeoutOnLoan.getKey());
-        Consumer<Duration> timeOnLoan_setter = (Duration timeoutOnLoan_default) -> this.options.setValue(Options.Durations.ConnectionTimeoutOnLoan.getKey(), timeoutOnLoan_default);
+
         /*
          * Duration split into TimeUnits for efficient use in the poll method
          */
@@ -52,8 +48,6 @@ public abstract class Management {
         this.getterSupplierList.put("maxConnectionLifetime", maxConnectionLifetime_getter);
         this.setterConsumerList.put("maxConnectionLifetime", maxConnectionLifetime_setter);
         attributeList.add(new MBeanAttributeInfo("timeOnLoan", "java.lang.Duration", "Default timeout when loaned out", true, true, false));
-        this.getterSupplierList.put("timeOnLoan", timeOnLoan_getter);
-        this.setterConsumerList.put("timeOnLoan", timeOnLoan_setter);
         attributeList.add(new MBeanAttributeInfo("connectionRetrieve", "java.lang.Duration", "Duration split into TimeUnits for efficient use in the poll method", true, true, false));
         this.getterSupplierList.put("connectionRetrieve", connectionRetrieve_getter);
         this.setterConsumerList.put("connectionRetrieve", connectionRetrieve_setter);
@@ -64,7 +58,7 @@ public abstract class Management {
         this.getterSupplierList.put("minActiveConnections", minActiveConnections_getter);
         this.setterConsumerList.put("minActiveConnections", minActiveConnections_setter);
 
-        return new MBeanInfo(instanceName, "Notion Data Source Management Interface", attributeList.toArray(new MBeanAttributeInfo[attributeList.size()]), null, null, null);
+        return new MBeanInfo(instanceName, "Notion Data Source Management Interface", attributeList.toArray(new MBeanAttributeInfo[0]), null, null, null);
     }
 
     public MBeanInfo getMBeanInfo() {

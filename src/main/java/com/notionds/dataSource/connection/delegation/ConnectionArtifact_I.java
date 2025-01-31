@@ -2,35 +2,29 @@ package com.notionds.dataSource.connection.delegation;
 
 import com.notionds.dataSource.ConnectionContainer;
 
-import java.time.Instant;
-import java.util.UUID;
+import java.lang.ref.Cleaner;
+import java.sql.Connection;
 
-public interface ConnectionArtifact_I<D> extends Comparable<ConnectionArtifact_I<?>> {
+public interface ConnectionArtifact_I<D> {
 
-    UUID getArtifactId();
+    Cleaner CLEANER = Cleaner.create();
 
-    ConnectionContainer getConnectionContainer();
+    InnerState<D> getInnerState();
 
-    /**
-     * This should always skip if the ConnectionContainer has been set already.
-     */
-    void setConnectionContainer(ConnectionContainer connectionContainer);
+    default ConnectionContainer getConnectionContainer() {
+        return this.getInnerState().connectionContainer();
+    }
+    default D getDelegate() {
+        return this.getInnerState().delegate();
+    }
 
-    D getDelegate();
 
-    Instant getCreateInstant();
-
-    default int compareTo(ConnectionArtifact_I<?> that) {
-        if (this == that) {
-            return 0;
-        }
-        if (that == null) {
-            return -1;
-        }
-        int isZero = this.getCreateInstant().compareTo(((ConnectionArtifact_I<?>) that).getCreateInstant());
-        if (isZero == 0) {
-            return this.getArtifactId().compareTo(that.getArtifactId());
-        }
-        return isZero;
+    record InnerState<D>(D delegate, ConnectionContainer connectionContainer) implements Runnable {
+        @Override
+            public void run() {
+                if (delegate instanceof Connection) {
+                    this.connectionContainer.getConnectionPool().returnConnection((Connection) delegate, connectionContainer, "Cleaner");
+                }
+            }
     }
 }

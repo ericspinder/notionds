@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
+public class UserNamePasswordConnectionSupplier implements NotionDs.ConnectionSupplier_I {
 
     private final UUID uuid = UUID.randomUUID();
     private final String url;
@@ -13,7 +13,7 @@ public class ConnectionSupplier implements NotionDs.ConnectionSupplier_I {
     private final String password;
     private final String testSQL;
 
-    public ConnectionSupplier(String driverClassName, String url, String username, String password, String testSQL) {
+    public UserNamePasswordConnectionSupplier(String driverClassName, String url, String username, String password, String testSQL) {
         this.url = url;
         this.username = username;
         this.password = password;

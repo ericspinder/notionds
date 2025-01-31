@@ -1,35 +1,43 @@
 package com.notionds.dataSource;
 
 import com.notionds.dataSource.connection.State;
-import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import com.notionds.dataSource.connection.delegation.WrapperFactory_I;
 
-import java.lang.ref.SoftReference;
-import java.sql.Connection;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConnectionContainer extends SoftReference<ConnectionArtifact_I<Connection>> implements Comparable<ConnectionContainer> {
+public class ConnectionContainer implements Comparable<ConnectionContainer> {
 
-    public final UUID containerId = UUID.randomUUID();
-    public final Instant createInstant = Instant.now();
+    protected final UUID containerId = UUID.randomUUID();
+    protected final Instant createInstant = Instant.now();
+    protected final Instant maxLifetimeExpireInstant;
     private final WrapperFactory_I connectionWrapper;
     private final ConnectionPool connectionPool;
     protected volatile State currentState;
     private final UUID getConnectionSupplierUUID;
     private final AtomicInteger count = new AtomicInteger();
 
-    public ConnectionContainer(UUID connectionSupplierUUID, ConnectionArtifact_I<Connection> connection, ConnectionPool connectionPool, WrapperFactory_I connectionWrapper) {
-        super(connection,connectionPool.getCleanupPrepare().getConnectionReferenceQueue());
+    public ConnectionContainer(UUID connectionSupplierUUID, ConnectionPool connectionPool, WrapperFactory_I connectionWrapper, Duration initialConnectionTimeout) {
         this.getConnectionSupplierUUID = connectionSupplierUUID;
         this.connectionPool = connectionPool;
         this.connectionWrapper = connectionWrapper;
         this.currentState = State.Pooled;
+        this.maxLifetimeExpireInstant = Instant.now().plus(initialConnectionTimeout);
     }
     public UUID getContainerId() {
         return containerId;
     }
+
+    public Instant getCreateInstant() {
+        return createInstant;
+    }
+
+    public Instant getMaxLifetimeExpireInstant() {
+        return maxLifetimeExpireInstant;
+    }
+
     public UUID getGetConnectionSupplierUUID() {
         return getConnectionSupplierUUID;
     }
@@ -40,6 +48,7 @@ public class ConnectionContainer extends SoftReference<ConnectionArtifact_I<Conn
     public WrapperFactory_I getConnectionWrapper() {
         return connectionWrapper;
     }
+
 
     @Override
     public int compareTo(ConnectionContainer that) {

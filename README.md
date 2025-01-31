@@ -1,6 +1,17 @@
 # Notion DataSource
 
-A pooling JDBC datasource wrapper with automatic failover, which tests the connection before using it in all cases. It prevents lockouts by testing connections before use.
+A pooling JDBC datasource wrapper with automatic failover, which tests the connection before using it in all cases; it prevents login failure lockouts by testing each connection before use. 
+
+The API allows new failover connections to be added at anytime, the most common use case would be implementing password changes without restarting the application.
+
+The ConnectionSupplier_I interface also allows custom connection integrations including authentication of user/password managers such as CyberArk (for hiding credentials from the plain text platform configuration), as well as adding additional properties as needed.
+
+It's also designed to 'never starve connections' and if no connection is available from the connectionQueue within the configured time.
+
+The ability to create logging of maskable SQL statements (statements, prepared statements and callable) is a major feature. Note that the default mask is simply 'DUAL' (the default testing SQL statement), to properly use it you will need to override the masking option with a regex appropriate for your use case.
+
+Note that it uses the Java Cleaner API and is only allows Java 9 at the minimum. 
+
 
 ### Main classes
 
@@ -24,42 +35,39 @@ A pooling JDBC datasource wrapper with automatic failover, which tests the conne
         com.notionds.dataSource.connection.delegation.jdbcProxy.WrapperFactory is the Java proxy implementation of it, currently used as the defualt
         
         com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingWrapperFactory is the logging version of the same desgin
-            Note that logging is not yet released, the implemention isn't fully tested but is generally running.
+            This configures logging, note that it is highly recommended that you prevent sensative account information from leaking into the logs by overriding the "com.notionds.logging.replace_regex" Options property.
 
-#### com.notion.datasource.Options is the mutable property options container. Adding the keys and appropriate objects into the java properties created for it's constructor will enable an override as well as changing the value while running 
+#### com.notionds.datasource.Options is the mutable property options container. Adding the keys and appropriate objects into the java properties created for it's constructor will enable an override as well as changing the value while running 
+        Strings:
+    com.notionds.logging.replace_regex - a pattern to replace sensitive sql, note that this is very implementation specific. The default regex is only for testing and simply hides the exact phrase 'DUAL'
+    com.notionds.logging.mask - a replacement mask, defualt is "****"
+
         Integer:
-    com.notionds.advice.exception.aggregatorMap.maxSize - The number of exceptions to keep in the logging aggregator default is 1000
-    com.notionds.advice.nominal.aggregatorMap.maxSize - The number of nomial logging entries to hold in memory, deault is 1000),
-    com.notionds.connection.max_weight_on_create - The maximum amount of time in milliseconds until a RuntimeException is thrown to end", 1000
     com.notionds.connection.Max_Queue_Size - Maximum connections held in memory, default is 50 but it's not a hard limit, threading consideration may cause it to be exceeded but not by much.
     com.notionds.connection.min_queue_size - Minimum connections held in memory, also will try to keep the avaiable queue size at this number, until maximum. Default is 5
-    com.notionds.datasource.ConnectionPool.timeout_retrieve_connection - Login timeout in seconds, default is 10);
+    com.notionds.datasource.ConnectionPool.timeout_retrieve_connection - Login timeout in milliseconds, default is 2000;
         
-        Duration:
-    com.notionds.connections_timeout_in_pool - Amount of time connections will wait in the pool before reaping excess of the number of active in pool connections, Default is java.time.Duration.of(20, ChronoUnit.MINUTES)),
-    com.notionds.connections_timeout_in_pool_cool_down - Minimum amount of time between reaping extra active connections, this creates a walk down from the maximum number of connections. Default is java.time.Duration.of(60, ChronoUnit.SECONDS)),
-    com.notionds.connection_timeout_on_loan - Default max time before connection is automatically closed, breaking loaned connections. Default is java.time.Duration.of(360, ChronoUnit.MINUTES)),
+        Durations:
     com.notionds.connection_timeout_max_lifetime - Max lifetime of a connection. Default is java.time.Duration.of(2, ChronoUnit.HOURS)),
+    
+        Booleans:
+    com.notionds.logging.enableMask - Enables masking for sensitive parts of SQL statements, note that this is very implementation specific, default is true but only masks 'DUAL' unless a String option is set
 
-Typical usage (from unit test)
+Typical usage (from unit test):
 
-        Queue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
-        connectionSuppliers.add(new ConnectionSupplier.Default("jdbc:h2:mem:foo_db", "", ""));
-        ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default_H2(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
-        NotionDs notionDs = new NotionDs(connectionPool);
-        Connection wrappedConnection = notionDs.getConnection();
-        assertInstanceOf(ConnectionArtifact_I.class,wrappedConnection);
+    BlockingQueue<NotionDs.ConnectionSupplier_I> connectionSuppliers = new LinkedBlockingDeque<>();
+    connectionSuppliers.add(new UserNamePasswordConnectionSupplier("org.h2.Driver","jdbc:h2:mem:preparedStatementTest", "sa", "", "SELECT 7 FROM DUAL"));
+    ConnectionPool connectionPool = new ConnectionPool(new WrapperFactory(),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
+    NotionDs notionDs = new NotionDs(connectionPool);
+    try (Connection wrappedConnection = notionDs.getConnection()) {
         Statement statement = wrappedConnection.createStatement();
-        assertInstanceOf(ConnectionArtifact_I.class, statement);
-        statement.execute("Select 1 from DUAL");
+        statement.execute("Select 77 from DUAL");
         ResultSet resultSet = statement.getResultSet();
-        assertInstanceOf(ConnectionArtifact_I.class, resultSet);
         resultSet.first();
-        assertEquals(1, resultSet.getInt(1));
+        assertEquals(77, resultSet.getInt(1));
         assertFalse(resultSet.isClosed());
         resultSet.close();
-        assertTrue(resultSet.isClosed());
-        assertFalse(wrappedConnection.isClosed());
-        wrappedConnection.close();
-        assertFalse(wrappedConnection.isClosed());
-        assertEquals(((ConnectionArtifact_I<Connection>) wrappedConnection).getConnectionContainer().getCurrentState(), State.Pooled);
+    } 
+    catch (SQLException e) {
+        throw new RuntimeException(e);
+    }

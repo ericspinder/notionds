@@ -6,164 +6,111 @@ import com.notionds.dataSource.connection.delegation.ConnectionArtifact_I;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
-import java.time.Instant;
-import java.util.UUID;
 
 public class ReaderConnectionArtifact extends Reader implements ConnectionArtifact_I<Reader> {
 
-    private final UUID uuid = UUID.randomUUID();
-    private final Instant createInstant = Instant.now();
-    private ConnectionContainer connectionContainer;
-    private final Reader delegate;
-
-    public ReaderConnectionArtifact(ConnectionContainer connectionContainer, Reader delegate) {
-        this.connectionContainer = connectionContainer;
-        this.delegate = delegate;
-    }
-    @Override
-    public UUID getArtifactId() {
-        return this.uuid;
-    }
-    @Override
-    public ConnectionContainer getConnectionContainer() {
-        return this.connectionContainer;
+    protected final InnerState<Reader> innerState;
+    public ReaderConnectionArtifact(Reader delegate,ConnectionContainer connectionContainer) {
+        this.innerState = new InnerState<>(delegate, connectionContainer);
     }
 
     @Override
-    public void setConnectionContainer(ConnectionContainer connectionContainer) {
-        if (this.connectionContainer == null) this.connectionContainer = connectionContainer;
-    }
-
-    @Override
-    public Reader getDelegate() {
-        return null;
-    }
-
-    @Override
-    public Instant getCreateInstant() {
-        return this.createInstant;
+    public InnerState<Reader> getInnerState() {
+        return innerState;
     }
 
     @Override
     public int read(CharBuffer target) throws IOException {
         try {
-            return delegate.read(target);
+            return getDelegate().read(target);
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
     }
 
     @Override
     public int read() throws IOException {
         try {
-            return delegate.read();
+            return getDelegate().read();
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
     }
 
     @Override
     public int read(char[] cbuf) throws IOException {
         try {
-            return delegate.read(cbuf);
+            return getDelegate().read(cbuf);
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
     }
 
     @Override
     public boolean markSupported() {
-        return delegate.markSupported();
+        return getDelegate().markSupported();
     }
 
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
         try {
-            return delegate.read(cbuf, off, len);
+            return getDelegate().read(cbuf, off, len);
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
     }
 
     @Override
     public long skip(long n) throws IOException {
         try {
-            return delegate.skip(n);
+            return getDelegate().skip(n);
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
     }
 
     @Override
     public boolean ready() throws IOException {
         try {
-            return delegate.ready();
+            return getDelegate().ready();
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
     }
 
     @Override
     public void mark(int readAheadLimit) throws IOException {
         try {
-            delegate.mark(readAheadLimit);
+            getDelegate().mark(readAheadLimit);
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
     }
 
     @Override
     public void reset() throws IOException {
         try {
-            delegate.reset();
+            getDelegate().reset();
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
-        }
-    }
-
-    public void closeDelegate() {
-        try {
-            this.delegate.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
     }
 
     @Override
     public void close() throws IOException {
         try {
-            this.delegate.close();
+            this.getDelegate().close();
         }
         catch (IOException ioe) {
-            throw (IOException) connectionContainer.getConnectionPool().throwBackProcessedException(ioe, this);
+            throw (IOException) getConnectionContainer().getConnectionPool().throwBackProcessedException(ioe, this);
         }
-    }
-    @Override
-    public final boolean equals(final Object that) {
-        if (this == that) {
-            return true;
-        }
-        if (that == null) {
-            return false;
-        }
-        if (!(that instanceof ConnectionArtifact_I other)) {
-            return false;
-        }
-        if (this.getArtifactId()== null) {
-            if (other.getArtifactId() != null) {
-                return false;
-            }
-        } else if (!this.getArtifactId().equals(other.getArtifactId())) {
-            return false;
-        }
-        return true;
     }
 }

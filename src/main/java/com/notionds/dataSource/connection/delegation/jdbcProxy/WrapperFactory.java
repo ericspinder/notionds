@@ -21,13 +21,11 @@ public class WrapperFactory implements WrapperFactory_I {
 
     private static final Logger logger = LogManager.getLogger(WrapperFactory.class);
 
-    public static final WrapperFactory DEFAULT_INSTANCE = new WrapperFactory();
-
     public WrapperFactory() {}
 
     @Override
     @SuppressWarnings("unchecked")
-    public <D> ConnectionArtifact_I<D> getDelegate(ConnectionContainer connectionContainer, D delegate, Class<D> delegateClassCreated, Object... args) {
+    public <D> D getDelegate(ConnectionContainer connectionContainer, D delegate, Class<D> delegateClassCreated, Object... args) {
         if (delegateClassCreated.isInterface()) {
             Class<D>[] interfaces = (Class<D>[]) this.getConnectionMemberInterfaces(delegateClassCreated);
             if (interfaces != null) {
@@ -37,37 +35,33 @@ public class WrapperFactory implements WrapperFactory_I {
             throw new NotionStartupException(NotionStartupException.Type.ReflectiveOperationFailed, this.getClass());
         }
         else if (delegate instanceof InputStream) {
-            return (ConnectionArtifact_I<D>) this.createInputStreamDelegate(connectionContainer, (InputStream) delegate, args);
+            return (D) this.createInputStreamDelegate(connectionContainer, (InputStream) delegate, args);
         }
         else if (delegate instanceof OutputStream) {
-            return (ConnectionArtifact_I<D>) this.createOutputStreamDelegate(connectionContainer, (OutputStream) delegate, args);
+            return (D) this.createOutputStreamDelegate(connectionContainer, (OutputStream) delegate, args);
         }
         else if (delegate instanceof Reader) {
-            return (ConnectionArtifact_I<D>) this.createReaderDelegate(connectionContainer, (Reader) delegate, args);
+            return (D) this.createReaderDelegate(connectionContainer, (Reader) delegate, args);
         }
         logger.error("ProxyDelegation is unable to create: " + delegateClassCreated.getCanonicalName());
         throw new RuntimeException("ProxyDelegation is unable to create: " + delegateClassCreated.getCanonicalName());
     }
 
     @SuppressWarnings("unchecked")
-    protected <D> ConnectionArtifact_I<D> getProxyMember(Class<?>[] interfaces, ConnectionContainer connectionContainer, D delegate, Object[] args) {
-        return (ConnectionArtifact_I<D>) Proxy.newProxyInstance(WrapperFactory.class.getClassLoader(), interfaces, new ProxyConnectionArtifact<>(connectionContainer,delegate));
+    protected <D> D getProxyMember(Class<?>[] interfaces, ConnectionContainer connectionContainer, D delegate, Object[] args) {
+        return (D) Proxy.newProxyInstance(WrapperFactory.class.getClassLoader(), interfaces, new ProxyConnectionArtifact<>(connectionContainer,delegate));
     }
 
-    protected ConnectionArtifact_I<InputStream> createInputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, Object[] args) {
-        return new InputStreamConnectionArtifact(connectionContainer, delegate);
+    protected InputStream createInputStreamDelegate(ConnectionContainer connectionContainer, InputStream delegate, Object[] args) {
+        return new InputStreamConnectionArtifact(delegate, connectionContainer);
     }
 
-    protected ConnectionArtifact_I<OutputStream> createOutputStreamDelegate(ConnectionContainer connectionContainer, OutputStream delegate, Object[] args) {
-        return new OutputStreamConnectionArtifact(connectionContainer, delegate);
+    protected OutputStream createOutputStreamDelegate(ConnectionContainer connectionContainer, OutputStream delegate, Object[] args) {
+        return new OutputStreamConnectionArtifact(delegate, connectionContainer);
     }
 
-    protected ConnectionArtifact_I<Reader> createReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, Object[] args) {
-        return new ReaderConnectionArtifact(connectionContainer, delegate);
-    }
-
-    protected <D> ProxyConnectionArtifact<D> createProxyMember(ConnectionContainer connectionContainer, D delegate, Object[] args) {
-        return new ProxyConnectionArtifact<>(connectionContainer, delegate);
+    protected Reader createReaderDelegate(ConnectionContainer connectionContainer, Reader delegate, Object[] args) {
+        return new ReaderConnectionArtifact(delegate, connectionContainer);
     }
 
     protected Class<?>[] getConnectionMemberInterfaces(Class<?> clazz)  {
@@ -82,7 +76,7 @@ public class WrapperFactory implements WrapperFactory_I {
         classes.add(clazz);
         classes.addAll(Arrays.stream(clazz.getInterfaces()).toList());
         classes.add(ConnectionArtifact_I.class);
-        Class<?>[] classArray = classes.toArray( new Class[classes.size()]);
+        Class<?>[] classArray = classes.toArray(new Class[0]);
         interfacesCache.put(clazz.getCanonicalName(), classArray);
         return classArray;
     }

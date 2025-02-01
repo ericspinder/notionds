@@ -1,3 +1,4 @@
+[![Java CI with Gradle](https://github.com/ericspinder/notionds/actions/workflows/gradle.yml/badge.svg)](https://github.com/ericspinder/notionds/actions/workflows/gradle.yml)
 # Notion DataSource
 
 A pooling JDBC datasource wrapper with automatic failover, which tests the connection before using it in all cases; it prevents login failure lockouts by testing each connection before use. 
@@ -15,29 +16,39 @@ Note that it uses the Java Cleaner API and is only allows Java 9 at the minimum.
 
 ### Main classes
 
-#### com.notionds.datasource.NotionDs - the datasource which takes one parameter, the configured ConnectionPool
+#### com.notionds.datasource.NotionDs
+the datasource which takes one parameter, the configured ConnectionPool:
+    
+    com.notionds.datasource.ConnectionPool(WrapperFactory_I wrapperFactory,Advice advice, Options options,ConnectionSupplier_I connectionSupplier)
 
-#### com.notionds.datasource.ConnectionPool - the connection pool, has 5 parameters...
+#### com.notionds.datasource.ConnectionPool 
+the connection pool, has 4 parameters and is the heart of the datasource pooling:
+
+    com.notionds.datasource.connection.delegation.WrapperFactory_I    
+    com.notionds.datasource.Advise
+    com.notionds.datasource.Options
+    com.notionds.datasource.ConnectionSupplier_I
+
+#### com.notionds.dataSource.connection.delegation.WrapperFactory_I 
+wraps all the database objects into a com.notionds.dataSource.connection.delegation.ConnectionArtifact_I:
+
+    com.notionds.dataSource.connection.delegation.jdbcProxy.WrapperFactory is the Java proxy implementation of it, currently used as the defualt 
+        
+    com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingWrapperFactory is the logging version of the same desgin
+            This configures logging, note that it is highly recommended that you prevent sensative account information from leaking into the logs by overriding the "com.notionds.logging.replace_regex" Options property.
 
 #### com.notionds.datasource.Advise - the Exception advise has 5 abstract methods, which handles any throwable which may be presented by the underlying JDBC driver. One may implement it for specific handling or use the general default.
-        
+the Advise.Default instance handles login failures.
+
         protected abstract Recommendation parseSQLException(SQLException sqlException);
         protected abstract Recommendation parseSQLClientInfoException(SQLClientInfoException sqlClientInfoException);
         protected abstract Recommendation parseIOException(IOException ioException);
         protected abstract Recommendation parseException(Exception exception);
         protected abstract Recommendation parseThrowable(Throwable throwable);
 
-
-#### com.notionds.datasource.ConnectionSupplier_I interface allows for a custom database connection classes to be implemented as needed. Taken as a queue, the first entry is polled at startup and used as the active connection, the rest are kept in order and kept as failover connections. You may also add failover connections ad hoc and all of them are tested, both on entry and upon first use. One may also manually induce a failover by a public method on the ConnectionPool.
-       the com.notionds.datasource.ConnectionSupplier class is an immutable implementation which handles typical JDBC database configuration (driver class, username, password, test SQL)
-
-#### com.notionds.dataSource.connection.delegation.WrapperFactory_I wraps all of the database objects into a com.notionds.dataSource.connection.delegation.ConnectionArtifact_I
-        com.notionds.dataSource.connection.delegation.jdbcProxy.WrapperFactory is the Java proxy implementation of it, currently used as the defualt
+#### com.notionds.datasource.Options 
+The mutable property options container, adding the keys and appropriate objects into the java properties created for it's constructor will enable an override as well as changing the value while running. Creating a new instance with a Map<String,Object> of override values for the ConnectionPool will enable them by default 
         
-        com.notionds.dataSource.connection.delegation.jdbcProxy.logging.LoggingWrapperFactory is the logging version of the same desgin
-            This configures logging, note that it is highly recommended that you prevent sensative account information from leaking into the logs by overriding the "com.notionds.logging.replace_regex" Options property.
-
-#### com.notionds.datasource.Options is the mutable property options container. Adding the keys and appropriate objects into the java properties created for it's constructor will enable an override as well as changing the value while running 
         Strings:
     com.notionds.logging.replace_regex - a pattern to replace sensitive sql, note that this is very implementation specific. The default regex is only for testing and simply hides the exact phrase 'DUAL'
     com.notionds.logging.mask - a replacement mask, defualt is "****"
@@ -52,6 +63,11 @@ Note that it uses the Java Cleaner API and is only allows Java 9 at the minimum.
     
         Booleans:
     com.notionds.logging.enableMask - Enables masking for sensitive parts of SQL statements, note that this is very implementation specific, default is true but only masks 'DUAL' unless a String option is set
+
+#### com.notionds.datasource.ConnectionSupplier_I 
+An interface which allows for a custom database connection classes to be implemented as needed. Taken as a queue, the first entry is polled at startup and used as the active connection, the rest are kept in order as failover connections. You may also add failover connections ad hoc and all of them are tested, both on entry and upon first use. Your application may also manually induce a failover by a public method on the ConnectionPool.
+
+        the com.notionds.datasource.UsernamePasswordConnectionSupplier class is an immutable implementation which handles typical JDBC database configuration (driver class, username, password, test SQL)
 
 Typical usage (from unit test):
 

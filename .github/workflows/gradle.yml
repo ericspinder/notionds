@@ -12,6 +12,8 @@ on:
     branches: [ "beta" ]
   pull_request:
     branches: [ "beta" ]
+  workflow_dispatch:
+
 
 jobs:
   build:

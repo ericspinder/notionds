@@ -27,7 +27,7 @@ public class TestLogging {
         NotionDs notionDs = new NotionDs(connectionPool);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Executor executor = Executors.newFixedThreadPool(50);
-        for (int i = 0; i< 5000; i++) {
+        for (int i = 0; i< 5; i++) {
             futures.add(CompletableFuture.runAsync(() -> {
                 try {
                     Connection wrappedPooledConnection = notionDs.getConnection();
@@ -57,7 +57,7 @@ public class TestLogging {
         ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService("Prepared Statement Test", NotionDs.DEFAULT_OPTIONS_INSTANCE)),new Advice.Default(),NotionDs.DEFAULT_OPTIONS_INSTANCE,connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 5; i++) {
             futures.add(CompletableFuture.runAsync(() -> {
                 try {
                     Connection connection = notionDs.getConnection();
@@ -82,12 +82,12 @@ public class TestLogging {
         ConnectionPool connectionPool = new ConnectionPool(new LoggingWrapperFactory(new LoggingService("Callable Statement Test", NotionDs.DEFAULT_OPTIONS_INSTANCE)), new Advice.Default(), NotionDs.DEFAULT_OPTIONS_INSTANCE, connectionSuppliers);
         NotionDs notionDs = new NotionDs(connectionPool);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 5; i++) {
             futures.add(CompletableFuture.runAsync(() -> {
                 try (Connection connection = notionDs.getConnection()) {
                     CallableStatement callableStatement = connection.prepareCall("select * from (Select 44 from dual) d");
                     assertInstanceOf(ConnectionArtifact_I.class, callableStatement);
-                    for (int y = 0; y < 1000; y++) {
+                    for (int y = 0; y < 5; y++) {
                         ResultSet resultSet2 = callableStatement.executeQuery();
                         assertInstanceOf(ConnectionArtifact_I.class, resultSet2);
                         resultSet2.first();

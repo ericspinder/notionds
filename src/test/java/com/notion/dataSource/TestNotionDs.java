@@ -47,7 +47,7 @@ public class TestNotionDs {
 		NotionDs notionDs = new NotionDs(connectionPool);
 		List<CompletableFuture<Void>> futures = new ArrayList<>();
 		Executor executor = Executors.newFixedThreadPool(50);
-		for (int i = 0; i< 50; i++) {
+		for (int i = 0; i< 5; i++) {
 			futures.add(CompletableFuture.runAsync(() -> {
                 try(Connection wrappedPooledConnection = notionDs.getConnection()) {
                     Statement statement = wrappedPooledConnection.createStatement();

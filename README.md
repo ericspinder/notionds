@@ -11,15 +11,15 @@ It's also designed to 'never starve connections' and if no connection is availab
 
 The ability to create logging of maskable SQL statements (statements, prepared statements and callable) is a major feature. Note that the default mask is simply 'DUAL' (the default testing SQL statement), to properly use it you will need to override the masking option with a regex appropriate for your use case.
 
-Note that it uses the Java Cleaner API and is only allows Java 9 at the minimum.
+Note that it that this project requires Java 21+ 
 
 To build and run unit tests in Windows
 
-    gradlew.bat test
+    .\gradlew.bat test
 
 To build and run unit tests in Unix systems
 
-    gradlew test
+    ./gradlew test
 
 
 
